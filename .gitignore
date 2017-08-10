@@ -1,0 +1,7 @@
+.gitignore
+.idea/
+AetherConstruction.iml
+firstbot.iml
+#src/main/java/com/codelanx/aether/common/statebot/construction/
+#src/main/resources/
+target/
