@@ -56,7 +56,7 @@ public class AetherScheduler {
         if (this.runningBotThread != null) {
             throw new IllegalStateException("Already registered bot to scheduler");
         }
-        this.runningBotThread = this.botThread.scheduleAtFixedRate(bot::loop, 0, TICK_RATE_MS, TimeUnit.MILLISECONDS);
+        this.runningBotThread = this.botThread.scheduleAtFixedRate(bot::loop, 200, TICK_RATE_MS, TimeUnit.MILLISECONDS);
     }
 
     void pause() {
