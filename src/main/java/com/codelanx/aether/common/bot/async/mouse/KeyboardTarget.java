@@ -1,10 +1,15 @@
 package com.codelanx.aether.common.bot.async.mouse;
 
+import com.codelanx.aether.common.Randomization;
 import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
+import com.runemate.game.api.hybrid.input.Keyboard;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Chatbox;
+import com.runemate.game.api.hybrid.util.calculations.Random;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by rogue on 8/13/2017.
@@ -23,7 +28,10 @@ public class KeyboardTarget extends InputTarget {
     @Override
     public void attempt() {
         this.entering = CompletableFuture.supplyAsync(() -> {
-            return true;
+            //TODO: keyboard entering, as well as manual sleep (yay our own thread)
+            double wpm = Randomization.WPM.getRandom(ThreadLocalRandom::nextDouble).doubleValue();
+            double mpc = (1000D / (wpm * 5) * 60); //WPM -> CPM -> CPS -> milliseconds per character
+            return Keyboard.type(this.input, this.enter, (int) mpc);
         }, Aether.getScheduler().getThreadPool());
     }
 

@@ -1,11 +1,14 @@
 package com.codelanx.aether.common.bot.async.mouse;
 
+import com.codelanx.aether.common.Randomization;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
-import com.runemate.game.api.hybrid.input.Keyboard;
+import com.runemate.game.api.hybrid.input.Mouse;
+import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -14,8 +17,12 @@ public enum UserInput {
     INSTANCE,
     ;
 
+    private static final long MIN_CLICK_MS = 100;
+    private static final long TASK_SWITCH_DELAY = 400;
     private final List<InputTarget> queue = new LinkedList<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final AtomicLong lastInputMs = new AtomicLong();
+    private Class<? extends InputTarget> lastInputType = null;
 
     public void registerClick(Interactable obj) {
         obj.click();
@@ -32,31 +39,64 @@ public enum UserInput {
                 target.attempt(); //immediate re-attempt
                 return true;
             }
+            INSTANCE.lastInputMs.set(System.currentTimeMillis());
             InputTarget next = INSTANCE.getNextTarget(1);
             if (next != null) {
-                actOnTarget(target, true);
+                INSTANCE.actOnTarget(target, true);
             }
+            INSTANCE.lastInputType = target.getClass();
+            INSTANCE.queue.remove(0);
         } else if (!target.isAttempting()) {
-            actOnTarget(target, false);
+            INSTANCE.actOnTarget(target, false);
         }
         return true;
     }
     
     //TODO: proper input scheduling
-    private static void actOnTarget(InputTarget target, boolean hover) {
+    private void actOnTarget(InputTarget target, boolean hover) {
+        long delay = System.currentTimeMillis() - this.lastInputMs.get();
+        if (!hover && this.lastInputType != target.getClass()) {
+            //we've got an input type switch
+            Randomization r = Randomization.TASK_SWITCHING_DELAY;
+            if (delay <= (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue())) {
+                return;
+            }
+        }
         if (target instanceof MouseTarget) {
             MouseTarget mouse = (MouseTarget) target;
-            if (mouse.getEntity().isVisible()) {
-                //precise hover
+            if (hover) {
+                if (mouse.getEntity().isVisible()) {
+                    //precise hover
+                    Mouse.move(mouse.getEntity());
+                } else {
+                    //let's kick the radius up via a rough npc oval
+                    //get our raw interaction point
+                    InteractablePoint point = mouse.getEntity().getInteractionPoint();
+                    //TODO:
+                    //InteractablePoint center;
+                    //if we were able to get the center point here, it'd be GREAT.
+                    //but alas we can't, so we resort to dirty dirty hacks
+                    //
+                    //get a hint as to a movement from our correct point to another correct point
+                    InteractablePoint hint = mouse.getEntity().getInteractionPoint(point);
+                    //now we reflect it:
+                    hint.setLocation(
+                            point.getX() + (point.getX() - hint.getX()),
+                            point.getY() + (point.getY() - hint.getY()));
+                    //and now move to our incorrect location
+                    Mouse.move(hint);
+                }
             } else {
-                //let's kick the radius up via a rough npc oval
+                if (mouse.getType() == ClickType.SIMPLE) {
+                    //schedule short
+                    if (System.currentTimeMillis() - this.lastInputMs.get() > MIN_CLICK_MS) {
+                        
+                    }
+                } else {
+                    //slightly longer scheduling
+                }
             }
-            if (mouse.getType() == ClickType.SIMPLE) {
-                //schedule short
-            } else {
-                //slightly longer scheduling
-            }
-        } else {
+        } else if (!hover) {
             //TODO: Keyboard handling, blerghehhg
         }
     }
