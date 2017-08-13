@@ -1,12 +1,14 @@
 package com.codelanx.aether.common.recipe;
 
+import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.codelanx.aether.common.item.ItemStack;
-import com.codelanx.aether.common.item.Material;
-import com.codelanx.aether.cooking.CookingBot;
+import com.codelanx.aether.bots.cooking.CookingBot;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
-import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface Recipe {
@@ -21,7 +23,7 @@ public interface Recipe {
      *
      * @return The number of itemstacks by material type
      */
-    public int getIngrediateCount();
+    public int getIngredientCount();
 
     /**
      * Returns any required side-tools for the recipe (e.g. a knife or a bracelet mould)
@@ -31,9 +33,19 @@ public interface Recipe {
     public Stream<ItemStack> getTools();
 
     default public SpriteItemQueryResults getIngredientsInInventory() {
-        int[] ids = this.getIngredients().mapToInt(ItemStack::getId).distinct().toArray();
-        String[] names = this.getIngredients().map(ItemStack::getMaterial).map(Material::getName).toArray(String[]::new);
-        return Inventory.newQuery().ids(ids).names(names).results();
+        return itemStackToTarget(this.getIngredients(), Inventory.newQuery());
+    }
+
+    default public SpriteItemQueryResults getToolsInInventory() {
+        return itemStackToTarget(this.getTools(), Inventory.newQuery());
+    }
+
+    public static SpriteItemQueryResults itemStackToTarget(Stream<ItemStack> items, SpriteItemQueryBuilder builder) {
+        Map<Integer, String> ids = items.collect(Collectors.toMap(ItemStack::getId, i -> i.getMaterial().getName()));
+        return builder
+                .ids(ids.keySet().stream().mapToInt(Integer::intValue).toArray())
+                .names(ids.values().toArray(new String[ids.values().size()]))
+                .results();
     }
 
     /**
@@ -92,7 +104,7 @@ public interface Recipe {
      */
     default public int getRemainder() {
         return this.getFullUnit().map(i -> {
-            return CookingBot.get().getInventory().get(i.getMaterial()) / i.getQuantity();
+            return AetherAsyncBot.get().getInventory().get(i.getMaterial()) / i.getQuantity();
         }).min(Integer::compare).orElse(0);
     }
 

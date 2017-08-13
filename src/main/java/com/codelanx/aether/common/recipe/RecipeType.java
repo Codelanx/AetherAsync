@@ -5,4 +5,12 @@ public enum RecipeType {
     CLICK,
     COOK,
     COMBINE,
+    ;
+
+    public static RecipeType infer(Recipe recipe) {
+        if (recipe.getIngredientCount() > 1 || recipe.getToolSpace() > 0) {
+            return RecipeType.COMBINE;
+        }
+        return RecipeType.CLICK;
+    }
 }

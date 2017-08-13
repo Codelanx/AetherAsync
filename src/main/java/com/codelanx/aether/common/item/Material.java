@@ -9,4 +9,8 @@ public interface Material {
     public String getPlural();
 
     public boolean isStackable();
+
+    default public boolean isEquippable() {
+        return false;
+    }
 }

@@ -5,6 +5,7 @@ package com.codelanx.aether.common.item;
 public enum Materials implements Material {
 
     COINS(995, "Coin", "Coins"),
+    KNIFE(946, "Knife"),
     ;
 
     private final int id;

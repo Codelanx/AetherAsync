@@ -1,0 +1,761 @@
+{
+    "items": [
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Jug of water",
+            "id": 1937
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Bucket of water",
+            "id": 1929
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Bucket of milk",
+            "id": 1927
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pot of flour",
+            "id": 1933
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pot of cream",
+            "id": 2130
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pat of butter",
+            "id": 6697
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cheese",
+            "id": 1985
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Tomato",
+            "id": 1982
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Potato",
+            "id": 1942
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Grapes",
+            "id": 1987
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Strawberry",
+            "id": 5504
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Watermelon",
+            "id": 5982
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Onion",
+            "id": 1957
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cabbage",
+            "id": 1965
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cooking apple",
+            "id": 1955
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Compost",
+            "id": 6032
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Clay",
+            "id": 434
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Zamorak's grapes",
+            "id": 20749
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Redberries",
+            "id": 1951
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Chocolate bar",
+            "id": 1973
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pineapple",
+            "id": 2114
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pineapple ring",
+            "id": 2118
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pineapple chunks",
+            "id": 2116
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Egg",
+            "id": 1944
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Sweetcorn",
+            "id": 5986
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pie dish",
+            "id": 2313
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cake tin",
+            "id": 1887
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw beef",
+            "id": 2132
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw yak meat",
+            "id": 10816
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw bear meat",
+            "id": 2136
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw rat meat",
+            "id": 2134
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw ugthanki meat",
+            "id": -1
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw chicken",
+            "id": 2138
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw bird meat",
+            "id": 997
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw chompy",
+            "id": 2876
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw oomlie",
+            "id": 2337
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw rabbit",
+            "id": 3226
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw cave eel",
+            "id": 5001
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw slimy eel",
+            "id": 3379
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Bread dough",
+            "id": 2307
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pastry dough",
+            "id": 1953
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pizza base",
+            "id": 2283
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pitta dough",
+            "id": 1863
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked cake",
+            "id": 1889
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cake",
+            "id": 1891
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Incomplete pizza",
+            "id": 2285
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked pizza",
+            "id": 2287
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Plain pizza",
+            "id": 2289
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Meat pizza",
+            "id": 2293
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Anchovy pizza",
+            "id": 2297
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pineapple pizza",
+            "id": 2301
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Baked potato",
+            "id": 6701
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Potato with butter",
+            "id": 6703
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Pie shell",
+            "id": 2315
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked berry pie",
+            "id": 2321
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked meat pie",
+            "id": 2319
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part mud pie",
+            "id": 7164
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part mud pie",
+            "id": 7166
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw mud pie",
+            "id": 7168
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked apple pie",
+            "id": 2317
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part garden pie",
+            "id": 7172
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part garden pie",
+            "id": 7174
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw garden pie",
+            "id": 7176
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part fish pie",
+            "id": 7182
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part fish pie",
+            "id": 7184
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw fish pie",
+            "id": 7186
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked botanical pie",
+            "id": 19656
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Golovanova fruit top",
+            "id": 19653
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part admiral pie",
+            "id": 7192
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part admiral pie",
+            "id": 7194
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw admiral pie",
+            "id": 7196
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part wild pie",
+            "id": 7202
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part wild pie",
+            "id": 7204
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw wild pie",
+            "id": 7206
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part summer pie",
+            "id": 7212
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Part summer pie",
+            "id": 7214
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw summer pie",
+            "id": 7216
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw shrimps",
+            "id": 317
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw pike",
+            "id": 349
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw bass",
+            "id": 363
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw anchovies",
+            "id": 321
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Anchovies",
+            "id": 319
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw karambwan",
+            "id": 3142
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw mackerel",
+            "id": 353
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw trout",
+            "id": 335
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Trout",
+            "id": 333
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw herring",
+            "id": 345
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw rainbow fish",
+            "id": 10138
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw salmon",
+            "id": 331
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Salmon",
+            "id": 329
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw tuna",
+            "id": 359
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Tuna",
+            "id": 361
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw cod",
+            "id": 341
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Cod",
+            "id": 339
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "plural": "Raw lobster",
+            "equippable": false,
+            "name": "Raw lobster",
+            "id": 377
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw swordfish",
+            "id": 371
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw monkfish",
+            "id": 7944
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw manta ray",
+            "id": 389
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw sea turtle",
+            "id": 395
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw shark",
+            "id": 383
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw dark crab",
+            "id": 11934
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Raw anglerfish",
+            "id": 13439
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Bowl of water",
+            "id": 1921
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Incomplete stew",
+            "id": 1997
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked stew",
+            "id": 2001
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Curry leaf",
+            "id": 5970
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Spice",
+            "id": 2007
+        },
+        {
+            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "stackable": false,
+            "equippable": false,
+            "name": "Uncooked curry",
+            "id": -1
+        }
+    ]
+}

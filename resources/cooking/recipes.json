@@ -1,0 +1,904 @@
+{
+  "recipes": [
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Bread dough",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1937": 1,
+        "1933": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Pitta dough",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1937": 1,
+        "1933": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Pastry dough",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1937": 1,
+        "1933": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Cake",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1887": 1,
+        "1927": 1,
+        "1933": 1,
+        "1944": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Chocolate cake",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1973": 1,
+        "1891": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Sweetcorn",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "5986": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Pizza base",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1937": 1,
+        "1933": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Incomplete Pizza",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1982": 1,
+        "2283": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked pizza",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1985": 1,
+        "2285": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Plain pizza",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2287": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Plain pizza",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2289": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Anchovy pizza",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2289": 1,
+        "319": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Pineapple pizza",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2118": 1,
+        "2289": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked berry pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "1951": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Redberry pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2321": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked meat pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2315": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Meat pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2319": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part mud pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "6032": 1,
+        "2315": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part mud pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7164": 1,
+        "1937": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw mud pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7166": 1,
+        "434": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Mud pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7168": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked apple pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "1955": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Apple pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2317": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part garden pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "1982": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part garden pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7172": 1,
+        "1957": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw garden pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1965": 1,
+        "7174": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Garden pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7176": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part fish pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "333": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part fish pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "339": 1,
+        "7182": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw fish pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1942": 1,
+        "7184": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Fish pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7186": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked botanical pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "19653": 1,
+        "2315": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Botanical pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "19656": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part admiral pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "329": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part admiral pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7192": 1,
+        "361": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw admiral pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1942": 1,
+        "7194": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Admiral pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7196": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part wild pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "2136": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part wild pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2876": 1,
+        "7202": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw wild pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "3226": 1,
+        "7204": 1
+      },
+      "tools": {}
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Wild pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7206": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part summer pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2315": 1,
+        "5504": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Part summer pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7212": 1,
+        "5982": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Raw summer pie",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "7214": 1,
+        "1955": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Summer pie",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7216": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Incomplete Stew",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1921": 1,
+        "1942": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked stew",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "1997": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Stew",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "2001": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Uncooked curry",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "2007": 1,
+        "2001": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Curry",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "-1": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Jug of wine",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1987": 1,
+        "1937": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Wine of zamorak",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "20749": 1,
+        "1937": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Shrimp",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "317": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Anchovies",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "321": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Karambwan",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "3142": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Herring",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "345": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Mackerel",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "353": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Trout",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "335": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Cod",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "341": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Pike",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "349": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Salmon",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "331": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Tuna",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "359": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Rainbow fish",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "10138": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Lobster",
+      "type": "COOK",
+      "automatic": true,
+      "container": 307,
+      "ingredients": {
+        "377": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Bass",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "363": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Swordfish",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "371": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Monkfish",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "7944": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Shark",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "383": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Sea turtle",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "395": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Anglerfish",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "13439": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Dark Crab",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "11934": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Manta Ray",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "389": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Baked potato",
+      "type": "COOK",
+      "automatic": true,
+      "container": -1,
+      "ingredients": {
+        "1942": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Potato with butter",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "6697": 1,
+        "6701": 1
+      },
+      "tools": {
+      }
+    },
+    {
+      "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+      "name": "Potato with cheese",
+      "type": "COMBINE",
+      "automatic": false,
+      "container": -1,
+      "ingredients": {
+        "1985": 1,
+        "6703": 1
+      },
+      "tools": {
+      }
+    }
+  ]
+}

@@ -2,6 +2,9 @@ package com.codelanx.aether.common.menu.dialog;
 
 import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog;
 import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog.Selectable;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent.Type;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.script.Execution;
 
@@ -46,7 +49,16 @@ public class DialogueIterator implements Iterator<Dialogue> {
     }
 
     public static Dialogue getCurrentDialogue() {
-        return new Dialogue(ChatDialog.getTitle(), DialogueIterator.getTextSafe(), DialogueIterator.getRawOptions());
+        return new Dialogue(DialogueIterator.getTitleSafe(), DialogueIterator.getTextSafe(), DialogueIterator.getRawOptions());
+    }
+
+    public static String getTitleSafe() {
+        String title = ChatDialog.getTitle();
+        if (title == null) {
+            InterfaceComponent comp = Interfaces.newQuery().containers(231).types(Type.LABEL).visible().results().first();
+            title = comp == null ? null : comp.getText();
+        }
+        return title;
     }
 
     public static String getTextSafe() {

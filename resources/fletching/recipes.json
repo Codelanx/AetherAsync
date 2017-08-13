@@ -1,0 +1,31 @@
+{
+    "recipes": [
+        {
+            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "name": "Headless Arrows",
+            "type": "COMBINE",
+            "automatic": false,
+            "container": -1,
+            "ingredients": {
+                "946": 1
+            },
+            "tools": {
+                "946": 1
+            }
+        },
+        {
+            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "name": "Steel Arrows",
+            "type": "COMBINE",
+            "automatic": false,
+            "container": -1,
+            "ingredients": {
+                "41": 1,
+                "53": 1
+            },
+            "tools": {
+                
+            }
+        }
+    ]
+}

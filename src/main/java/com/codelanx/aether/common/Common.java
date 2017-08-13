@@ -1,6 +1,7 @@
 package com.codelanx.aether.common;
 
 import com.codelanx.aether.common.item.ItemStack;
+import com.codelanx.aether.common.bot.sync.AetherBot;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
 
 public class Common {
@@ -9,9 +10,9 @@ public class Common {
 
         private Banks() {}
 
-        public static void depositInventory() {
+        public static boolean depositInventory() {
             AetherBot.get().getInventory().invalidateAll();
-            com.runemate.game.api.hybrid.local.hud.interfaces.Bank.depositInventory();
+            return com.runemate.game.api.hybrid.local.hud.interfaces.Bank.depositInventory();
         }
 
         //true on failure, to allow breaking a stream pipeline

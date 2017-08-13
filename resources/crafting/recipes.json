@@ -1,0 +1,18 @@
+{
+    "recipes": [
+        {
+            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "name": "Gold Bracelet",
+            "type": "COMBINE",
+            "automatic": true,
+            "container": -1,
+            "ingredients": {
+                "2357": 1,
+                "11065": 1
+            },
+            "tools": {
+                
+            }
+        }
+    ]
+}
