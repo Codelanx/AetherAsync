@@ -1,7 +1,7 @@
 package com.codelanx.aether.common.event;
 
 /**
- * Stores relevant information for plugin listeners
+ * Stores relevant information for bot listeners
  */
 public class RegisteredListener {
     private final Listener listener;

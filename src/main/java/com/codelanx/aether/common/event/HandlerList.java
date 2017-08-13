@@ -28,8 +28,7 @@ public class HandlerList {
 
     /**
      * Bake all handler lists. Best used just after all normal event
-     * registration is complete, ie just after all plugins are loaded if
-     * you're using fevents in a plugin system.
+     * registration is complete, ie just after bot is loaded
      */
     public static void bakeAll() {
         synchronized (allLists) {
