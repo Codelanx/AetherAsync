@@ -27,4 +27,11 @@ public class Invalidator {
         return this.range;
     }
 
+    @Override
+    public String toString() {
+        return "Invalidator{" +
+                "all=" + all +
+                ", range=" + range +
+                '}';
+    }
 }

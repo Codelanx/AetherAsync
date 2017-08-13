@@ -76,7 +76,6 @@ public class AetherScheduler {
         return this.botThread.isShutdown() || this.scheduler.isShutdown();
     }
 
-
     void stop() {
         try {
             this.scheduler.awaitTermination(1000, TimeUnit.MILLISECONDS);

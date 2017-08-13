@@ -96,11 +96,16 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         this.registerImmediate(run, 0);
     }
 
+    //TODO: Not use Execution
     public void registerImmediate(Runnable run, long delay) {
         this.immediateTasks.add(delay <= 0 ? run : () -> {
             run.run();
             Execution.delay(delay);
         });
+    }
+
+    public boolean isThinking() {
+        return this.currentTask != null && !this.currentTask.isDone() && !this.currentTask.isCompletedExceptionally();
     }
 
     public void forget(AetherMission<?> m) {
@@ -121,6 +126,58 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
     }
 
     void loop() {
+        if (this.currentTask != null) {
+            Environment.getLogger().info("#BrainDebug currentTask not null");
+            if (this.currentTask.isDone() || this.currentTask.isCompletedExceptionally()) {
+                Environment.getLogger().info("#BrainDebug currentTask done");
+                try {
+                    Environment.getLogger().info("#BrainDebug getting current task return value");
+                    Invalidator inv = this.currentTask.get();
+                    Environment.getLogger().info("#BrainDebug Invalidator: " + inv);
+                    if (!inv.isNone()) {
+                        Environment.getLogger().info("#BrainDebug invalidating...");
+                        Stream<AetherTask<?>> auto = inv.isAll() ? Stream.empty() : this.invalidationQueue.stream().filter(AetherTask::invalidateAnyway);
+                        Stream<AetherTask<?>> invalidate;
+                        if (inv.isRange()) {
+                            invalidate = this.invalidationQueue.subList(0, inv.getRange()).stream();
+                        } else {
+                            if (inv.isAll()) {
+                                invalidate = this.invalidationQueue.stream();
+                            } else {
+                                invalidate = Stream.empty();
+                            }
+                        }
+                        Stream.concat(auto, invalidate).distinct().forEach(AetherTask::invalidate);
+                        Environment.getLogger().info("#BrainDebug invalidated");
+                    } else {
+                        Environment.getLogger().info("#BrainDebug invalidation skipped");
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    Environment.getLogger().info("Error executing task for bot '" + this.getClass().getSimpleName() + "':");
+                    Environment.getLogger().info(Reflections.stackTraceToString(e));
+                } catch (Throwable t) {
+                    Environment.getLogger().info("#BrainDebug totally uncaught exception wtf, how rude");
+                    Environment.getLogger().info("#BrainDebug ex: " + Reflections.stackTraceToString(t));
+                }
+                this.invalidationQueue.clear();
+                Environment.getLogger().info("#BrainDebug currentTask check done");
+                this.currentTask = null;
+            } else {
+                Environment.getLogger().info("#BrainDebug currentTask not complete");
+                return;
+            }
+        } else {
+            this.invalidationQueue.clear();
+        }
+        /*if (!this.immediateTasks.isEmpty()) {
+            Environment.getLogger().info("Running immediate task...");
+            Runnable run = this.immediateTasks.remove(0);
+            this.currentTask = CompletableFuture.supplyAsync(() -> {
+                run.run();
+                return null;
+            });
+        }*/
+        Environment.getLogger().info("#BrainDebug running root logic");
         AetherTask<?> root = this;
         StringBuilder prefix = new StringBuilder();
         while (!root.isExecutable()) {
@@ -163,29 +220,6 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
             } else {
                 done.cancel(true);
             }
-        }
-        if (this.currentTask.isDone() || this.currentTask.isCompletedExceptionally()) {
-            try {
-                Invalidator inv = this.currentTask.get();
-                if (!inv.isNone()) {
-                    Stream<AetherTask<?>> auto = inv.isAll() ? Stream.empty() : this.invalidationQueue.stream().filter(AetherTask::invalidateAnyway);
-                    Stream<AetherTask<?>> invalidate;
-                    if (inv.isRange()) {
-                        invalidate = this.invalidationQueue.subList(0, inv.getRange()).stream();
-                    } else {
-                        if (inv.isAll()) {
-                            invalidate = this.invalidationQueue.stream();
-                        } else {
-                            invalidate = Stream.empty();
-                        }
-                    }
-                    Stream.concat(auto, invalidate).distinct().forEach(AetherTask::invalidate);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                Environment.getLogger().info("Error executing task for bot '" + this.getClass().getSimpleName() + "':");
-                Environment.getLogger().info(Reflections.stackTraceToString(e));
-            }
-            this.invalidationQueue.clear();
         }
     }
 

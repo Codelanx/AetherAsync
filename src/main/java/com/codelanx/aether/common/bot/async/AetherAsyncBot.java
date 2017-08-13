@@ -7,6 +7,7 @@ import com.codelanx.aether.common.recipe.RecipeLoader;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.script.framework.AbstractBot;
+import com.runemate.game.api.script.framework.task.Task;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,7 +35,6 @@ public abstract class AetherAsyncBot extends AbstractBot {
     public final void run() {
         Environment.getLogger().info("#run");
         this.scheduler.register(this);
-        Environment.getLogger().info("End of bot thread reached, gonna loop that shit instead");
         while (!this.scheduler.isShutdown()) {
             try {
                 Thread.sleep(1000);
@@ -47,9 +47,21 @@ public abstract class AetherAsyncBot extends AbstractBot {
 
     public void loop() {
         //handle events here I suppose
-        if (ClickHandler.hasTasks()) {
+        Task t = this.getGameEventController();
+        if (t != null) {
+            if (!this.brain.isThinking() && t.validate()) { //TODO: Ensure this isn't blocking
+                Environment.getLogger().info("[Bot] Registering game event task...");
+                this.brain.registerImmediate(t::execute);
+            }
+        } else if (ClickHandler.hasTasks()) {
+            Environment.getLogger().info("[Bot] Click handler has tasks, returning...");
             return;
         }
+        if (this.brain.isThinking()) {
+            Environment.getLogger().info("[Bot] Brain thinking, resting bot thread...");
+            return;
+        }
+        Environment.getLogger().info("[Bot] Running brain loop...");
         this.brain.loop();
     }
 
