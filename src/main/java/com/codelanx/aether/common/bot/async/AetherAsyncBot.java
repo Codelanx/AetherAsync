@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 public abstract class AetherAsyncBot extends AbstractBot {
 
-    private static AetherAsyncBot instance;
     private AetherScheduler scheduler;
     private final AetherBrain brain;
     private final CachedInventory inventory;
@@ -22,7 +21,7 @@ public abstract class AetherAsyncBot extends AbstractBot {
     private final RecipeLoader recipes;
 
     public AetherAsyncBot() {
-        instance = this;
+        Aether.setBot(this);
         this.scheduler = new AetherScheduler(this);
         this.items = new ItemLoader(this);
         this.recipes = new RecipeLoader(this);
@@ -63,11 +62,6 @@ public abstract class AetherAsyncBot extends AbstractBot {
         }
         Environment.getLogger().info("[Bot] Running brain loop...");
         this.brain.loop();
-    }
-
-    //try to avoid
-    public static AetherAsyncBot get() {
-        return AetherAsyncBot.instance;
     }
 
     public AetherBrain getBrain() {
