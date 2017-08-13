@@ -70,7 +70,7 @@ public abstract class AetherTask<T> {
     public static <E> AetherTask<E> of(Runnable task) {
         return AetherTask.of(() -> {
             task.run();
-            return null;
+            return Invalidators.ALL;
         });
     }
 

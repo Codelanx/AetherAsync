@@ -2,6 +2,7 @@
 .idea/
 AetherConstruction.iml
 firstbot.iml
+*.iml
 #src/main/java/com/codelanx/aether/common/statebot/construction/
 #src/main/resources/
 target/
