@@ -1,6 +1,8 @@
 package com.codelanx.aether.common.recipe;
 
+import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
+import com.codelanx.aether.common.item.ItemLoader;
 import com.codelanx.aether.common.item.ItemStack;
 import com.codelanx.commons.data.FileSerializable;
 
@@ -26,14 +28,15 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         this.containerId = containerId;
         this.automatic = automatic;
         this.type = type;
+        ItemLoader items = Aether.getBot().getKnownItems();
         this.ingredients = ingredients.entrySet().stream().collect(
                 Collectors.toMap(
-                        e -> AetherAsyncBot.get().getKnownItems().getItem(e.getKey()),
+                        e -> items.getItem(e.getKey()),
                         Entry::getValue
                 )).entrySet().stream().map(ent -> new ItemStack(ent.getKey(), ent.getValue())).collect(Collectors.toList());
         this.tools = tools.entrySet().stream().collect(
                 Collectors.toMap(
-                        e -> AetherAsyncBot.get().getKnownItems().getItem(e.getKey()),
+                        e -> items.getItem(e.getKey()),
                         Entry::getValue
                 )).entrySet().stream().map(ent -> new ItemStack(ent.getKey(), ent.getValue())).collect(Collectors.toList());
     }
@@ -42,14 +45,15 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         this.name = (String) data.get("name");
         this.containerId = ((Long) data.get("container")).intValue();
         this.automatic = (Boolean) data.get("automatic");
+        ItemLoader items = Aether.getBot().getKnownItems();
         this.ingredients = ((Map<String, Object>) data.get("ingredients")).entrySet().stream().collect(
                 Collectors.toMap(
-                        e -> AetherAsyncBot.get().getKnownItems().getItem(Integer.parseInt(e.getKey())),
+                        e -> items.getItem(Integer.parseInt(e.getKey())),
                         Entry::getValue
                 )).entrySet().stream().map(ent -> new ItemStack(ent.getKey(), Integer.parseInt(String.valueOf(ent.getValue())))).collect(Collectors.toList());
         this.tools = ((Map<String, Object>) data.get("tools")).entrySet().stream().collect(
                 Collectors.toMap(
-                        e -> AetherAsyncBot.get().getKnownItems().getItem(Integer.parseInt(e.getKey())),
+                        e -> items.getItem(Integer.parseInt(e.getKey())),
                         Entry::getValue
                 )).entrySet().stream().map(ent -> new ItemStack(ent.getKey(), Integer.parseInt(String.valueOf(ent.getValue())))).collect(Collectors.toList());
         this.type = RecipeType.valueOf(Optional.ofNullable((String) data.get("type")).map(String::toUpperCase).orElse(RecipeType.infer(this).name()));

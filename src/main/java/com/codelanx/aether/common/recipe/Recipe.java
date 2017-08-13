@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.recipe;
 
+import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.codelanx.aether.common.item.ItemStack;
 import com.codelanx.aether.bots.cooking.CookingBot;
@@ -104,7 +105,7 @@ public interface Recipe {
      */
     default public int getRemainder() {
         return this.getFullUnit().map(i -> {
-            return AetherAsyncBot.get().getInventory().get(i.getMaterial()) / i.getQuantity();
+            return Aether.getBot().getInventory().get(i.getMaterial()) / i.getQuantity();
         }).min(Integer::compare).orElse(0);
     }
 
