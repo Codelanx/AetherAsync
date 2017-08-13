@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.bot.async.task;
 
+import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.codelanx.aether.common.bot.async.Invalidator;
 import com.codelanx.aether.common.bot.async.Invalidators;
@@ -42,7 +43,7 @@ public abstract class AetherTask<T> {
 
     public final CompletableFuture<T> getState() {
         if (this.state == null) {
-            CompletableFuture<T> state = CompletableFuture.supplyAsync(this.getStateNow(), AetherAsyncBot.get().getScheduler().getThreadPool());
+            CompletableFuture<T> state = CompletableFuture.supplyAsync(this.getStateNow(), Aether.getScheduler().getThreadPool());
             if (this.state == null) {
                 this.state = state;
             }

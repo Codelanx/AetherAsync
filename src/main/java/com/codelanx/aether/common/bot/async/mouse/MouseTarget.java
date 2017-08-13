@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.bot.async.mouse;
 
+import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
@@ -51,7 +52,7 @@ public class MouseTarget extends InputTarget {
         Supplier<Boolean> clicker = this.action == null
                 ? this.target::click
                 : () -> this.target.interact(this.action);
-        this.clicking = CompletableFuture.supplyAsync(clicker, AetherAsyncBot.get().getScheduler().getThreadPool());
+        this.clicking = CompletableFuture.supplyAsync(clicker, Aether.getScheduler().getThreadPool());
     }
     
     @Override

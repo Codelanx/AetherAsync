@@ -12,7 +12,7 @@ public class AsyncExec {
     public static CompletableFuture<?> delayUntil(Supplier<Boolean> isTrue) {
         CompletableFuture<?> compl = new CompletableFuture<>();
         Box<ScheduledFuture<?>> box = new Box<>();
-        box.value = AetherAsyncBot.get().getScheduler().getThreadPool().scheduleAtFixedRate(() -> {
+        box.value = Aether.getScheduler().getThreadPool().scheduleAtFixedRate(() -> {
             if (compl.isCancelled()) {
                 box.value.cancel(true);
                 return;

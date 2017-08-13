@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.bot.async.mouse;
 
+import com.codelanx.aether.common.bot.async.Aether;
 import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +24,7 @@ public class KeyboardTarget extends InputTarget {
     public void attempt() {
         this.entering = CompletableFuture.supplyAsync(() -> {
             return true;
-        }, AetherAsyncBot.get().getScheduler().getThreadPool());
+        }, Aether.getScheduler().getThreadPool());
     }
 
     @Override
