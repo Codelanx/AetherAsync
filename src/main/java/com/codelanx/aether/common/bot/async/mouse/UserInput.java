@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 public enum UserInput {
 
@@ -52,6 +53,19 @@ public enum UserInput {
         return true;
     }
     
+    private static long getMinimumClick() {
+        return MIN_CLICK_MS + Randomization.MIN_CLICK.getValue().longValue();
+    }
+    
+    //hmmmmm
+    public static Supplier<Boolean> runemateInput(Supplier<Boolean> inputter) {
+        RunemateTarget tar = new RunemateTarget(inputter);
+        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+            INSTANCE.queue.add(new RunemateTarget(inputter));
+        });
+        return tar::waitOnSuccess;
+    }
+    
     //TODO: proper input scheduling
     private void actOnTarget(InputTarget target, boolean hover) {
         long delay = System.currentTimeMillis() - this.lastInputMs.get();
@@ -87,16 +101,18 @@ public enum UserInput {
                     Mouse.move(hint);
                 }
             } else {
+                if (delay > UserInput.getMinimumClick()) {
+                    mouse.attempt();
+                }
+                /*
                 if (mouse.getType() == ClickType.SIMPLE) {
                     //schedule short
-                    if (System.currentTimeMillis() - this.lastInputMs.get() > MIN_CLICK_MS) {
-                        
-                    }
                 } else {
                     //slightly longer scheduling
-                }
+                }*/
             }
-        } else if (!hover) {
+        } else if (!hover && !target.isAttempted()) { //TODO: Delay accounting
+            target.attempt();
             //TODO: Keyboard handling, blerghehhg
         }
     }

@@ -14,7 +14,6 @@ public class MouseTarget extends InputTarget {
     private final Interactable target;
     private final String action;
     //private final boolean menu;
-    private CompletableFuture<Boolean> clicking = null;
 
     public MouseTarget(Interactable target) {
         this(target, null);
@@ -49,31 +48,9 @@ public class MouseTarget extends InputTarget {
 
     @Override
     public void attempt() {
-        Supplier<Boolean> clicker = this.action == null
+        this.doAttempt(this.action == null
                 ? this.target::click
-                : () -> this.target.interact(this.action);
-        this.clicking = CompletableFuture.supplyAsync(clicker, Aether.getScheduler().getThreadPool());
+                : () -> this.target.interact(this.action));
     }
     
-    @Override
-    public boolean isAttempting() {
-        return this.clicking != null;
-    }
-
-    @Override
-    public boolean isAttempted() {
-        return this.clicking != null && (this.clicking.isDone() || this.clicking.isCompletedExceptionally());
-    }
-
-    @Override
-    public boolean isSuccessful() {
-        if (this.clicking == null) {
-            return false;
-        }
-        try {
-            return this.clicking.get();
-        } catch (InterruptedException | ExecutionException e) {
-            return false;
-        }
-    }
 }
