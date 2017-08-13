@@ -27,7 +27,7 @@ public class Leveling {
             5902831, 6517253, 7195629, 7944614, 8771558, 9684577, 10692629, 11805606, 13034431, //lvl 99
     };
 
-    private static double getRealLevel(int xp) {
+    public static double getLevel(int xp) {
         double lXp;
         for (int level = 1; level <= 99 && level < levels.length; level++) {
             lXp = levels[level];
@@ -43,7 +43,7 @@ public class Leveling {
         //exportRecipes(CraftingRecipe.values(), new File("resources/crafting/recipes.json"));
     }
 
-    public static void exportMaterials(Material[] values, File target) throws IOException {
+    private static void exportMaterials(Material[] values, File target) throws IOException {
         Json j = new Json();
         new File(target.getParent()).mkdirs();
         List<Material> back = Arrays.stream(values).map(SerializableMaterial::new).collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class Leveling {
         j.save(target);
     }
 
-    public static void exportRecipes(Recipe[] values, File target) throws IOException {
+    private static void exportRecipes(Recipe[] values, File target) throws IOException {
         Json j = new Json();
         new File(target.getParent()).mkdirs();
         List<Recipe> back = Arrays.stream(values).map(SerializableRecipe::new).collect(Collectors.toList());
