@@ -1,7 +1,7 @@
 package com.codelanx.aether.common.bot.async;
 
 import com.codelanx.aether.common.CachedInventory;
-import com.codelanx.aether.common.bot.async.mouse.ClickHandler;
+import com.codelanx.aether.common.bot.async.mouse.UserInput;
 import com.codelanx.aether.common.item.ItemLoader;
 import com.codelanx.aether.common.recipe.RecipeLoader;
 import com.codelanx.commons.util.Reflections;
@@ -53,12 +53,12 @@ public abstract class AetherAsyncBot extends AbstractBot {
                 Environment.getLogger().info("[Bot] Registering game event task...");
                 this.brain.registerImmediate(t::execute);
             }
-        } else if (ClickHandler.hasTasks()) {
-            Environment.getLogger().info("[Bot] Click handler has tasks, returning...");
+        } else if (UserInput.hasTasks()) {
+            //Environment.getLogger().info("[Bot] Input handler has tasks, returning...");
             return;
         }
         if (this.brain.isThinking()) {
-            Environment.getLogger().info("[Bot] Brain thinking, resting bot thread...");
+            //Environment.getLogger().info("[Bot] Brain thinking, resting bot thread...");
             return;
         }
         Environment.getLogger().info("[Bot] Running brain loop...");

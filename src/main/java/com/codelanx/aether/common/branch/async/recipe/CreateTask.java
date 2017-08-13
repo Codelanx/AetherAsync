@@ -2,7 +2,7 @@ package com.codelanx.aether.common.branch.async.recipe;
 
 import com.codelanx.aether.common.bot.async.Invalidator;
 import com.codelanx.aether.common.bot.async.Invalidators;
-import com.codelanx.aether.common.bot.async.mouse.ClickHandler;
+import com.codelanx.aether.common.bot.async.mouse.UserInput;
 import com.codelanx.aether.common.recipe.Recipe;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainer;
@@ -22,11 +22,11 @@ public class CreateTask implements Supplier<Invalidator> {
 
     @Override
     public Invalidator get() {
+        Environment.getLogger().info("\t\t=>CreateTask");
         InterfaceContainer cont;
         SpriteItem item;
         switch (this.recipe.getRecipeType()) {
             case COOK:
-                Environment.getLogger().info("\t\t=>CreateTask");
                 if (!InterfaceContainers.isLoaded(this.recipe.getContainerId())) {
                     Execution.delay(100);
                     return Invalidators.NONE;
@@ -35,7 +35,6 @@ public class CreateTask implements Supplier<Invalidator> {
                 cont.getComponents(i -> true).random().interact("Cook All");
                 break;
             case SMELT:
-                Environment.getLogger().info("\t\t=>CreateTask");
                 if (!InterfaceContainers.isLoaded(this.recipe.getContainerId())) {
                     Execution.delay(100);
                     return Invalidators.NONE;
@@ -48,7 +47,7 @@ public class CreateTask implements Supplier<Invalidator> {
                 //Validate.isTrue(this.recipe.getIngrediateCount() == 1, "Cannot have a CLICK recipe with multiple ingredients");
                 item = this.recipe.getIngredientsInInventory().first();
                 if (item != null) {
-                    ClickHandler.click(item);
+                    UserInput.click(item);
                 }
                 return Invalidators.NONE;
             case COMBINE: //TODO
@@ -58,8 +57,8 @@ public class CreateTask implements Supplier<Invalidator> {
                     if (item != null) {
                         SpriteItem target = this.recipe.getIngredientsInInventory().first();
                         if (target != null) {
-                            ClickHandler.interact(item, "Use");
-                            ClickHandler.click(target);
+                            UserInput.interact(item, "Use");
+                            UserInput.click(target);
                             if (this.recipe.isAutomatic()) {
                                 //TODO: Menu handling
                             }
