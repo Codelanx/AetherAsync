@@ -1,13 +1,7 @@
-package com.codelanx.aether.common.bot.async.mouse;
+package com.codelanx.aether.common.bot.async.input;
 
-import com.codelanx.aether.common.bot.async.Aether;
-import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 
 public class MouseTarget extends InputTarget {
     

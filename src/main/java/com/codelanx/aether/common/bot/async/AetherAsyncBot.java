@@ -1,7 +1,7 @@
 package com.codelanx.aether.common.bot.async;
 
 import com.codelanx.aether.common.CachedInventory;
-import com.codelanx.aether.common.bot.async.mouse.UserInput;
+import com.codelanx.aether.common.bot.async.input.UserInput;
 import com.codelanx.aether.common.item.ItemLoader;
 import com.codelanx.aether.common.recipe.RecipeLoader;
 import com.codelanx.commons.util.Reflections;

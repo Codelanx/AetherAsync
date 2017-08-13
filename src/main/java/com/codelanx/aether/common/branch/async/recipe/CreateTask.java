@@ -2,7 +2,7 @@ package com.codelanx.aether.common.branch.async.recipe;
 
 import com.codelanx.aether.common.bot.async.Invalidator;
 import com.codelanx.aether.common.bot.async.Invalidators;
-import com.codelanx.aether.common.bot.async.mouse.UserInput;
+import com.codelanx.aether.common.bot.async.input.UserInput;
 import com.codelanx.aether.common.recipe.Recipe;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainer;

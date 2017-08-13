@@ -1,0 +1,11 @@
+{
+  "items": [
+    {
+      "==": "com.codelanx.aether.common.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": true,
+      "name": "Dragon axe",
+      "id": -1
+    }
+  ]
+}

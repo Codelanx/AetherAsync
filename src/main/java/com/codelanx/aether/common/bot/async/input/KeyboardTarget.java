@@ -1,14 +1,8 @@
-package com.codelanx.aether.common.bot.async.mouse;
+package com.codelanx.aether.common.bot.async.input;
 
 import com.codelanx.aether.common.Randomization;
-import com.codelanx.aether.common.bot.async.Aether;
-import com.codelanx.aether.common.bot.async.AetherAsyncBot;
 import com.runemate.game.api.hybrid.input.Keyboard;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Chatbox;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

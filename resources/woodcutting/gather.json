@@ -1,0 +1,19 @@
+{
+  "spots": [
+    {
+      "==": "com.codelanx.aether.common.gather.SerializableGather",
+      "area": 99999,
+      "name": "Draynor",
+      "targets": [
+        666
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "name": "Willow tree",
+      "id": 666,
+      "automatic": true
+    }
+  ]
+}

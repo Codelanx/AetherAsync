@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.async.mouse;
+package com.codelanx.aether.common.bot.async.input;
 
 import com.codelanx.aether.common.Randomization;
 import com.codelanx.commons.util.Reflections;
@@ -105,15 +105,14 @@ public enum UserInput {
                     mouse.attempt();
                 }
                 /*
-                if (mouse.getType() == ClickType.SIMPLE) {
+                if (input.getType() == ClickType.SIMPLE) {
                     //schedule short
                 } else {
                     //slightly longer scheduling
                 }*/
             }
-        } else if (!hover && !target.isAttempted()) { //TODO: Delay accounting
+        } else if (!hover && !target.isAttempting()) {
             target.attempt();
-            //TODO: Keyboard handling, blerghehhg
         }
     }
 

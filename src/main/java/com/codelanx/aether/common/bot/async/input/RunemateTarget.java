@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.async.mouse;
+package com.codelanx.aether.common.bot.async.input;
 
 import java.util.function.Supplier;
 

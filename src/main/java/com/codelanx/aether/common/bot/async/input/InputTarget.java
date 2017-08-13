@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.async.mouse;
+package com.codelanx.aether.common.bot.async.input;
 
 import com.codelanx.aether.common.bot.async.Aether;
 
