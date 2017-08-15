@@ -50,6 +50,10 @@ public abstract class AetherTask<T> {
         return this.state;
     }
 
+    public void registerImmediate() {
+        Aether.getBot().getBrain().registerImmediate(this);
+    }
+
     public final void invalidate() {
         this.state = null;
         this.onInvalidate();

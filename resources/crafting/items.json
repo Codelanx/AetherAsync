@@ -1,21 +1,21 @@
 {
     "items": [
         {
-            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Gold bar",
             "id": 2357
         },
         {
-            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Bracelet mould",
             "id": 11065
         },
         {
-            "==": "com.codelanx.aether.common.item.SerializableMaterial",
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Gold bracelet",

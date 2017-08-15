@@ -1,7 +1,7 @@
 {
     "recipes": [
         {
-            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
             "name": "Headless Arrows",
             "type": "COMBINE",
             "automatic": false,
@@ -14,7 +14,7 @@
             }
         },
         {
-            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
             "name": "Steel Arrows",
             "type": "COMBINE",
             "automatic": false,

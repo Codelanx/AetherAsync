@@ -5,6 +5,7 @@ import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.queries.LocatableEntityQueryBuilder;
 import com.runemate.game.api.hybrid.queries.QueryBuilder;
+import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.queries.results.QueryResults;
 
 import java.util.function.Supplier;
@@ -24,8 +25,8 @@ public abstract class LocatableCache<E extends LocatableEntity> extends GameCach
     public Supplier<? extends QueryResults<E, ?>> getResults(ObjectInquiry inquiry) {
         return this.getBiasedQuery(inquiry).get()::results;
     }
-    
-    public abstract Supplier<? extends LocatableEntityQueryBuilder<E, ?>> getBiasedQuery(ObjectInquiry inquiry);
+
+    public abstract <R extends LocatableEntityQueryBuilder<E, R>> Supplier<R> getBiasedQuery(ObjectInquiry inquiry);
 
     @Override
     public Supplier<? extends QueryBuilder<E, ?, ?>> getRawQuery() {

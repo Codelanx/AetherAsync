@@ -1,7 +1,7 @@
 {
   "areas": [
     {
-      "==": "com.codelanx.aether.common.gather.SerializableGather",
+      "==": "com.codelanx.aether.common.json.gather.SerializableGather",
       "area": 99999,
       "name": "Fire runes",
       "targets": [

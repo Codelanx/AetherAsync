@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.branch;
 
+import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.input.UserInput;
@@ -45,8 +46,7 @@ public class InteractionTask implements Supplier<Invalidator> {
             if (range == null) {
                 //well fuck
                 Environment.getLogger().info("Error: Cannot locate target at time of interaction");
-                //TODO: end task
-
+                Aether.getBot().stop();
             }
             UserInput.interact(range, "Use");
         });

@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "==": "com.codelanx.aether.common.item.SerializableMaterial",
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
       "stackable": false,
       "equippable": true,
       "name": "Fire tiara",

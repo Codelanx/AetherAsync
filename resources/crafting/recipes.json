@@ -1,7 +1,7 @@
 {
     "recipes": [
         {
-            "==": "com.codelanx.aether.common.recipe.SerializableRecipe",
+            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
             "name": "Gold Bracelet",
             "type": "COMBINE",
             "automatic": true,
