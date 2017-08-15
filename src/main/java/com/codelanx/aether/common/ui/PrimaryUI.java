@@ -1,11 +1,13 @@
 package com.codelanx.aether.common.ui;
 
+import com.codelanx.aether.common.bot.Aether;
 import com.runemate.game.api.script.framework.AbstractBot;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,7 +36,10 @@ public class PrimaryUI extends GridPane implements Initializable {
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }*/
+        this.txt = new Text(Aether.getBot().getBrain().getLastThought());
     }
+    
+    private final Text txt;
 
     public void refresh() {
         Platform.runLater(this::update);
@@ -42,6 +47,7 @@ public class PrimaryUI extends GridPane implements Initializable {
 
     public void update() {
         //update javafx elements
+        this.txt.setText(Aether.getBot().getBrain().getLastThought());
     }
 
     @Override
@@ -50,7 +56,6 @@ public class PrimaryUI extends GridPane implements Initializable {
         this.setHgap(15);
         this.setVgap(15);
         this.setPadding(new Insets(25, 25, 25, 25));
-
         //Text
 
         this.setVisible(true);

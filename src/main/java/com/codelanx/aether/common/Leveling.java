@@ -1,9 +1,9 @@
 package com.codelanx.aether.common;
 
-import com.codelanx.aether.common.item.Material;
-import com.codelanx.aether.common.item.SerializableMaterial;
-import com.codelanx.aether.common.recipe.Recipe;
-import com.codelanx.aether.common.recipe.SerializableRecipe;
+import com.codelanx.aether.common.json.item.Material;
+import com.codelanx.aether.common.json.item.SerializableMaterial;
+import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.aether.common.json.recipe.SerializableRecipe;
 import com.codelanx.commons.data.types.Json;
 
 import java.io.File;

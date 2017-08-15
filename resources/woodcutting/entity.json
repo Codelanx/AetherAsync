@@ -1,0 +1,10 @@
+{
+  "entities": [
+    {
+      "name": "Willow tree",
+      "id": 666,
+      "automatic": true
+    }
+    
+  ]
+}

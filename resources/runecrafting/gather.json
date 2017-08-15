@@ -1,11 +1,10 @@
 {
-  "spots": [
+  "areas": [
     {
       "==": "com.codelanx.aether.common.gather.SerializableGather",
       "area": 99999,
-      "name": "Draynor",
+      "name": "Fire runes",
       "targets": [
-        666
       ]
     }
   ]

@@ -1,8 +1,9 @@
 package com.codelanx.aether.common;
 
-import com.codelanx.aether.common.item.ItemStack;
-import com.codelanx.aether.common.bot.sync.AetherBot;
+import com.codelanx.aether.common.cache.Caches;
+import com.codelanx.aether.common.json.item.ItemStack;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
 public class Common {
 
@@ -11,7 +12,7 @@ public class Common {
         private Banks() {}
 
         public static boolean depositInventory() {
-            AetherBot.get().getInventory().invalidateAll();
+            Caches.forInventory().invalidateAll();
             return com.runemate.game.api.hybrid.local.hud.interfaces.Bank.depositInventory();
         }
 
@@ -22,7 +23,14 @@ public class Common {
                     return true;
                 }
             }
-            AetherBot.get().getInventory().update(stack.getMaterial(), stack.getQuantity());
+            SpriteItem item = Caches.forBank().get(stack.getMaterial().toInquiry()).findAny().orElse(null);
+            if (item != null) {
+                //here's where we can note offsets
+                if (item.getQuantity() < stack.getQuantity()) {
+                    return true;
+                }
+                Caches.forBank().replaceFirst(stack.getMaterial().toInquiry(), i -> i.derive(-stack.getQuantity()));
+            }
             return false;
         }
 
