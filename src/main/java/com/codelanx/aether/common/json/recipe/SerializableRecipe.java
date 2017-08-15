@@ -42,7 +42,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
 
     public SerializableRecipe(Map<String, Object> data) {
         this.name = (String) data.get("name");
-        this.containerId = ((Long) data.get("cache")).intValue();
+        this.containerId = ((Long) data.get("container")).intValue();
         this.automatic = (Boolean) data.get("automatic");
         ItemLoader items = Aether.getBot().getKnownItems();
         this.ingredients = ((Map<String, Object>) data.get("ingredients")).entrySet().stream().collect(
@@ -108,7 +108,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         back.put("name", this.name);
         back.put("type", this.type);
         back.put("automatic", this.automatic);
-        back.put("cache", this.containerId);
+        back.put("container", this.containerId);
         back.put("ingredients", this.ingredients.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
         back.put("tools", this.tools.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
         return back;
