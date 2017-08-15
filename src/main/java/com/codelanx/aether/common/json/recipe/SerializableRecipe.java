@@ -113,4 +113,16 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         back.put("tools", this.tools.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
         return back;
     }
+
+    @Override
+    public String toString() {
+        return "SerializableRecipe{" +
+                "name='" + name + '\'' +
+                ", containerId=" + containerId +
+                ", automatic=" + automatic +
+                ", type=" + type +
+                ", ingredients=" + ingredients +
+                ", tools=" + tools +
+                '}';
+    }
 }

@@ -3,6 +3,7 @@ package com.codelanx.aether.common.json.recipe;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.cache.form.ContainerCache;
 import com.codelanx.aether.common.json.item.ItemStack;
+import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -108,6 +109,7 @@ public interface Recipe {
                         .map(SpriteItem::getQuantity)
                         .reduce(0, Integer::sum);
             } else {
+                Environment.getLogger().info("Checking number of sprite items for: " + i.getMaterial());
                 amt = Caches.forInventory().size(i.getMaterial().toInquiry());
             }
             return amt / i.getQuantity();
