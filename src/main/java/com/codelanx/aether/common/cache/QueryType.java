@@ -2,6 +2,7 @@ package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.cache.form.*;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.region.GameObjects;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -19,6 +20,7 @@ public enum QueryType {
     NPC(Npcs.class, NpcCache::new),
     GAME_OBJECT(GameObjects.class, GameObjectCache::new),
     PLAYER(Npcs.class, PlayerCache::new),
+    COMPONENT(Interfaces.class, InterfaceCache::new),
     ;
     
     private final Class<?> token;

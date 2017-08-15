@@ -87,4 +87,16 @@ public class SerializableMaterial implements FileSerializable, Material {
         }
         return this.inq;
     }
+
+    @Override
+    public String toString() {
+        return "SerializableMaterial{" +
+                "stackable=" + stackable +
+                ", equippable=" + equippable +
+                ", plural='" + plural + '\'' +
+                ", name='" + name + '\'' +
+                ", id=" + id +
+                ", inq=" + inq +
+                '}';
+    }
 }
