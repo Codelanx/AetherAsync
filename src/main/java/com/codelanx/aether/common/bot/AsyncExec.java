@@ -1,27 +1,28 @@
 package com.codelanx.aether.common.bot;
 
+import com.codelanx.commons.util.Scheduler;
 import com.codelanx.commons.util.ref.Box;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class AsyncExec {
 
     public static CompletableFuture<?> delayUntil(Supplier<Boolean> isTrue) {
-        CompletableFuture<?> compl = new CompletableFuture<>();
+        CompletableFuture<Invalidator> compl = new CompletableFuture<>();
         Box<ScheduledFuture<?>> box = new Box<>();
-        box.value = Aether.getScheduler().getThreadPool().scheduleAtFixedRate(() -> {
+        box.value = Scheduler.runAsyncTaskRepeat(() -> {
             if (compl.isCancelled()) {
                 box.value.cancel(true);
                 return;
             }
             if (isTrue.get()) {
-                compl.complete(null);
+                compl.complete(Invalidators.NONE);
                 box.value.cancel(true);
             }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        }, 0, 50);
+        Aether.getBot().getBrain().delayUntil(compl);
         return compl;
     }
 }

@@ -1,6 +1,6 @@
 package com.codelanx.aether.common.menu.dialog;
 
-import com.codelanx.aether.common.bot.input.UserInput;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog.Option;
@@ -29,17 +29,18 @@ public class Speech {
     //--NEGATED-- true if complete, false otherwise
     public boolean step() {
         if (!this.itr.hasNext()) {
-            return true;
+            Environment.getLogger().info("No dialogue available");
+            return false;
         }
         if (this.index.get() >= this.actions.size()) {
+            Environment.getLogger().info("Actions exceeded");
             return true;
         }
         if (!this.itr.isSameResult()) {
             Dialogue next = this.itr.next();
             Environment.getLogger().info("next dialogue: " + next);
-            if (!this.actions.get(this.index.getAndIncrement()).test(next)) {
-                this.index.decrementAndGet();
-            }
+            Supplier<Boolean> input = () -> this.actions.get(this.index.getAndIncrement()).test(next);
+            UserInput.runemateInput(input).postAttempt().thenRun(this.index::decrementAndGet);
         }
         return this.index.get() >= this.actions.size();
     }

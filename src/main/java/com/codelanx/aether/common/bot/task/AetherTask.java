@@ -3,14 +3,19 @@ package com.codelanx.aether.common.bot.task;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidators;
+import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Scheduler;
+import com.runemate.game.api.hybrid.Environment;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public abstract class AetherTask<T> {
 
@@ -18,6 +23,7 @@ public abstract class AetherTask<T> {
     private final Map<HashedTaskState<T>, AetherTask<?>> children = new HashMap<>();
     private final Map<Predicate<T>, AetherTask<?>> pickyKids = new LinkedHashMap<>();
     private volatile CompletableFuture<T> state;
+    private volatile CompletableFuture<Invalidator> execution;
 
     public abstract Supplier<T> getStateNow();
 
@@ -30,7 +36,9 @@ public abstract class AetherTask<T> {
         if (back == null) {
             back = this.pickyKids.entrySet().stream().filter(e -> {
                 return e.getKey().test(state);
-            }).findFirst().map(Map.Entry::getValue).orElse(null);
+            }).findFirst().map(Map.Entry::getValue).orElseGet(() -> {
+                return (AetherTask) AetherTask.this.children.get(HashedTaskState.DEFAULT); //fucking java generics
+            });
         }
         return back;
     }
@@ -40,9 +48,13 @@ public abstract class AetherTask<T> {
         return state.isDone();
     }
 
+    public boolean isSync() {
+        return false;
+    }
+
     public final CompletableFuture<T> getState() {
         if (this.state == null) {
-            CompletableFuture<T> state = CompletableFuture.supplyAsync(this.getStateNow(), Aether.getScheduler().getThreadPool());
+            CompletableFuture<T> state = this.register();
             if (this.state == null) {
                 this.state = state;
             }
@@ -50,21 +62,53 @@ public abstract class AetherTask<T> {
         return this.state;
     }
 
+    private CompletableFuture<T> register() {
+        if (this.isSync()) {
+            return CompletableFuture.completedFuture(this.getStateNow().get());
+        } else {
+            return Scheduler.complete(this.getStateNow());
+        }
+    }
+
+    public Class<?> getToken() {
+        return this.getClass();
+    }
+
     public void registerImmediate() {
         Aether.getBot().getBrain().registerImmediate(this);
     }
 
     public final void invalidate() {
-        this.state = null;
-        this.onInvalidate();
+        if (this.state != null) {
+            this.state = null;
+            this.onInvalidate();
+        }
+    }
+
+    public String getTaskName() {
+        return this.getToken().getSimpleName();
     }
 
     protected void onInvalidate() {
-
+        Environment.getLogger().info("Invalidating: " + this.getClass().getSimpleName());
     }
 
     public AetherTask<?> getChild() throws ExecutionException, InterruptedException {
-        return this.getChild(this.getState().get());
+        try {
+            T state = this.getState().get();
+            AetherTask<?> back = this.getChild(state);
+            Environment.getLogger().info("Returning child (state: " + state + ", child: " + Optional.ofNullable(back).map(AetherTask::getTaskName).orElse(null) + ")");
+            return back;
+        } catch (Throwable t) {
+            Environment.getLogger().info("Sneaky ass exception");
+            Environment.getLogger().info(Reflections.stackTraceToString(t));
+            throw t;
+        }
+    }
+
+    public void forceInvalidate() {
+        this.invalidate();
+        this.getChildren().forEach(AetherTask::forceInvalidate);
     }
 
     public boolean isExecutable() {
@@ -72,10 +116,28 @@ public abstract class AetherTask<T> {
     }
 
     public static <E> AetherTask<E> of(Runnable task) {
-        return AetherTask.of(() -> {
-            task.run();
-            return Invalidators.ALL;
-        });
+        return new AetherTask<E>() {
+            @Override
+            public Supplier<E> getStateNow() {
+                return () -> null;
+            }
+
+            @Override
+            public boolean isExecutable() {
+                return true;
+            }
+
+            @Override
+            public Class<?> getToken() {
+                return task.getClass();
+            }
+
+            @Override
+            public Invalidator execute(E state) {
+                task.run();
+                return Invalidators.ALL;
+            }
+        };
     }
 
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
@@ -88,6 +150,11 @@ public abstract class AetherTask<T> {
             @Override
             public boolean isExecutable() {
                 return true;
+            }
+
+            @Override
+            public Class<?> getToken() {
+                return task.getClass();
             }
 
             @Override
@@ -126,6 +193,10 @@ public abstract class AetherTask<T> {
                 return fir;
             }
         };
+    }
+
+    public Stream<AetherTask<?>> getChildren() {
+        return this.children.values().stream();
     }
 
     public static <E> AetherTask<E> ofRunemateFailable(Supplier<Boolean> task) {
@@ -211,4 +282,13 @@ public abstract class AetherTask<T> {
         this.pickyKids.put(applicable, child);
     }
 
+    @Override
+    public String toString() {
+        return "AetherTask{" +
+                "children=" + children +
+                ", pickyKids=" + pickyKids +
+                ", state=" + state +
+                ", execution=" + execution +
+                '}';
+    }
 }

@@ -1,7 +1,8 @@
 package com.codelanx.aether.common.bot;
 
-import com.codelanx.aether.common.cache.CachedInventory;
-import com.codelanx.aether.common.bot.input.UserInput;
+import com.codelanx.aether.common.input.UserInput;
+import com.codelanx.aether.common.cache.Caches;
+import com.codelanx.aether.common.input.UserInputException;
 import com.codelanx.aether.common.json.item.ItemLoader;
 import com.codelanx.aether.common.json.recipe.RecipeLoader;
 import com.codelanx.commons.util.Reflections;
@@ -11,21 +12,21 @@ import com.runemate.game.api.script.framework.task.Task;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AetherAsyncBot extends AbstractBot {
 
     private AetherScheduler scheduler;
     private final AetherBrain brain;
-    private final CachedInventory inventory;
     private final ItemLoader items;
     private final RecipeLoader recipes;
+    private final AtomicBoolean stopping = new AtomicBoolean();
 
     public AetherAsyncBot() {
         Aether.setBot(this);
         this.scheduler = new AetherScheduler(this);
         this.items = new ItemLoader(this);
         this.recipes = new RecipeLoader(this);
-        this.inventory = new CachedInventory();
 
         this.brain = new AetherBrain(this);
     }
@@ -35,8 +36,14 @@ public abstract class AetherAsyncBot extends AbstractBot {
         Environment.getLogger().info("#run");
         this.scheduler.register(this);
         while (!this.scheduler.isShutdown()) {
+            if (this.stopping.get()) {
+                this.scheduler.stop();
+            }
+            if (!this.isPaused()) {
+                Environment.getLogger().debug("Lazily observed thread pool count: " + this.scheduler.getThreadPool().getActiveCount());
+            }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 Environment.getLogger().info("Exception while sleeping provided bot thread:");
                 Environment.getLogger().info(Reflections.stackTraceToString(e));
@@ -44,32 +51,53 @@ public abstract class AetherAsyncBot extends AbstractBot {
         }
     }
 
+    private final AtomicBoolean handlingGameEvent = new AtomicBoolean();
+
     public void loop() {
         //handle events here I suppose
-        Task t = this.getGameEventController();
-        if (t != null) {
-            if (!this.brain.isThinking() && t.validate()) { //TODO: Ensure this isn't blocking
+        try {
+            Task t = this.getGameEventController();
+            if (t != null && !this.handlingGameEvent.get()) {
+                this.handlingGameEvent.set(true);
                 Environment.getLogger().info("[Bot] Registering game event task...");
-                this.brain.registerImmediate(t::execute);
+                Environment.getLogger().info(t.getClass().getName());
+                Environment.getLogger().info(t.getChildren());
+                Environment.getLogger().info(t.getParent());
+                this.brain.registerImmediate(() -> {
+                    if (t.validate()) {
+                        this.brain.registerImmediate(() -> {
+                            t.execute();
+                            this.handlingGameEvent.set(false);
+                        });
+                    }
+                });
+            } else if (UserInput.hasTasks()) {
+                try {
+                    UserInput.attempt();
+                } catch (UserInputException ex) {
+                    Environment.getLogger().info("Error while attempting user input, invalidating bot and retrying...");
+                    this.brain.stroke();
+                    UserInput.wipe();
+                    Caches.invalidateAll();
+                }
+                //Environment.getLogger().info("[Bot] Input handler has tasks, returning...");
+                return;
             }
-        } else if (UserInput.hasTasks()) {
-            //Environment.getLogger().info("[Bot] Input handler has tasks, returning...");
-            return;
+            if (this.brain.isThinking()) {
+                //Environment.getLogger().info("[Bot] Brain thinking, resting bot thread...");
+                return;
+            }
+            Environment.getLogger().info("[Bot] Running brain loop...");
+            this.brain.loop();
+        } catch (Throwable t) {
+            Environment.getLogger().info("Uncaught exception in bot loop");
+            Environment.getLogger().info(Reflections.stackTraceToString(t));
+            throw t;
         }
-        if (this.brain.isThinking()) {
-            //Environment.getLogger().info("[Bot] Brain thinking, resting bot thread...");
-            return;
-        }
-        Environment.getLogger().info("[Bot] Running brain loop...");
-        this.brain.loop();
     }
 
     public AetherBrain getBrain() {
         return this.brain;
-    }
-
-    public CachedInventory getInventory() {
-        return this.inventory;
     }
 
     @Override
@@ -82,13 +110,19 @@ public abstract class AetherAsyncBot extends AbstractBot {
     public void onStop() {
         Environment.getLogger().info("#onStop");
         super.onStop();
-        this.scheduler.stop();
+        this.stopping.set(true);
+        this.brain.lobotomy();
+        UserInput.wipe();
+        Caches.invalidateAll();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         this.scheduler.pause();
+        this.brain.stroke();
+        UserInput.wipe();
+        Caches.invalidateAll();
     }
 
     @Override

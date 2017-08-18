@@ -89,6 +89,28 @@ public class SerializableMaterial implements FileSerializable, Material {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SerializableMaterial that = (SerializableMaterial) o;
+
+        if (getId() != that.getId()) return false;
+        if (isStackable() != that.isStackable()) return false;
+        if (isEquippable() != that.isEquippable()) return false;
+        return getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Boolean.hashCode(isStackable());
+        result = 31 * result + Boolean.hashCode(isEquippable());
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + getId();
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "SerializableMaterial{" +
                 "stackable=" + stackable +

@@ -4,6 +4,8 @@ import java.util.Optional;
 
 public class HashedTaskState<E> {
 
+    public static final HashedTaskState<?> DEFAULT = new HashedTaskState<>(null);
+
     private final E task;
 
     public HashedTaskState(E task) {

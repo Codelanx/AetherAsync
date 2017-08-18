@@ -10,10 +10,28 @@ public class ExecutableAetherTask extends AetherTask<Integer> {
 
     private final AtomicInteger executions = new AtomicInteger(0);
     private final Supplier<Boolean> task;
+    private final Supplier<Invalidator> invTask;
     private final int expectedRuns;
+
+    private ExecutableAetherTask(Supplier<Invalidator> inv) {
+        this.invTask = inv;
+        this.task = null;
+        this.expectedRuns = Integer.MAX_VALUE;
+    }
 
     private ExecutableAetherTask(Supplier<Boolean> task, int expectedRuns) {
         this.task = task;
+        this.invTask = null;
+        this.expectedRuns = expectedRuns;
+    }
+
+    protected ExecutableAetherTask() {
+        this(Integer.MAX_VALUE);
+    }
+
+    protected ExecutableAetherTask(int expectedRuns) {
+        this.task = null;
+        this.invTask = null;
         this.expectedRuns = expectedRuns;
     }
 
@@ -24,15 +42,32 @@ public class ExecutableAetherTask extends AetherTask<Integer> {
     }
 
     @Override
+    public boolean isExecutable() {
+        return true;
+    }
+
+    @Override
+    public boolean isSync() {
+        return super.isSync();
+    }
+
+    @Override
     public Invalidator execute(Integer state) {
-        if (this.task.get()) {
+        if (this.invTask == null && this.task == null && this.getClass() == ExecutableAetherTask.class) {
+            throw new IllegalStateException("Cannot have an ExecutableAetherTask without any form of execution/override");
+        }
+        Invalidator back = Invalidators.NONE;
+        if (this.invTask != null) {
+            state = this.executions.incrementAndGet();
+            back = this.invTask.get();
+        } else if (this.task != null && this.task.get()) {
             state = this.executions.incrementAndGet();
         }
         if (state >= this.expectedRuns) {
             this.executions.set(0);
             return Invalidators.ALL;
         }
-        return Invalidators.NONE;
+        return back;
     }
 
     @Override

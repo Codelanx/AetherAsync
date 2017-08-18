@@ -56,6 +56,9 @@ public class DialogueIterator implements Iterator<Dialogue> {
         String title = ChatDialog.getTitle();
         if (title == null) {
             InterfaceComponent comp = Interfaces.newQuery().containers(231).types(Type.LABEL).visible().results().first();
+            if (comp == null) {
+                comp = Interfaces.newQuery().containers(219).types(Type.LABEL).visible().results().first();
+            }
             title = comp == null ? null : comp.getText();
         }
         return title;
@@ -63,7 +66,7 @@ public class DialogueIterator implements Iterator<Dialogue> {
 
     public static String getTextSafe() {
         String text = ChatDialog.getText();
-        if ((Players.getLocal().getName() + ": *").equals(text)) {
+        if (text != null && text.startsWith(Players.getLocal().getName() + ": ")) {
             return null;
         }
         return text;

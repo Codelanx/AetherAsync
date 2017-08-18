@@ -1,5 +1,5 @@
 <manifest>
-    <main-class>com.codelanx.aether.bots.cooking.CookingBot</main-class>
+    <main-class>com.codelanx.aether.bots.construction.BasicBitchBot</main-class>
     <name>Aether Bot</name>
     <tag-line>Maybe a construction bot. Maybe not.</tag-line><!--Max of 50 chars-->
     <description>hoists my shitcode while I navigate the sea of runemate docs</description><!--Max of 110 chars-->

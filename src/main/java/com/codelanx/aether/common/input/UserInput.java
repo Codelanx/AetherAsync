@@ -1,7 +1,8 @@
-package com.codelanx.aether.common.bot.input;
+package com.codelanx.aether.common.input;
 
 import com.codelanx.aether.common.Randomization;
 import com.codelanx.commons.util.Reflections;
+import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
 import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
@@ -30,31 +31,38 @@ public enum UserInput {
     }
 
     public static boolean attempt() {
+        Environment.getLogger().info("Running user input...");
         InputTarget target = INSTANCE.getNextTarget();
         if (target == null) {
+            Environment.getLogger().info("Null next target");
             return false;
         }
         if (target.isAttempted()) {
             //hover secondary target
             if (!target.isSuccessful()) {
+                Environment.getLogger().info("Re-attempting input");
                 target.attempt(); //immediate re-attempt
                 return true;
             }
+            Environment.getLogger().info("Input successful");
             INSTANCE.lastInputMs.set(System.currentTimeMillis());
             InputTarget next = INSTANCE.getNextTarget(1);
             if (next != null) {
+                Environment.getLogger().info("Hovering next input...");
                 INSTANCE.actOnTarget(target, true);
             }
             INSTANCE.lastInputType = target.getClass();
             INSTANCE.queue.remove(0);
         } else if (!target.isAttempting()) {
+            Environment.getLogger().info("Starting user input (" + target.getClass().getSimpleName() + ")");
             INSTANCE.actOnTarget(target, false);
         }
         return true;
     }
     
     private static long getMinimumClick() {
-        return MIN_CLICK_MS + Randomization.MIN_CLICK.getValue().longValue();
+        double mult = 1 / Mouse.getSpeedMultiplier();
+        return (long) ((MIN_CLICK_MS + Randomization.MIN_CLICK.getValue().longValue()) * mult);
     }
     
     //hmmmmm
@@ -65,8 +73,7 @@ public enum UserInput {
         });
         return tar;
     }
-    
-    //TODO: proper input scheduling
+
     private void actOnTarget(InputTarget target, boolean hover) {
         long delay = System.currentTimeMillis() - this.lastInputMs.get();
         if (!hover && this.lastInputType != target.getClass()) {
@@ -78,6 +85,7 @@ public enum UserInput {
         }
         if (target instanceof MouseTarget) {
             MouseTarget mouse = (MouseTarget) target;
+            //TODO: Move off bot thread
             if (hover) {
                 if (mouse.getEntity().isVisible()) {
                     //precise hover
@@ -145,6 +153,10 @@ public enum UserInput {
             return !INSTANCE.queue.isEmpty();
         });
     }
+
+    public static void wipe() {
+        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
+    }
     
     private InputTarget getNextTarget() {
         return this.getNextTarget(0);
@@ -152,7 +164,7 @@ public enum UserInput {
 
     private InputTarget getNextTarget(int offset) {
         return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
-            return this.queue.size() > offset ? null : this.queue.get(offset);
+            return this.queue.size() <= offset ? null : this.queue.get(offset);
         });
     }
 }

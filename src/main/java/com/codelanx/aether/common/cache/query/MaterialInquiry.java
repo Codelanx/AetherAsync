@@ -17,4 +17,25 @@ public class MaterialInquiry extends Inquiry {
         return this.material;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MaterialInquiry that = (MaterialInquiry) o;
+
+        return getMaterial().equals(that.getMaterial());
+    }
+
+    @Override
+    public int hashCode() {
+        return getMaterial().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "MaterialInquiry{" +
+                "material=" + material +
+                '}';
+    }
 }

@@ -6,6 +6,8 @@ import com.codelanx.aether.common.cache.form.InterfaceCache;
 import com.codelanx.aether.common.cache.form.NpcCache;
 import com.codelanx.aether.common.cache.form.PlayerCache;
 
+import java.util.Arrays;
+
 /**
  * Created by rogue on 8/14/2017.
  */
@@ -13,6 +15,10 @@ public final class Caches {
     
     private Caches() {
         
+    }
+
+    public static void invalidateAll() {
+        Arrays.stream(QueryType.values()).map(QueryType::getCache).forEach(GameCache::invalidateAll);
     }
     
     public static NpcCache forNpc() {

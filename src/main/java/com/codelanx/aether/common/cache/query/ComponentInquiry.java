@@ -25,4 +25,24 @@ public class ComponentInquiry extends Inquiry {
     public Type getType() {
         return this.type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComponentInquiry that = (ComponentInquiry) o;
+
+        if (getContainer() != that.getContainer()) return false;
+        if (!getName().equals(that.getName())) return false;
+        return getType() == that.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getContainer();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + getType().hashCode();
+        return result;
+    }
 }

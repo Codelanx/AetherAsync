@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.input;
+package com.codelanx.aether.common.input;
 
 import com.codelanx.aether.common.Randomization;
 import com.runemate.game.api.hybrid.input.Keyboard;

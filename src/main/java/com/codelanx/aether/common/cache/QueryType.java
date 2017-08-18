@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 public enum QueryType {
     
     BANK(Bank.class, () -> new ContainerCache(Bank::newQuery)),
-    INVENTORY(Inventory.class, () -> new ContainerCache(Bank::newQuery)),
+    INVENTORY(Inventory.class, () -> new ContainerCache(Inventory::newQuery)),
     NPC(Npcs.class, NpcCache::new),
     GAME_OBJECT(GameObjects.class, GameObjectCache::new),
     PLAYER(Npcs.class, PlayerCache::new),

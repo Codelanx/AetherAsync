@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.input;
+package com.codelanx.aether.common.input;
 
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;

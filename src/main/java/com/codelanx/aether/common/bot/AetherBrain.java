@@ -3,16 +3,24 @@ package com.codelanx.aether.common.bot;
 import com.codelanx.aether.common.bot.mission.AetherMission;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Scheduler;
+import com.codelanx.commons.util.ref.Box;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.AbstractBot.State;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -23,7 +31,9 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
     private final List<AetherTask<?>> immediateRoot = new ArrayList<>();
     private final List<AetherMission<?>> nextMission = new ArrayList<>();
     private final LinkedList<AetherTask<?>> invalidationQueue = new LinkedList<>();
-    private volatile CompletableFuture<Invalidator> currentTask = null;
+    private final Map<Class<?>, AetherTask<?>> taskMap = new HashMap<>();
+    private final ReadWriteLock taskMapLock = new ReentrantReadWriteLock();
+    private final List<CompletableFuture<Invalidator>> runningExecs = new ArrayList<>();
     private final AetherAsyncBot bot;
     private String lastThought;
 
@@ -31,14 +41,24 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         this.bot = bot;
     }
 
-    public AetherMission getCurrentMission() {
+    public AetherMission<?> getCurrentMission() {
         return this.nextMission.isEmpty() ? null : this.nextMission.get(0);
+    }
+
+    public void stroke() {
+        this.immediateRoot.clear();
+        this.immediateTasks.clear();
+        this.nextMission.forEach(AetherTask::forceInvalidate);
+        this.runningExecs.forEach(c -> c.cancel(true));
+        this.runningExecs.clear();
     }
 
     public void lobotomy() {
         this.nextMission.clear();
         this.immediateRoot.clear();
         this.immediateTasks.clear();
+        this.runningExecs.forEach(c -> c.cancel(true));
+        this.runningExecs.clear();
     }
     
     public String getLastThought() {
@@ -63,7 +83,7 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         }
         AetherTask<?> immediateRoot = this.immediateRoot.isEmpty() ? null : this.immediateRoot.remove(0);
         if (immediateRoot != null) {
-            this.setLastThought("Running immediate AetherTask (" + immediateRoot.getClass().getSimpleName() + ")...");
+            this.setLastThought("Running immediate AetherTask (" + immediateRoot.getTaskName() + ")...");
             return immediateRoot;
         }
         AetherMission<?> task = this.nextMission.get(0);
@@ -78,7 +98,7 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
             }
             task = this.nextMission.get(0);
         }
-        this.setLastThought("[" + (System.currentTimeMillis() - START_MS) + "] Running mission: " + task.getClass().getSimpleName());
+        this.setLastThought("[" + (System.currentTimeMillis() - START_MS) + "] Running mission: " + task.getTaskName());
         return task;
     }
 
@@ -92,9 +112,39 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         return false;
     }
 
+    public AetherTask<?> getRememberedTask(Class<?> token) {
+        return Reflections.operateLock(this.taskMapLock.readLock(), () -> this.taskMap.get(token));
+    }
+
     //hints the brain to select the next direct target
     public void hint(Class<?> nextTarget) {
 
+    }
+
+    public void hint(Class<?> nextTarget, Object nextState) {
+        AetherTask<?> task = Reflections.operateLock(this.taskMapLock.readLock(), () -> this.taskMap.get(nextTarget));
+        if (task == null) {
+            return;
+        }
+        this.registerImmediate(task);
+        //TODO: what the fuck was this code, was I high? figure it out later
+        /*
+        Box<AetherTask<?>> reg = new Box<>();
+        reg.value = AetherTask.of(() -> {
+            if (task.isStateRetrieved()) {
+                Object val = task.getStateNow().get();
+                if (!Objects.equals(val, nextState)) {
+                    //re-register, and try again
+                    this.registerImmediate(reg.value);
+                } else {
+                    //we're good, roll ahead
+                    //TODO: Retrieve child
+                    return null;//reg.value.execute();
+                }
+            }
+            return Invalidators.NONE;
+        });
+        this.registerImmediate(reg.value);*/
     }
 
     public void register(AetherMission<?> mission) {
@@ -114,7 +164,11 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
     }
 
     public boolean isThinking() {
-        return this.currentTask != null && !this.currentTask.isDone() && !this.currentTask.isCompletedExceptionally();
+        if (this.runningExecs.isEmpty()) {
+            return false;
+        }
+        CompletableFuture<Invalidator> inv = this.runningExecs.get(0);
+        return !inv.isDone() && !inv.isCompletedExceptionally();
     }
 
     public void forget(AetherMission<?> m) {
@@ -134,14 +188,20 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         this.immediateRoot.add(task);
     }
 
+    @Override
+    public boolean isSync() {
+        return true;
+    }
+
     void loop() {
-        if (this.currentTask != null) {
+        if (!this.runningExecs.isEmpty()) {
             Environment.getLogger().info("#BrainDebug currentTask not null");
-            if (this.currentTask.isDone() || this.currentTask.isCompletedExceptionally()) {
+            CompletableFuture<Invalidator> comp = this.runningExecs.get(0);
+            if (comp.isDone() || comp.isCompletedExceptionally()) {
                 Environment.getLogger().info("#BrainDebug currentTask done");
                 try {
                     Environment.getLogger().info("#BrainDebug getting current task return value");
-                    Invalidator inv = this.currentTask.get();
+                    Invalidator inv = comp.get();
                     Environment.getLogger().info("#BrainDebug Invalidator: " + inv);
                     if (!inv.isNone()) {
                         Environment.getLogger().info("#BrainDebug invalidating...");
@@ -163,18 +223,25 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
                         this.bot.stop();
                         return;
                     } else {
+                        this.invalidationQueue.stream().filter(AetherTask::invalidateAnyway).forEach(AetherTask::invalidate);
                         Environment.getLogger().info("#BrainDebug invalidation skipped");
                     }
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     this.setLastThought("Error executing task for bot '" + this.bot.getClass().getSimpleName() + "':");
                     Environment.getLogger().info(Reflections.stackTraceToString(e));
+                } catch (InterruptedException e) {
+                    Environment.getLogger().severe("[Brain] Last task interrupted (shutting down?):");
+                    Environment.getLogger().info(Reflections.stackTraceToString(e));
+                    this.invalidationQueue.clear();
+                    this.bot.stop();
+                    return;
                 } catch (Throwable t) {
                     Environment.getLogger().info("#BrainDebug totally uncaught exception wtf, how rude");
                     Environment.getLogger().info("#BrainDebug ex: " + Reflections.stackTraceToString(t));
                 }
                 this.invalidationQueue.clear();
                 Environment.getLogger().info("#BrainDebug currentTask check done");
-                this.currentTask = null;
+                this.runningExecs.remove(0);
             } else {
                 Environment.getLogger().info("#BrainDebug currentTask not complete");
                 return;
@@ -194,20 +261,28 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         AetherTask<?> root = this;
         StringBuilder prefix = new StringBuilder();
         while (!root.isExecutable()) {
-            this.setLastThought(prefix.toString() + "Validating task: " + root.getClass().getName());
+            //this.setLastThought(prefix.toString() + "Validating task: " + root.getTaskName());
             if (!root.isStateRetrieved()) {
                 //try again next tick
                 Environment.getLogger().info("State not retrieved, checking later");
                 this.invalidationQueue.clear();
                 return;
             }
+            //this.setLastThought(prefix.toString() + "State retrieved: " + root.getTaskName());
             AetherTask<?> next = null;
             try {
                 next = root.getChild();
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (ExecutionException e) {
                 Environment.getLogger().info("Error retrieving child task:");
                 Environment.getLogger().info(Reflections.stackTraceToString(e));
+            } catch (InterruptedException e) {
+                Environment.getLogger().severe("[Brain] Child task interrupted (shutting down?):");
+                Environment.getLogger().info(Reflections.stackTraceToString(e));
+                this.invalidationQueue.clear();
+                this.bot.stop();
+                return;
             }
+            this.setLastThought(prefix.toString() + "Next child: " + Optional.ofNullable(next).map(AetherTask::getTaskName).orElse(null));
             if (next == null) {
                 next = root.getChild(null); //default handling
                 if (next == null) {
@@ -219,21 +294,29 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
             }
             prefix.append('\t');
             this.invalidationQueue.push(root);
+            AetherTask<?> froot = root;
+            Reflections.operateLock(this.taskMapLock.writeLock(), () -> {
+                this.taskMap.putIfAbsent(froot.getToken(), froot);
+            });
             root = next;
         }
-        this.setLastThought("Executing task: " + root.getClass().getName());
+        this.setLastThought("Executing task: " + root.getTaskName());
         //root should be executable now
         //due to the nature of runemate's api, we'll halt re-evaluation
         // until the task is executed
         AetherTask<?> froot = root;
-        if (this.currentTask == null) {
-            CompletableFuture<Invalidator> done = CompletableFuture.supplyAsync(froot::execute, this.bot.getScheduler().getThreadPool());
-            if (this.currentTask == null) {
-                this.currentTask = done;
+        if (this.runningExecs.isEmpty()) {
+            CompletableFuture<Invalidator> done = Scheduler.complete(froot::execute);
+            if (this.runningExecs.isEmpty()) {
+                this.runningExecs.add(done);
             } else {
-                done.cancel(true);
+                this.runningExecs.remove(0).cancel(true);
             }
         }
+    }
+
+    public void delayUntil(CompletableFuture<Invalidator> task) {
+        this.runningExecs.add(0, task);
     }
 
 }

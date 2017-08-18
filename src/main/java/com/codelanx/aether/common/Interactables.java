@@ -1,5 +1,6 @@
 package com.codelanx.aether.common;
 
+import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.GameObject.Type;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
@@ -14,6 +15,7 @@ public enum Interactables implements Identifiable {
     private final int id;
     private final String name;
     private final Type type;
+    private volatile ObjectInquiry inquiry;
 
     private Interactables(int id, String name, Type type) {
         this.id = id;
@@ -40,4 +42,14 @@ public enum Interactables implements Identifiable {
         return this.type;
     }
 
+    @Override
+    public ObjectInquiry toInquiry() {
+        if (this.inquiry == null) {
+            ObjectInquiry inquiry = new ObjectInquiry(this);
+            if (this.inquiry == null) {
+                this.inquiry = inquiry;
+            }
+        }
+        return this.inquiry;
+    }
 }

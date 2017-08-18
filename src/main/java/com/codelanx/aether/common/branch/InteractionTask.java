@@ -3,7 +3,7 @@ package com.codelanx.aether.common.branch;
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
-import com.codelanx.aether.common.bot.input.UserInput;
+import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.branch.recipe.type.GoToRangeTask;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.json.item.ItemStack;

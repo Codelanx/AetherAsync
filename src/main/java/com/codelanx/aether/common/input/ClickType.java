@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.input;
+package com.codelanx.aether.common.input;
 
 public enum ClickType {
 

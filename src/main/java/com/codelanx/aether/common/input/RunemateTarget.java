@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.bot.input;
+package com.codelanx.aether.common.input;
 
 import java.util.function.Supplier;
 

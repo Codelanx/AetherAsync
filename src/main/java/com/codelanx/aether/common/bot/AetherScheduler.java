@@ -1,26 +1,32 @@
 package com.codelanx.aether.common.bot;
 
 import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 public class AetherScheduler {
 
     private static final long TICK_RATE_MS = 50;
     private static final AtomicInteger SCHEDULER_INDEX = new AtomicInteger();
     private static final AtomicInteger BOT_INDEX = new AtomicInteger();
-    private final ScheduledThreadPoolExecutor scheduler;
     private final ScheduledThreadPoolExecutor botThread;
     private final ThreadGroup ourGroup;
     private final AetherAsyncBot bot;
     private ScheduledFuture<?> runningBotThread;
-    private final CompletableFuture<?> ended;
+    private final List<Future<?>> tasks = new ArrayList<>();
+    private final ReadWriteLock tasksLock = new ReentrantReadWriteLock();
 
     AetherScheduler(AetherAsyncBot bot) {
         this.bot = bot;
@@ -36,27 +42,28 @@ public class AetherScheduler {
                 return;
             }
         });
-        this.scheduler = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {;
-            Environment.getLogger().info("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
-            try {
-                reject.run();
-            } catch (Throwable t) {
-                Environment.getLogger().info("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                Environment.getLogger().info(Reflections.stackTraceToString(t));
-                this.bot.stop();
-                return;
-            }
+        Scheduler.setProvider(() -> {
+            ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {;
+                Environment.getLogger().info("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
+                try {
+                    reject.run();
+                } catch (Throwable t) {
+                    Environment.getLogger().info("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
+                    Environment.getLogger().info(Reflections.stackTraceToString(t));
+                    this.bot.stop();
+                    return;
+                }
+            });
+            pool.setRemoveOnCancelPolicy(true);
+            return pool;
         });
-        this.scheduler.setRemoveOnCancelPolicy(true);
-        this.scheduler.setRemoveOnCancelPolicy(true);
-        this.ended = new CompletableFuture<>();
     }
 
     void register(AetherAsyncBot bot) {
         if (this.runningBotThread != null) {
             throw new IllegalStateException("Already registered bot to scheduler");
         }
-        this.runningBotThread = this.botThread.scheduleAtFixedRate(bot::loop, 5, TICK_RATE_MS, TimeUnit.MILLISECONDS);
+        this.runningBotThread = this.botThread.scheduleAtFixedRate(bot::loop, 500, TICK_RATE_MS, TimeUnit.MILLISECONDS);
     }
 
     void pause() {
@@ -65,6 +72,7 @@ public class AetherScheduler {
             return;
         }
         this.runningBotThread.cancel(true);
+        Scheduler.cancelAllTasks();
         this.runningBotThread = null;
     }
 
@@ -73,16 +81,12 @@ public class AetherScheduler {
     }
 
     boolean isShutdown() {
-        return this.botThread.isShutdown() || this.scheduler.isShutdown();
+        return this.botThread.isShutdown() || Scheduler.getService().isShutdown();
     }
 
     void stop() {
-        try {
-            this.scheduler.awaitTermination(1000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            this.scheduler.shutdownNow();
-        }
-        this.scheduler.shutdown();
+        //TODO: Thread check, we should probably have this called from the main bot thread
+        Scheduler.cancelAndShutdown();
         this.botThread.shutdown();
     }
 
@@ -94,8 +98,20 @@ public class AetherScheduler {
         return new Thread(this.ourGroup, r,"Aether-scheduler-" + this.bot.getClass().getName() + "-" + SCHEDULER_INDEX.getAndIncrement());
     }
 
-    public ScheduledExecutorService getThreadPool() {
-        return this.scheduler;
+    public ScheduledThreadPoolExecutor getThreadPool() {
+        return (ScheduledThreadPoolExecutor) Scheduler.getService();
+    }
+
+    public <R> CompletableFuture<R> complete(Supplier<R> supplier) {
+        CompletableFuture<R> back = CompletableFuture.supplyAsync(supplier, this.getThreadPool());
+        this.addTask(back);
+        return back;
+    }
+
+    private void addTask(Future<?> future) {
+        Reflections.operateLock(this.tasksLock.writeLock(), () -> {
+            this.tasks.add(future);
+        });
     }
 
     ScheduledThreadPoolExecutor getBotThread() {

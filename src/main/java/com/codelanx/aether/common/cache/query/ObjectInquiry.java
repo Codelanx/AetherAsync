@@ -16,4 +16,19 @@ public class ObjectInquiry extends Inquiry {
     public Identifiable getTarget() {
         return this.target;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectInquiry inquiry = (ObjectInquiry) o;
+
+        return getTarget().equals(inquiry.getTarget());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTarget().hashCode();
+    }
 }
