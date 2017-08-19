@@ -18,9 +18,11 @@ public class PlayerCache extends LocatableCache<Player> {
 
     @Override
     public Supplier<PlayerQueryBuilder> getBiasedQuery(ObjectInquiry inquiry) {
-        PlayerQueryBuilder build = this.getRawQuery().get();
-        build.names(inquiry.getTarget().getName());
-        return () -> build;
+        return () -> {
+            PlayerQueryBuilder build = this.getRawQuery().get();
+            build.names(inquiry.getTarget().getName());
+            return build;
+        };
     }
 
     @Override

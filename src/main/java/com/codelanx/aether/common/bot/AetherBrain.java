@@ -197,7 +197,10 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
         if (!this.runningExecs.isEmpty()) {
             Environment.getLogger().info("#BrainDebug currentTask not null");
             CompletableFuture<Invalidator> comp = this.runningExecs.get(0);
-            if (comp.isDone() || comp.isCompletedExceptionally()) {
+            if (comp.isCancelled()) {
+                Environment.getLogger().info("#BrainDebug currentTask was cancelled, removing...");
+                this.runningExecs.remove(0);
+            } else if (comp.isDone() || comp.isCompletedExceptionally()) {
                 Environment.getLogger().info("#BrainDebug currentTask done");
                 try {
                     Environment.getLogger().info("#BrainDebug getting current task return value");

@@ -32,24 +32,24 @@ public class AetherScheduler {
         this.bot = bot;
         this.ourGroup = Thread.currentThread().getThreadGroup();
         this.botThread = new ScheduledThreadPoolExecutor(1, this::newBotThread, (reject, scheduler) -> {
-            Environment.getLogger().info("Bot task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
+            Environment.getLogger().warn("Bot task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
             try {
                 reject.run();
             } catch (Throwable t) {
-                Environment.getLogger().info("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                Environment.getLogger().info(Reflections.stackTraceToString(t));
+                Environment.getLogger().severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
+                Environment.getLogger().severe(Reflections.stackTraceToString(t));
                 AetherScheduler.this.bot.stop();
                 return;
             }
         });
         Scheduler.setProvider(() -> {
             ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {;
-                Environment.getLogger().info("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
+                Environment.getLogger().warn("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
                 try {
                     reject.run();
                 } catch (Throwable t) {
-                    Environment.getLogger().info("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                    Environment.getLogger().info(Reflections.stackTraceToString(t));
+                    Environment.getLogger().severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
+                    Environment.getLogger().severe(Reflections.stackTraceToString(t));
                     this.bot.stop();
                     return;
                 }

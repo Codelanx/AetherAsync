@@ -10,7 +10,6 @@ import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -31,12 +30,14 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> {
     
     @Override
     public Supplier<SpriteItemQueryResults> getResults(MaterialInquiry inquiry) {
-        SpriteItemQueryBuilder query = this.getRawQuery().get();
-        query.ids(inquiry.getMaterial().getId());
-        query.names(inquiry.getMaterial().getName());
-        query.equipable(inquiry.getMaterial().isEquippable());
-        query.stacks(inquiry.getMaterial().isStackable());
-        return query::results;
+        return () -> {
+            SpriteItemQueryBuilder query = this.getRawQuery().get();
+            query.ids(inquiry.getMaterial().getId());
+            query.names(inquiry.getMaterial().getName());
+            query.equipable(inquiry.getMaterial().isEquippable());
+            query.stacks(inquiry.getMaterial().isStackable());
+            return query.results();
+        };
     }
 
     @Override

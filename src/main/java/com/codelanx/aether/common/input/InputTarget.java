@@ -52,6 +52,9 @@ public abstract class InputTarget {
         if (this.attempt == null) {
             return false;
         }
+        if (this.attempt.isCancelled()) {
+            return false;
+        }
         try {
             return this.attempt.get();
         } catch (ExecutionException e) {

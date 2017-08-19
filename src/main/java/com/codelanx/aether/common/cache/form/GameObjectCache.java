@@ -3,6 +3,7 @@ package com.codelanx.aether.common.cache.form;
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.queries.GameObjectQueryBuilder;
+import com.runemate.game.api.hybrid.queries.results.QueryResults;
 import com.runemate.game.api.hybrid.region.GameObjects;
 
 import java.util.function.Supplier;
@@ -17,11 +18,18 @@ public class GameObjectCache extends LocatableCache<GameObject> {
     }
 
     @Override
+    public Supplier<? extends QueryResults<GameObject, ?>> getResults(ObjectInquiry inquiry) {
+        return super.getResults(inquiry);
+    }
+
+    @Override
     public Supplier<GameObjectQueryBuilder> getBiasedQuery(ObjectInquiry inquiry) {
-        GameObjectQueryBuilder build = this.getRawQuery().get();
-        build.names(inquiry.getTarget().getName());
-        build.types(inquiry.getTarget().getType());
-        return () -> build;
+        return () -> {
+            GameObjectQueryBuilder build = this.getRawQuery().get();
+            build.names(inquiry.getTarget().getName());
+            build.types(inquiry.getTarget().getType());
+            return build;
+        };
     }
 
     @Override

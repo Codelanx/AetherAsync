@@ -13,11 +13,13 @@ public class InterfaceCache extends GameCache<InterfaceComponent, ComponentInqui
 
     @Override
     public Supplier<InterfaceComponentQueryResults> getResults(ComponentInquiry inquiry) {
-        InterfaceComponentQueryBuilder builder = this.getRawQuery().get();
-        builder.types(inquiry.getType());
-        builder.names(inquiry.getName());
-        builder.containers(inquiry.getContainer());
-        return builder::results;
+        return () -> {
+            InterfaceComponentQueryBuilder builder = this.getRawQuery().get();
+            builder.types(inquiry.getType());
+            builder.names(inquiry.getName());
+            builder.containers(inquiry.getContainer());
+            return builder.results();
+        };
     }
 
     @Override

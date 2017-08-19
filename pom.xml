@@ -26,11 +26,13 @@
             <groupId>com.codelanx</groupId>
             <artifactId>commons</artifactId>
             <version>0.3.2-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.runemate</groupId>
             <artifactId>runemate</artifactId>
             <version>LATEST</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 

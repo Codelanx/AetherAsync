@@ -5,6 +5,7 @@ public class Invalidators {
     public static final Invalidator ALL = new Invalidator(true, -1);
     public static final Invalidator NONE = new Invalidator(false, -1);
     public static final Invalidator END = new Invalidator(false, -1, true);
+    public static final Invalidator SELF = new Invalidator(false, 1);
 
     /**
      * Invalidates {@code range} previous branches, where {@code range}

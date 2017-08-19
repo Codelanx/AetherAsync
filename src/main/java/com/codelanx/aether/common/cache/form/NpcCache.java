@@ -18,9 +18,11 @@ public class NpcCache extends LocatableCache<Npc> {
 
     @Override
     public Supplier<NpcQueryBuilder> getBiasedQuery(ObjectInquiry inquiry) {
-        NpcQueryBuilder build = this.getRawQuery().get();
-        build.names(inquiry.getTarget().getName());
-        return () -> build;
+        return () -> {
+            NpcQueryBuilder build = this.getRawQuery().get();
+            build.names(inquiry.getTarget().getName());
+            return build;
+        };
     }
 
     @Override

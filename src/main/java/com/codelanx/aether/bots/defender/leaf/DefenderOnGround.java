@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.AsyncExec;
 import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
@@ -27,7 +28,7 @@ public class DefenderOnGround implements Runnable {
 
     @Override
     public void run() {
-        Environment.getBot().getLogger().info("In DefenderOnGround leaf");
+        Aether.getBot().getLogger().info("In DefenderOnGround leaf");
         //this ended up just being the entire looting leaf, doesn't really make a difference
         GroundItem defender = GroundItems.newQuery().names(defenders).unnoted().reachable().results().first();
         GroundItem desiredItem = GroundItems.newQuery().names(desired).unnoted().reachable().results().first();
