@@ -4,9 +4,15 @@ import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
 
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -43,7 +49,19 @@ public class AetherScheduler {
             }
         });
         Scheduler.setProvider(() -> {
-            ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {;
+            //TODO: Finish implementing
+            /*ForkJoinPool workStealer = new ForkJoinPool(Runtime.getRuntime().availableProcessors() + 1,
+                            pool -> new SpeshulThread(pool, AetherScheduler.this.ourGroup),
+                            new UncaughtExceptionHandler() {
+                                @Override
+                                public void uncaughtException(Thread t, Throwable e) {
+                                    Environment.getLogger().info("Unhandled exception in worker thread " + t.getName() + ": " );
+                                    Environment.getLogger().info(Reflections.stackTraceToString(e));
+                                    AetherScheduler.this.bot.stop();
+                                }
+                            }, true);
+            CompletableFuture<?> comp = CompletableFuture.runAsync(() -> {}, workStealer);*/
+            ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {
                 Environment.getLogger().warn("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
                 try {
                     reject.run();
@@ -57,6 +75,48 @@ public class AetherScheduler {
             pool.setRemoveOnCancelPolicy(true);
             return pool;
         });
+    }
+
+    private static class SpeshulThread extends ForkJoinWorkerThread {
+
+        private static final Field setGroup = ((Supplier<Field>) (() -> {
+            try {
+                Field f = Thread.class.getDeclaredField("group");
+                f.setAccessible(true);
+                return f;
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Failed to reflect thread internals for fork-join pool", e);
+            }
+        })).get();
+        private static final Method reserveThreadToGroup = ((Supplier<Method>) (() -> {
+            try {
+                Method m = ThreadGroup.class.getDeclaredMethod("addUnstarted");
+                m.setAccessible(true);
+                return m;
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Failed to reflect thread internals for fork-join pool", e);
+            }
+        })).get();
+        private static final AtomicInteger workIndex = new AtomicInteger();
+
+
+        public SpeshulThread(ForkJoinPool pool, ThreadGroup group) {
+            super(pool);
+            //A RACE
+            //we need to reflect the threadgroup in the superclass before our constructor finishes
+            try {
+                setGroup.set(this, group);
+                reserveThreadToGroup.invoke(group);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                Environment.getLogger().severe("Failed to register our task to the correct botgroup, runemate gun b mad");
+                Environment.getLogger().severe(Reflections.stackTraceToString(e));
+                Aether.getScheduler().getBotThread().execute(Aether.getBot()::stop);
+                return;
+            }
+            this.setName("aether-work-pool-" + SpeshulThread.workIndex.getAndIncrement());
+        }
     }
 
     void register(AetherAsyncBot bot) {
