@@ -34,7 +34,6 @@ public abstract class AetherAsyncBot extends AbstractBot {
     @Override
     public final void run() {
         Environment.getLogger().info("#run");
-        this.scheduler.register(this);
         while (!this.scheduler.isShutdown()) {
             if (this.stopping.get()) {
                 this.scheduler.stop();
@@ -104,6 +103,7 @@ public abstract class AetherAsyncBot extends AbstractBot {
     public void onStart(String... strings) {
         super.onStart(strings);
         Environment.getLogger().info("#onStart(" + Arrays.toString(strings) + ")");
+        this.scheduler.register(this);
     }
 
     @Override

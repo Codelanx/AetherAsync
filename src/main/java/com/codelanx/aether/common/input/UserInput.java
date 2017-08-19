@@ -1,11 +1,16 @@
 package com.codelanx.aether.common.input;
 
 import com.codelanx.aether.common.Randomization;
+import com.codelanx.aether.common.input.type.CombatTarget;
+import com.codelanx.aether.common.input.type.KeyboardTarget;
+import com.codelanx.aether.common.input.type.MouseTarget;
+import com.codelanx.aether.common.input.type.RunemateTarget;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
 import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
+import com.runemate.game.api.hybrid.region.Players;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -126,6 +131,14 @@ public enum UserInput {
 
     public static MouseTarget interact(Interactable obj, String value) {
         MouseTarget back = new MouseTarget(obj, value);
+        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+            INSTANCE.queue.add(back);
+        });
+        return back;
+    }
+
+    public static CombatTarget combat(Interactable obj) {
+        CombatTarget back = new CombatTarget(obj);
         Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);
         });

@@ -1,5 +1,7 @@
-package com.codelanx.aether.common.input;
+package com.codelanx.aether.common.input.type;
 
+import com.codelanx.aether.common.input.ClickType;
+import com.codelanx.aether.common.input.InputTarget;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
 

@@ -1,4 +1,6 @@
-package com.codelanx.aether.common.input;
+package com.codelanx.aether.common.input.type;
+
+import com.codelanx.aether.common.input.InputTarget;
 
 import java.util.function.Supplier;
 
