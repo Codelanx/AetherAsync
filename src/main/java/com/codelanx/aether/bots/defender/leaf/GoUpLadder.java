@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.region.GameObjects;
@@ -21,10 +22,10 @@ public class GoUpLadder implements Runnable {
         GameObject ladder = GameObjects.newQuery().names("Ladder").results().nearest();
         if(ladder != null){
             if(ladder.isVisible()){
-            if(ladder.interact("Climb-up")) {
-                Execution.delay(1000, 2000);
-            }
-        } else {
+                UserInput.interact(ladder, "Climb-up").postAttempt().thenRun(() -> {
+                    Execution.delay(1000, 2000);
+                });
+            } else {
                 Camera.turnTo(ladder);
             }
         }

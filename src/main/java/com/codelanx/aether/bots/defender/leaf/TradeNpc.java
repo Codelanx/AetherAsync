@@ -1,6 +1,8 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.bot.AsyncExec;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Shop;
@@ -22,9 +24,9 @@ public class TradeNpc implements Runnable {
         Npc shopNPC = Npcs.newQuery().names("Lidio").reachable().results().nearest();
         if(shopNPC != null){
             if(shopNPC.isVisible()) {
-                if (shopNPC.interact("Trade")) {
-                    Execution.delayUntil(Shop::isOpen, 500, 3000);
-                }
+                UserInput.interact(shopNPC, "Trade").postAttempt().thenRun(() -> {
+                    AsyncExec.delayUntil(Shop::isOpen);
+                });
             } else {
                 Camera.turnTo(shopNPC);
             }

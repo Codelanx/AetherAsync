@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.Camera;
@@ -22,10 +23,10 @@ public class GoDown implements Runnable {
     public void run() {
         stairs = GameObjects.newQuery().names("Staircase").results().nearest();
         if(stairs != null){
-            if(stairs.isVisible()){
-                if(stairs.interact("Climb-down")) {
+            if(stairs.isVisible()) {
+                UserInput.interact(stairs, "Climb-down").postAttempt().thenRun(() -> {
                     Execution.delay(1000, 2000);
-                }
+                });
             } else {
                 Camera.turnTo(stairs);
             }

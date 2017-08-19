@@ -1,12 +1,16 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.bot.AsyncExec;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.script.Execution;
+
+import java.util.Arrays;
 
 /**
  * NOTES:
@@ -19,7 +23,7 @@ public class DefenderOnGround implements Runnable {
     public DefenderOnGround(DefenderBot bot) {this.bot = bot;}
 
     private static final String defenders[] = {"Bronze defender", "Iron defender", "Steel defender", "Black defender", "Mithril defender", "Adamant defender", "Rune defender", "Dragon defender"};
-    private static final String desired[] = {"Mithril full helm", "Warrior guild token", "Mithril platebody", "Mithril platelegs", "Bronze defender", "Iron defender", "Steel defender", "Black defender", "Mithril defender", "Adamant defender", "Rune defender", "Dragon defender"};
+    private static final String desired[] = {"Black full helm", "Warrior guild token", "Black platebody", "Black platelegs", "Bronze defender", "Iron defender", "Steel defender", "Black defender", "Mithril defender", "Adamant defender", "Rune defender", "Dragon defender"};
 
     @Override
     public void run() {
@@ -27,21 +31,16 @@ public class DefenderOnGround implements Runnable {
         //this ended up just being the entire looting leaf, doesn't really make a difference
         GroundItem defender = GroundItems.newQuery().names(defenders).unnoted().reachable().results().first();
         GroundItem desiredItem = GroundItems.newQuery().names(desired).unnoted().reachable().results().first();
-        if(defender != null){
-            if(defender.isVisible()) {
-                if (defender.interact("Take")) {
-                    Execution.delayUntil(() -> !defender.isValid(), () -> Players.getLocal().isMoving(), 200, 1000);
+        for (GroundItem i : Arrays.asList(defender, desiredItem)) {
+            if (i != null) {
+                if (i.isVisible()) {
+                    UserInput.interact(i, "Take").postAttempt().thenRun(() -> {
+                        AsyncExec.delayUntil(() -> !i.isValid() || Players.getLocal().isMoving());
+                    });
+                } else {
+                    Camera.turnTo(i);
                 }
-            } else {
-                Camera.turnTo(defender);
-            }
-        } else if (desiredItem != null){
-            if(desiredItem.isVisible()) {
-                if (desiredItem.interact("Take")) {
-                    Execution.delayUntil(() -> !desiredItem.isValid(), () -> Players.getLocal().isMoving(), 200, 1000);
-                }
-            } else {
-                Camera.turnTo(desiredItem);
+                break;
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.region.GameObjects;
@@ -21,9 +22,9 @@ public class LeaveTopFloor implements Runnable {
         GameObject stairs = GameObjects.newQuery().names("Staircase").results().first();
         if(stairs != null){
             if(stairs.isVisible()){
-                if(stairs.interact("Climb-down")){
+                UserInput.interact(stairs, "Climb-down").postAttempt().thenRun(() -> {
                     Execution.delay(1000, 3000);
-                }
+                });
             } else {
                 Camera.turnTo(stairs);
             }

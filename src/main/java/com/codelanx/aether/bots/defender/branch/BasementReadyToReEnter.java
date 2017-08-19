@@ -25,6 +25,6 @@ public class BasementReadyToReEnter extends AetherTask<Boolean> {
 
     @Override
     public Supplier<Boolean> getStateNow() {
-        return () -> Inventory.getQuantity("Warrior guild token") > 150 && !Equipment.containsAnyOf("Dragon defender") && !Inventory.containsAnyOf("Dragon defender") && Inventory.newQuery().actions("Eat").results().first() != null;
+        return () -> Inventory.getQuantity("Warrior guild token") > 150 && !Equipment.containsAnyOf("Rune defender") && !Inventory.containsAnyOf("Rune defender") && Inventory.newQuery().actions("Eat").results().first() != null;
     }
 }

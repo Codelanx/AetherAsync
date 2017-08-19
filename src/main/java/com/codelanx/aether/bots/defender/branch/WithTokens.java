@@ -22,15 +22,12 @@ public class WithTokens extends AetherTask<Boolean> {
         this.register(false, new GoToAnimationRoom(bot));
     }
 
-    private WithRuneDefender withrunedefender;
-    private GoToAnimationRoom gotoanimationroom;
-
     @Override
     public Supplier<Boolean> getStateNow() {
         return () -> {
-            boolean back = Inventory.getQuantity("Warrior guild token") >= 1000;
+            boolean back = Inventory.getQuantity("Warrior guild token") >= 2400;
             if (!back) {
-                Environment.getBot().getLogger().info("We don't have 1000 tokens");
+                Environment.getBot().getLogger().info("We don't have 2400 tokens");
             }
             return back;
         };

@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.Camera;
@@ -45,9 +46,10 @@ public class ReEnter implements Runnable {
             ChatDialog.getContinue().select();
         } else if(door != null && Players.getLocal() != null){
             if(door.isVisible()){
-                door.interact("Open");
                 bot.setNewDefender(false);
-                Execution.delay(2000, 5000);
+                UserInput.interact(door, "Open").postAttempt().thenRun(() -> {
+                    Execution.delay(2000, 3000);
+                });
             } else if (Distance.between(door.getPosition(), Players.getLocal().getPosition()) > 8){
                 BresenhamPath toDoor = BresenhamPath.buildTo(door);
                 if(toDoor != null) {

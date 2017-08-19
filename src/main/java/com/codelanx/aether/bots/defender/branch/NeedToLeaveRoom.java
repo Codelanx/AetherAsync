@@ -36,7 +36,7 @@ public class NeedToLeaveRoom extends AetherTask<Boolean> {
         return () -> {
             boolean inTopFloorFightRoom = Players.getLocal().getPosition().getPlane() == 2 && !topFloorOutside.contains(Players.getLocal());
             boolean inBasementFightRoom = Players.getLocal().getPosition().getPlane() == 0 && Distance.between(new Coordinate(2907, 9968, 0), Players.getLocal().getPosition()) < 200 && !basementOutside.contains(Players.getLocal());
-            boolean inAnimRoomWithTokens = animationRoom.contains(Players.getLocal()) && Inventory.getQuantity("Warrior guild token") >= 1000;
+            boolean inAnimRoomWithTokens = animationRoom.contains(Players.getLocal()) && Inventory.getQuantity("Warrior guild token") >= 2000;
 
             return Inventory.newQuery().actions("Eat").results().size() == 0 ||
                     (Players.getLocal() != null && (((inBasementFightRoom || inTopFloorFightRoom) && bot.getNewDefender()) || inAnimRoomWithTokens));

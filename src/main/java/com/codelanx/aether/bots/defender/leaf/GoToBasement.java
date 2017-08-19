@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.leaf;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.input.UserInput;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.Camera;
@@ -35,7 +36,7 @@ public class GoToBasement implements Runnable {
             GameObject ladder = GameObjects.newQuery().names("Ladder").within(nearLadder).results().first();
             if(ladder != null){
                 if(ladder.isVisible()) {
-                    ladder.interact("Climb-down");
+                    UserInput.interact(ladder, "Climb-down");
                 } else {
                     Camera.turnTo(ladder);
                 }
@@ -50,9 +51,9 @@ public class GoToBasement implements Runnable {
         } else if (Players.getLocal() != null && Players.getLocal().getPosition().getX() > 2838 && shop.contains(Players.getLocal())){
             if((closedDoor = GameObjects.newQuery().names("Door").actions("Open").within(doorArea).results().first()) != null){
                 if(closedDoor.isVisible()) {
-                    if (closedDoor.interact("Open")) {
+                    UserInput.interact(closedDoor, "Open").postAttempt().thenRun(() -> {
                         Execution.delay(500, 3000);
-                    }
+                    });
                 } else {
                     Camera.turnTo(closedDoor);
                 }

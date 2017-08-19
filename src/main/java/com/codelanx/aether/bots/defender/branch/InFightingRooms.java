@@ -1,6 +1,7 @@
 package com.codelanx.aether.bots.defender.branch;
 
 import com.codelanx.aether.bots.defender.DefenderBot;
+import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.location.Area;
@@ -36,7 +37,7 @@ public class InFightingRooms extends AetherTask<Boolean> {
                     (Players.getLocal().getPosition().getPlane() == 0 && Distance.between(new Coordinate(2907, 9968, 0), Players.getLocal().getPosition()) < 200 && !basementOutside.contains(Players.getLocal()) || //in the basement but not outside the insideCave area
                             (animationRoom.contains(Players.getLocal()))); //in the insideCave area of the main floor
             if (back) {
-                Environment.getBot().getLogger().info("We found that the local player was in a insideCave room from the 'InFightingRoom' branch");
+                Aether.getBot().getLogger().info("We found that the local player was in a insideCave room from the 'InFightingRoom' branch");
             }
             return back;
         };

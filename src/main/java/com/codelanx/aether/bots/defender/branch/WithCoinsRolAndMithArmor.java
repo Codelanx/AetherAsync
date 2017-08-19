@@ -24,7 +24,7 @@ public class WithCoinsRolAndMithArmor extends AetherTask<Boolean> {
 
     @Override
     public Supplier<Boolean> getStateNow() {
-        return () -> Inventory.containsAllOf("Coins", "Mithril full helm", "Mithril platebody", "Mithril platelegs") && Equipment.contains("Ring of life");
+        return () -> Inventory.containsAllOf(/*"Coins", */"Black full helm", "Black platebody", "Black platelegs");// && Equipment.contains("Ring of life");
     }
 
 }
