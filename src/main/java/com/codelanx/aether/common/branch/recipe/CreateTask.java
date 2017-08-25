@@ -1,16 +1,24 @@
 package com.codelanx.aether.common.branch.recipe;
 
+import com.codelanx.aether.bots.fletching.FletchingBot;
+import com.codelanx.aether.common.Leveling;
+import com.codelanx.aether.common.bot.Aether;
+import com.codelanx.aether.common.bot.AsyncExec;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.json.recipe.Recipe;
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainer;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainers;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.script.Execution;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CreateTask implements Supplier<Invalidator> {
 
@@ -32,7 +40,7 @@ public class CreateTask implements Supplier<Invalidator> {
                     return Invalidators.NONE;
                 }
                 cont = InterfaceContainers.getAt(this.recipe.getContainerId());
-                cont.getComponents(i -> true).random().interact("Cook All");
+                UserInput.interact(cont.getComponents(i -> true).random(), "Cook All");
                 break;
             case SMELT:
                 if (!InterfaceContainers.isLoaded(this.recipe.getContainerId())) {
@@ -40,32 +48,27 @@ public class CreateTask implements Supplier<Invalidator> {
                     return Invalidators.NONE;
                 }
                 cont = InterfaceContainers.getAt(this.recipe.getContainerId());
-                cont.getComponents(i -> true).random().interact("Smelt All");
+                UserInput.interact(cont.getComponents(i -> true).random(), "Smelt All");
                 break;
-            case CLICK:
-                //get next item in inventory, click it
-                //Validate.isTrue(this.recipe.getIngrediateCount() == 1, "Cannot have a CLICK recipe with multiple ingredients");
-                item = this.recipe.getIngredientsInInventory().findAny().orElse(null);
-                if (item != null) {
-                    UserInput.click(item);
+            case CLICK: //TODO
+                return Invalidators.ALL;
+            case COMBINE: 
+                if (!InterfaceContainers.isLoaded(this.recipe.getContainerId())) {
+                    Execution.delay(100);
+                    return Invalidators.NONE;
                 }
-                return Invalidators.NONE;
-            case COMBINE: //TODO
-                if (this.recipe.getToolSpace() > 0) {
-                    item = this.recipe.getToolsInInventory().findAny().orElse(null);
-                    //click tool on itemsSpriteItem i = this.recipe.getIngredientsInInventory().first();
-                    if (item != null) {
-                        SpriteItem target = this.recipe.getIngredientsInInventory().findAny().orElse(null);
-                        if (target != null) {
-                            UserInput.interact(item, "Use");
-                            UserInput.click(target);
-                            if (this.recipe.isAutomatic()) {
-                                //TODO: Menu handling
-                            }
-                            return Invalidators.NONE;
-                        }
+                cont = InterfaceContainers.getAt(this.recipe.getContainerId());
+                UserInput.interact(cont.getComponents(i -> true).random(), "Make 10 sets").postAttempt().thenRun(() -> {
+                    if (Aether.getBot() instanceof FletchingBot) {
+                        int blevel = Skill.FLETCHING.getBaseLevel();
+                        long curr = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(12);
+                        AsyncExec.delayUntil(() -> {
+                            //TODO: Proper check, this works for fletching only (bandaid)
+                            return curr < System.currentTimeMillis() || Skill.FLETCHING.getBaseLevel() > blevel;
+                        });
                     }
-                }
+                });
+                
         }
         return Invalidators.ALL;
     }

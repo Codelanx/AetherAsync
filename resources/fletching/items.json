@@ -2,14 +2,14 @@
     "items": [
         {
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
-            "stackable": false,
+            "stackable": true,
             "equippable": false,
             "name": "Headless arrow",
             "id": 53
         },
         {
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
-            "stackable": false,
+            "stackable": true,
             "equippable": false,
             "name": "Steel arrowtips",
             "id": 41

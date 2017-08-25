@@ -2,6 +2,7 @@ package com.codelanx.aether.common.json.recipe;
 
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.cache.form.ContainerCache;
+import com.codelanx.aether.common.json.Withdrawable;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
@@ -14,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface Recipe {
+public interface Recipe extends Withdrawable {
 
     //gets the name of the RECIPE, not relevant for in-game details
     public String getName();
@@ -130,9 +131,16 @@ public interface Recipe {
         return (this.getRecipeSpace() * this.recipesPerTool()) + this.getToolSpace();
     }
 
-    default public Stream<ItemStack> fullInventoryWithdrawl() {
-        int count = 28 / this.getFullUnitSize();
-        return this.getFullUnit().map(i -> i.setQuantity(i.getQuantity() * count));
+    @Override
+    default public Stream<ItemStack> fullInventoryWithdrawl(int space) {
+        int count = space - this.getToolSpace() - (int) this.getIngredients().filter(ItemStack::isStackable).count();
+        count /= this.getIngredientCount();
+        int fcount = count;
+        //return this.getFullUnit().map(i -> i.setQuantity(i.getQuantity() * count));
+        return Stream.concat(Stream.concat(
+                this.getIngredients().filter(ItemStack::isStackable).map(i -> i.setQuantity(Integer.MAX_VALUE)),
+                this.getTools()),
+                    this.getIngredients().filter(i -> !i.isStackable()).map(i -> i.setQuantity(i.getQuantity() * fcount)));
     }
 
     /**

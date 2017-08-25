@@ -7,10 +7,8 @@
             "automatic": false,
             "container": -1,
             "ingredients": {
-                "946": 1
             },
             "tools": {
-                "946": 1
             }
         },
         {
@@ -18,10 +16,11 @@
             "name": "Steel Arrows",
             "type": "COMBINE",
             "automatic": false,
-            "container": -1,
+            "container": 582,
+            "child": 5,
             "ingredients": {
-                "41": 1,
-                "53": 1
+                "41": 15,
+                "53": 15
             },
             "tools": {
                 

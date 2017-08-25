@@ -1,14 +1,17 @@
 package com.codelanx.aether.common.branch.recipe;
 
+import com.codelanx.aether.common.Interactables;
 import com.codelanx.aether.common.bot.task.AetherTask;
-import com.codelanx.aether.common.branch.recipe.type.GoToFurnaceTask;
-import com.codelanx.aether.common.branch.recipe.type.GoToRangeTask;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.item.Material;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.entities.GameObject;
+import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Players;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class RecipeExecTask extends AetherTask<Boolean> {
@@ -18,15 +21,17 @@ public class RecipeExecTask extends AetherTask<Boolean> {
     public RecipeExecTask(Recipe recipe) {
         this.recipe = recipe;
         AetherTask<?> failure;
+        Environment.getLogger().info("recipe: " + recipe);
+        Environment.getLogger().info("type: " + Optional.ofNullable(recipe).map(Recipe::getRecipeType).map(Enum::name).orElse(null));
         switch (recipe.getRecipeType()) {
             case COOK:
-                failure = new GoToRangeTask(recipe);
+                failure = new GoToTargetTask<>(RecipeExecTask::findRange, recipe);
                 break;
             case SMELT:
-                failure = new GoToFurnaceTask(recipe);
+                failure = new GoToTargetTask<>(RecipeExecTask::findFurnace, recipe);
                 break;
             default:
-                failure = of(new CreateTask(recipe));
+                failure = new TargetSelectTask(recipe);
                 break;
         }
         this.registerRunemateCall(true, () -> {
@@ -37,8 +42,20 @@ public class RecipeExecTask extends AetherTask<Boolean> {
     }
 
     @Override
-    public Supplier<Boolean> getStateNow() {
-        return () -> Players.getLocal().getAnimationId() == 896;
+    public Supplier<Boolean> getStateNow() { //TODO: abstract
+        //896 == cooking
+        return () -> Players.getLocal().getAnimationId() != -1;//896;
+    }
+
+    //TODO: private/remove
+    public static GameObject findRange() {
+        LocatableEntityQueryResults<GameObject> res = Interactables.RANGE.query();
+        return res.isEmpty() ? null : res.nearest();
+    }
+
+    private static GameObject findFurnace() {
+        LocatableEntityQueryResults<GameObject> res = Interactables.FURNACE.query();
+        return res.isEmpty() ? null : res.nearest();
     }
 
 }

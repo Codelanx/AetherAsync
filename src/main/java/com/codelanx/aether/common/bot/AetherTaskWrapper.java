@@ -3,6 +3,7 @@ package com.codelanx.aether.common.bot;
 import com.codelanx.aether.common.bot.task.AetherTask;
 
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class AetherTaskWrapper<T> extends AetherTask<T> {
 
@@ -21,6 +22,11 @@ public class AetherTaskWrapper<T> extends AetherTask<T> {
     @Override
     public AetherTask<?> getChild() {
         return this.child;
+    }
+
+    @Override
+    public Stream<AetherTask<?>> getChildren() {
+        return Stream.of(this.child);
     }
 
     @Override

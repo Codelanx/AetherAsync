@@ -86,6 +86,9 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
             this.setLastThought("Running immediate AetherTask (" + immediateRoot.getTaskName() + ")...");
             return immediateRoot;
         }
+        if (this.nextMission.isEmpty()) {
+            return null;
+        }
         AetherMission<?> task = this.nextMission.get(0);
         if (task.hasEnded()) {
             this.nextMission.remove(0);

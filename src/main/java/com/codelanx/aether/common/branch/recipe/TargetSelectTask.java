@@ -1,10 +1,9 @@
 package com.codelanx.aether.common.branch.recipe;
 
 import com.codelanx.aether.common.bot.task.AetherTask;
-import com.codelanx.aether.common.branch.InteractionTask;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.aether.common.menu.dialog.DialogueIterator;
 import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainers;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
 import com.runemate.game.api.hybrid.queries.results.InterfaceComponentQueryResults;
@@ -23,24 +22,22 @@ public class TargetSelectTask extends AetherTask<Boolean> {
         this.registerInvalidator(false, new InteractionTask(recipe));
     }
 
+    /*@Override
+    public boolean isSync() {
+        return !this.recipe.isAutomatic();
+    }*/
+
     @Override
     public Supplier<Boolean> getStateNow() {
-        Environment.getLogger().info("Range validation time");
-        Environment.getLogger().info("Chat title: " + ChatDialog.getTitle());
-        Environment.getLogger().info("Container loaded: " + InterfaceContainers.isLoaded(307));
-        InterfaceComponentQueryResults res = Interfaces.newQuery().containers(this.recipe.getContainerId()).visible().results();
-        Environment.getLogger().info("Query: " + res);
-        Supplier<Boolean> back = () -> res.size() > 0;
-        //this is awful
-        if (this.justClicked) {
-            Execution.delay(500);
-            boolean oldClick = this.justClicked;
-            this.justClicked = false;
-            back = this.getStateNow();
-            this.justClicked = oldClick;
-        }
-        this.justClicked = !back.get();
-        return back;
+        return () -> {
+            //TODO: Optimize
+            Environment.getLogger().info("Recipe target validation time");
+            Environment.getLogger().info("Chat title: " + DialogueIterator.getTitleSafe());
+            Environment.getLogger().info("Container loaded: " + InterfaceContainers.isLoaded(this.recipe.getContainerId()));
+            InterfaceComponentQueryResults res = Interfaces.newQuery().containers(this.recipe.getContainerId()).visible().results();
+            Environment.getLogger().info("Query: " + res);
+            return res.size() > 0;
+        };
     }
 
 }

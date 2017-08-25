@@ -24,6 +24,9 @@ public class WithdrawTask extends AetherTask<Boolean> {
         this.recipe = recipe;
         this.registerRunemateCall(true, () -> {
             //TODO: smarter edge cases
+            if (recipe.getIngredients().allMatch(i -> i.getMaterial().isStackable())) {
+                
+            }
             Stream<ItemStack> str;
             if (recipe.getIngredientCount() > 1 || recipe.usesTools()) {
                 //withdraw specific amounts in groups
@@ -31,7 +34,7 @@ public class WithdrawTask extends AetherTask<Boolean> {
                         .collect(Collectors.groupingBy(ItemStack::getQuantity));
                 str = groupedWithdraw.values().stream().flatMap(Collection::stream);
             } else {
-                str = recipe.getIngredients();
+                str = recipe.fullInventoryWithdrawl();
             }
             str.filter(Common.Banks::withdrawItem).findAny().ifPresent(i -> {
                 Environment.getLogger().info("No more " + i.getMaterial().getName() + " available, unregistering mission...");

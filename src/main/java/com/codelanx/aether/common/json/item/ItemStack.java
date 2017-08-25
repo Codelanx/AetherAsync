@@ -31,6 +31,14 @@ public class ItemStack implements Item, Cloneable {
     public Material getMaterial() {
         return this.material;
     }
+    
+    public boolean isStackable() {
+        return this.material.isStackable();
+    }
+    
+    public boolean isEquippable() {
+        return this.material.isEquippable();
+    }
 
     @Override
     public ItemDefinition getDefinition() {

@@ -118,7 +118,6 @@ public class SerializableMaterial implements FileSerializable, Material {
                 ", plural='" + plural + '\'' +
                 ", name='" + name + '\'' +
                 ", id=" + id +
-                ", inq=" + inq +
                 '}';
     }
 }

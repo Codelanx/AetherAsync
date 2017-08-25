@@ -79,7 +79,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
 
     @Override
     public int getIngredientCount() {
-        return this.tools.size();
+        return this.ingredients.size();
     }
 
     @Override

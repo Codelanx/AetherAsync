@@ -14,11 +14,26 @@ import java.util.stream.Collectors;
  */
 public class BranchPrediction<E> {
     
-    private static final boolean DEBUG = true;
+    private static boolean DEBUG = true;
     private static final boolean FINER_DEBUG = false;
     private final List<Object> mixedList = new ArrayList<>();
     private final Map<Integer, E> hashCodeToState = new HashMap<>();
-    
+
+    public static void main(String... args) {
+        List<String> tests = Arrays.asList("aaabaaabaaabaaab", "abcdcbabcdcbabcdcbabcdcbabcdcbabcdcb", "abbcabbcabbc", "aaabaaababbcabbcabbca", "aaabaaabcbcabbcabbcabbca");
+        tests.forEach(test -> {
+            char[] c = test.toCharArray();
+            System.out.println("Char array: " + Arrays.toString(c));
+            BranchPrediction<Character> predictor = new BranchPrediction<>();
+            for (int i = 0; i < c.length; i++) {
+                System.out.println("printing insert (" + i + "): " + c[i]);
+                predictor.observeState(c[i]);
+                System.out.println("printing predict (" + i + ")");
+                System.out.println("Next guess: " + predictor.predict());
+                System.out.println();
+            }
+        });
+    }
     
     public void observeState(E state) {
         //TODO: State insertion
@@ -27,10 +42,10 @@ public class BranchPrediction<E> {
     }
     
     private void bakeList(E state) {
-        this.bake(this.mixedList, state.hashCode());
+        this.bake(this.mixedList, state.hashCode(), false);
     }
 
-    private void bake(List<Object> bake, int hstate) {
+    private void bake(List<Object> bake, int hstate, boolean copy) {
         /*
 
         we need to operate on a grammar, to simplify pattern making:
@@ -80,7 +95,7 @@ public class BranchPrediction<E> {
             String sa;
             String sb;
             Object o = bake.get(i);
-            if (DEBUG) {
+            if (true) {
                 format = "%-50s -> %-50s #a: %-25s b: %-25s";
                 before = objectToString(this, o) + listToString(this, a) + listToString(this, b);
             }
@@ -98,7 +113,7 @@ public class BranchPrediction<E> {
                 //instead of checking whole list contents, we can probably check the most recent literal
                 //to pattern literals, and combine only those
                 Pattern op = (Pattern) o;
-                if (DEBUG) {
+                if (true) {
                     sa = op.toString();
                 }
                 List<Object> copyCheck = new ArrayList<>(a.size() + b.size());
@@ -106,9 +121,12 @@ public class BranchPrediction<E> {
                 copyCheck.addAll(b);
                 if (op.getObjects().equals(copyCheck)) {
                     trimmer.accept(i);
+                    if (copy) {
+                        op = new Pattern(this, op.getObjects(), op.getAmount());
+                    }
                     op.increment();
-                    remakeToPattern.accept(o);
-                    bake.add(o);
+                    remakeToPattern.accept(op);
+                    bake.add(op);
                     if (DEBUG) {
                         result = op.toString();
                         if (FINER_DEBUG) {
@@ -127,7 +145,7 @@ public class BranchPrediction<E> {
             }
             //add to a
             a.push(o);
-            if (DEBUG) {
+            if (true) {
                 sa = listToString(this, a);
                 sb = listToString(this, b);
             }
@@ -156,21 +174,8 @@ public class BranchPrediction<E> {
             }
         }
         if (DEBUG && FINER_DEBUG) {
-            System.out.println("End list: " + listToString(this, this.mixedList));
+            System.out.println("End list: " + listToString(this, bake));
         }
-    }
-    
-    public static void main(String... args) {
-        List<String> tests = Arrays.asList("aaabaaabaaabaaab", "abcdcbabcdcb", "abbcabbcabbc", "aaabaaababbcabbcabbca", "aaabaaabcbcabbcabbcabbca");
-        tests.forEach(test -> {
-            char[] c = test.toCharArray();
-            System.out.println("Char array: " + Arrays.toString(c));
-            BranchPrediction<Character> predictor = new BranchPrediction<>();
-            for (int i = 0; i < c.length; i++) {
-                predictor.observeState(c[i]);
-                System.out.println();
-            }
-        });
     }
 
     private List<Object> getTail(List<Object> raw) {
@@ -235,50 +240,137 @@ public class BranchPrediction<E> {
         return this.hashCodeToState.get(this.predictCode());
     }
     
+    /*
+    
+    Prediction will follow a reversal of the grammar
+    
+    before:
+                a -> a
+                ab -> ab
+                aa -> {ax2}
+                {ax(n)}a -> {ax(n+1)}
+                {ax(n)}b{ax(n)}b -> {{ax(n)}bx2}
+    
+    
+    
+    
+    
+     */
     private int predictCode() {
-        List<Object> tail = this.getTail(this.mixedList);
-        //our tail is our powerful ally, as we use it to binary search the patterns:
-        List<Object> other = this.mixedList.subList(0, this.mixedList.size() - tail.size());
-        LinkedHashMap<Pattern, Integer> pairs = other.stream().filter(o -> o.getClass() == Pattern.class).map(o -> (Pattern) o)
-                .sorted(Comparator.comparing(Pattern::getAmount))
-                .collect(Collectors.toMap(Function.identity(), p -> p.binarySearch(tail), (o1, o2) -> o1, LinkedHashMap::new));
-        Pattern p = pairs.entrySet().stream()
-                .filter(ent -> ent.getValue() > 0)
-                .findAny().map(Entry::getKey).orElse(null);
-        if (p == null) {
-            //no pattern match
-            //...so, no prediction?
-        } else {
-
-        }
-        if (this.mixedList.size() == 1) {
+        //pre-check
+        if (this.mixedList.size() <= 0) {
+            return 0;
+        } else if (this.mixedList.size() == 1) {
             Object o = this.mixedList.get(0);
-            return this.mixedList.get(0).hashCode();
+            if (o.getClass() == Pattern.class) {
+                Pattern op = (Pattern) o;
+                return op.getHashCodeAt(0);
+            } else {
+                return (int) o;
+            }
         }
-        {
-            //if we reach a state where we need to determine by trying available states for shortest pattern
+        List<Object> tail = this.getTail(this.mixedList);
+        if (tail.size() == this.mixedList.size()) {
+            if (tail.size() <= 2) {
+                //we'll make a once-off assumption that the third state will be a repeat of the last state
+                //this is for edge-cases in binary state predictions (e.g. boolean states)
+                //similar adaptions will likely be made for ternary state predictions
+                return (int) tail.get(1);
+            } else {
+                return 0; //no available guess - no pattern seen yet
+            }
+        } else if (this.mixedList.size() - tail.size() == 1) {
+            Pattern p = (Pattern) this.mixedList.get(0);
+            return p.binarySearch(tail);
+        }
+        //mixed list is > 2
+        //iteration time
+        
+        //TODO:
+        //DONE:
+        
+        //==predicting next shortest result
+        //we're going to start basic, this won't be the most optimized but we can improve upon it later
+        List<Object> base = this.mixedList;
+        //O(n)
+        Box<Integer> minVal = new Box<>();
+        AtomicInteger min = new AtomicInteger(Integer.MAX_VALUE);
+        boolean old = DEBUG;
+        DEBUG = false;
+        this.hashCodeToState.keySet().forEach(state -> {
+            List<Object> tempBake = new ArrayList<>(base);
+            this.bake(tempBake, state, true);
+            System.out.println("Prediction '" + objectToString(this, state) + "': " + listToString(this, tempBake));
+            if (tempBake.size() < min.get()) {
+                min.set(tempBake.size());
+                minVal.value = state;
+            }
+        });
+        if (minVal.value == null) {
+            //no prediction
+            return 0;
+        }
+        DEBUG = old;
+        
+        //here be old code
+        if (false) {
+
             Collection<? extends E> knownValues = this.hashCodeToState.values();
-            List<Object> base = this.mixedList;
-            //O(n)
-            Box<E> minVal = new Box<>();
-            AtomicInteger min = new AtomicInteger(Integer.MAX_VALUE);
-            knownValues.forEach(state -> {
-                List<Object> tempBake = new ArrayList<>(base);
-                this.bake(tempBake, state.hashCode());
-                if (tempBake.size() < min.get()) {
-                    min.set(tempBake.size());
-                    minVal.value = state;
-                }
-            });
             Map<E, Integer> count = knownValues.stream().collect(Collectors.toMap(Function.identity(), state -> {
                 List<Object> tempBake = new ArrayList<>(base);
-                this.bake(tempBake, state.hashCode());
+                this.bake(tempBake, state.hashCode(), true);
                 return tempBake.size();
             }));
-            //find minimum value
+            
+            
+            /*
+            List<Object> tail = this.getTail(this.mixedList);
+            //our tail is our powerful ally, as we use it to binary search the patterns:
+            List<Object> other = this.mixedList.subList(0, this.mixedList.size() - tail.size());
+            LinkedHashMap<Pattern, Integer> pairs = other.stream().filter(o -> o.getClass() == Pattern.class).map(o -> (Pattern) o)
+                    .sorted(Comparator.comparing(Pattern::getAmount))
+                    .collect(Collectors.toMap(Function.identity(), p -> p.binarySearch(tail), (o1, o2) -> o1, LinkedHashMap::new));
+            Pattern p = pairs.entrySet().stream()
+                    .filter(ent -> ent.getValue() > 0)
+                    .findAny().map(Entry::getKey).orElse(null);
+            if (p == null) {
+                //no pattern match
+                //...so, no prediction?
+            } else {
+
+            }
+            if (this.mixedList.size() == 1) {
+                Object o = this.mixedList.get(0);
+                DEBUG = true;
+                return this.mixedList.get(0).hashCode();
+            }
+            {
+                /*
+                //if we reach a state where we need to determine by trying available states for shortest pattern
+                Collection<? extends E> knownValues = this.hashCodeToState.values();
+                List<Object> base = this.mixedList;
+                //O(n)
+                Box<E> minVal = new Box<>();
+                AtomicInteger min = new AtomicInteger(Integer.MAX_VALUE);
+                knownValues.forEach(state -> {
+                    List<Object> tempBake = new ArrayList<>(base);
+                    this.bake(tempBake, state.hashCode());
+                    if (tempBake.size() < min.get()) {
+                        min.set(tempBake.size());
+                        minVal.value = state;
+                    }
+                });
+                Map<E, Integer> count = knownValues.stream().collect(Collectors.toMap(Function.identity(), state -> {
+                    List<Object> tempBake = new ArrayList<>(base);
+                    this.bake(tempBake, state.hashCode());
+                    return tempBake.size();
+                }));
+                //find minimum value
+            }*/
+            //TODO
         }
-        //TODO
-        return 0;
+        return minVal.value;
+        //return 0;
     }
     
     private void casualInsert(E state) {
@@ -349,16 +441,24 @@ public class BranchPrediction<E> {
             return this.hashcodes.hashCode();
         }
 
-        public int binarySearch(List<Object> partialMatch) {
-            if (partialMatch.isEmpty()) {
-                return 0;
+        public int binarySearch(List<Object> bakedPartialMatch) {
+            if (bakedPartialMatch.isEmpty()) {
+                return this.getHashCodeAt(0);
             }
             //TODO:
-            for (int i = 0; i < this.hashcodes.size() && i < partialMatch.size(); i++) {
+            for (int i = 0; i < this.hashcodes.size() && i < bakedPartialMatch.size(); i++) {
                 Object us = this.hashcodes.get(i);
-                Object them = partialMatch.get(i);
-                if (them.getClass() == Pattern.class) {
-
+                Object them = bakedPartialMatch.get(i);
+                Pattern usPat = us.getClass() == Pattern.class ? (Pattern) us : null;
+                Pattern themPat = them.getClass() == Pattern.class ? (Pattern) them : null;
+                if (usPat != null) {
+                    if (themPat == null) {
+                        for (int w = i; w < usPat.getAmount(); w++) {
+                            
+                        }
+                    }
+                }
+                if (usPat != null && themPat != null) {
                 }
                 if (us.getClass() == Pattern.class) {
                     Pattern p = (Pattern) us;
@@ -375,17 +475,17 @@ public class BranchPrediction<E> {
         }
 
         private int getHashCodeAt(int index) {
-            for (int i = 0; i < this.hashcodes.size() && i < index; i++) {
+            for (int i = 0; i < this.hashcodes.size() && i <= index; i++) {
                 Object o = this.hashcodes.get(i);
                 if (o.getClass() == Pattern.class) {
                     Pattern p = (Pattern) o;
                     int len = p.getLength();
-                    if (len > index) {
+                    if (len >= index) {
                         //our index is within this pattern
                         return p.getHashCodeAt(index);
                     }
-                } else {
-                    index--;
+                } else if (index == i) {
+                    return (int) o;
                 }
             }
             return -1;
@@ -416,7 +516,11 @@ public class BranchPrediction<E> {
 
         @Override
         public boolean equals(Object obj) {
-            return obj.getClass() == this.getClass() && this.hashcodes.equals(((Pattern) obj).hashcodes);
+            if (obj.getClass() != this.getClass()) {
+                return false;
+            }
+            Pattern o = (Pattern) obj;
+            return this.hashcodes.equals(o.hashcodes) && this.amount.get() == o.amount.get();
         }
     }
 
@@ -436,6 +540,5 @@ public class BranchPrediction<E> {
             return o.toString();
         }
     }
-    
     
 }
