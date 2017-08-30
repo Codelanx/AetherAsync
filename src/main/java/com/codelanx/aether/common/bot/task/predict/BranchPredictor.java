@@ -1,9 +1,8 @@
-package com.codelanx.aether.common.bot.task;
+package com.codelanx.aether.common.bot.task.predict;
 
 import com.codelanx.commons.util.ref.Box;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -12,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Created by roKgue on 8/17/2017.
  */
-public class BranchPrediction<E> {
+public class BranchPredictor<E> {
     
     private static boolean DEBUG = true;
     private static final boolean FINER_DEBUG = false;
@@ -24,7 +23,7 @@ public class BranchPrediction<E> {
         tests.forEach(test -> {
             char[] c = test.toCharArray();
             System.out.println("Char array: " + Arrays.toString(c));
-            BranchPrediction<Character> predictor = new BranchPrediction<>();
+            BranchPredictor<Character> predictor = new BranchPredictor<>();
             for (int i = 0; i < c.length; i++) {
                 System.out.println("printing insert (" + i + "): " + c[i]);
                 predictor.observeState(c[i]);
@@ -107,7 +106,7 @@ public class BranchPrediction<E> {
                 }
                 continue;
             }
-            if (o.getClass() == Pattern.class) {
+            if (o instanceof Pattern) {
                 //TODO:
                 //this can likely be simplified further
                 //instead of checking whole list contents, we can probably check the most recent literal
@@ -178,19 +177,20 @@ public class BranchPrediction<E> {
         }
     }
 
-    private List<Object> getTail(List<Object> raw) {
+    private List<Integer> getTail(List<Object> raw) {
         if (raw.isEmpty()) {
-            return raw;
-        }
-        if (raw.get(raw.size() - 1).getClass() == Pattern.class) {
             return Collections.emptyList();
         }
+        if (raw.get(raw.size() - 1) instanceof Pattern) {
+            return Collections.emptyList();
+        }
+        //haha screw type safety
         for (int i = raw.size() - 1; i >= 0; i--) {
-            if (raw.get(i).getClass() == Pattern.class) {
-                return raw.subList(i + 1, raw.size());
+            if (raw.get(i) instanceof Pattern) {
+                return (List<Integer>) (List<?>) raw.subList(i + 1, raw.size());
             }
         }
-        return raw;
+        return (List<Integer>) (List<?>) raw;
     }
             
             
@@ -262,14 +262,14 @@ public class BranchPrediction<E> {
             return 0;
         } else if (this.mixedList.size() == 1) {
             Object o = this.mixedList.get(0);
-            if (o.getClass() == Pattern.class) {
+            if (o instanceof Pattern) {
                 Pattern op = (Pattern) o;
-                return op.getHashCodeAt(0);
+                return 0;//return op.getHashCodeAt(0); //TODO: code cleanup
             } else {
                 return (int) o;
             }
         }
-        List<Object> tail = this.getTail(this.mixedList);
+        List<Integer> tail = this.getTail(this.mixedList);
         if (tail.size() == this.mixedList.size()) {
             if (tail.size() <= 2) {
                 //we'll make a once-off assumption that the third state will be a repeat of the last state
@@ -281,7 +281,7 @@ public class BranchPrediction<E> {
             }
         } else if (this.mixedList.size() - tail.size() == 1) {
             Pattern p = (Pattern) this.mixedList.get(0);
-            return p.binarySearch(tail);
+            return 0;//p.search(tail); //TODO: search recursively?
         }
         //mixed list is > 2
         //iteration time
@@ -329,7 +329,7 @@ public class BranchPrediction<E> {
             List<Object> other = this.mixedList.subList(0, this.mixedList.size() - tail.size());
             LinkedHashMap<Pattern, Integer> pairs = other.stream().filter(o -> o.getClass() == Pattern.class).map(o -> (Pattern) o)
                     .sorted(Comparator.comparing(Pattern::getAmount))
-                    .collect(Collectors.toMap(Function.identity(), p -> p.binarySearch(tail), (o1, o2) -> o1, LinkedHashMap::new));
+                    .collect(Collectors.toMap(Function.identity(), p -> p.search(tail), (o1, o2) -> o1, LinkedHashMap::new));
             Pattern p = pairs.entrySet().stream()
                     .filter(ent -> ent.getValue() > 0)
                     .findAny().map(Entry::getKey).orElse(null);
@@ -375,166 +375,26 @@ public class BranchPrediction<E> {
     
     private void casualInsert(E state) {
     }
-    
-    private static final class Pattern {
-        
-        //TODO: Pattern needs to be able to store hashcodes/patterns too
-        private final BranchPrediction<?> src;
-        private final List<Object> hashcodes = new ArrayList<>();
-        private AtomicInteger amount;
-        private AtomicInteger baseLen = new AtomicInteger();
-        
-        public Pattern(BranchPrediction<?> src, int hashcode, int initialAmount) {
-            this(src, Collections.singletonList(hashcode), initialAmount);
-        }
-        
-        public Pattern(BranchPrediction<?> src, List<Object> hashcodes) {
-            this(src, hashcodes, 2);
-        }
-        
-        public Pattern(BranchPrediction<?> src, List<Object> hashcodes, int initialAmount) {
-            this.src = src;
-            this.hashcodes.addAll(hashcodes);
-            this.amount = new AtomicInteger(initialAmount);
-            this.baseLen.set(this.lengthOf(this.hashcodes));
-        }
 
-        public int getAmount() {
-            return this.amount.get();
-        }
-        
-        //returns new value
-        public int increment() {
-            return this.amount.incrementAndGet();
-        }
-        
-        public void set(int amount) {
-            this.amount.set(amount);
-        }
-        
-        public boolean matches(Object state) {
-            if (this.hashcodes.size() != 1) {
-                return false;
-            }
-            Object o = this.hashcodes.get(0);
-            return (o.getClass() == this.getClass()) ? ((Pattern) o).matches(state) : ((int) o) == state.hashCode();
-        }
-        
-        List<Object> getObjects() {
-            return this.hashcodes;
-        }
-        
-        public boolean isLiteral() {
-            return this.hashcodes.size() == 1 && this.hashcodes.get(0) instanceof Number;
-        }
-
-        public Pattern patternAt(int index) {
-            return (Pattern) this.hashcodes.get(index);
-        }
-
-        public int hashcodeAt(int index) {
-            return (int) this.hashcodes.get(index);
-        }
-
-        @Override
-        public int hashCode() {
-            return this.hashcodes.hashCode();
-        }
-
-        public int binarySearch(List<Object> bakedPartialMatch) {
-            if (bakedPartialMatch.isEmpty()) {
-                return this.getHashCodeAt(0);
-            }
-            //TODO:
-            for (int i = 0; i < this.hashcodes.size() && i < bakedPartialMatch.size(); i++) {
-                Object us = this.hashcodes.get(i);
-                Object them = bakedPartialMatch.get(i);
-                Pattern usPat = us.getClass() == Pattern.class ? (Pattern) us : null;
-                Pattern themPat = them.getClass() == Pattern.class ? (Pattern) them : null;
-                if (usPat != null) {
-                    if (themPat == null) {
-                        for (int w = i; w < usPat.getAmount(); w++) {
-                            
-                        }
-                    }
-                }
-                if (usPat != null && themPat != null) {
-                }
-                if (us.getClass() == Pattern.class) {
-                    Pattern p = (Pattern) us;
-                    //garbage code below, just made it so it it'd compile
-                    //if (len > index) {
-                        //our index is within this pattern
-                        return p.getHashCodeAt(0);
-                    //}
-                } else {
-                    //index--;
-                }
-            }
-            return 0;
-        }
-
-        private int getHashCodeAt(int index) {
-            for (int i = 0; i < this.hashcodes.size() && i <= index; i++) {
-                Object o = this.hashcodes.get(i);
-                if (o.getClass() == Pattern.class) {
-                    Pattern p = (Pattern) o;
-                    int len = p.getLength();
-                    if (len >= index) {
-                        //our index is within this pattern
-                        return p.getHashCodeAt(index);
-                    }
-                } else if (index == i) {
-                    return (int) o;
-                }
-            }
-            return -1;
-        }
-
-        //return the raw length of this pattern (reduction of state * amount)
-        public int getLength() {
-            if (this.isLiteral()) {
-                return this.amount.get();
-            } else {
-                return this.lengthOf(this.hashcodes) * this.amount.get();
-            }
-        }
-
-        private int lengthOf(List<Object> objects) {
-            return objects.stream().map(o -> {
-                return o instanceof Number ? 1 : ((Pattern) o).getLength();
-            }).reduce(0, Integer::sum);
-        }
-
-        @Override
-        public String toString() {
-            if (this.isLiteral()) {
-                return  "{" + this.src.reverseMap(this.hashcodeAt(0)) + "x" + this.amount.get() + "}";
-            }
-            return "{" + BranchPrediction.listToString(this.src, this.hashcodes) + "x" + this.amount.get() + "}";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj.getClass() != this.getClass()) {
-                return false;
-            }
-            Pattern o = (Pattern) obj;
-            return this.hashcodes.equals(o.hashcodes) && this.amount.get() == o.amount.get();
-        }
-    }
-
-    private E reverseMap(int hashcode) {
+    E reverseMap(int hashcode) {
         return this.hashCodeToState.get(hashcode);
     }
     
-    private static String listToString(BranchPrediction<?> src, List<Object> patternObjects) {
-        return patternObjects.stream().map(o -> BranchPrediction.objectToString(src, o)).collect(Collectors.joining());
+    static String listToString(Function<Integer, Object> mapper, List<Object> patternObjects) {
+        return patternObjects.stream().map(o -> BranchPredictor.objectToString(mapper, o)).collect(Collectors.joining());
+    }
+    
+    static String listToString(BranchPredictor<?> src, List<Object> patternObjects) {
+        return listToString(src::reverseMap, patternObjects);
     }
 
-    private static String objectToString(BranchPrediction<?> src, Object o) {
+    static String objectToString(BranchPredictor<?> src, Object o) {
+        return objectToString(src::reverseMap, o);
+    }
+    
+    static String objectToString(Function<Integer, Object> mapper, Object o) {
         if (o instanceof Number) {
-            Object back = src.reverseMap((int) o);
+            Object back = mapper.apply((int) o);
             return back == null ? o.toString() : back.toString();
         } else {
             return o.toString();

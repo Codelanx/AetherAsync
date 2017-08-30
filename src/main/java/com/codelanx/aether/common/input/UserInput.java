@@ -65,7 +65,7 @@ public enum UserInput {
         return true;
     }
     
-    private static long getMinimumClick() {
+    public static long getMinimumClick() {
         double mult = 1 / Mouse.getSpeedMultiplier();
         return (long) ((MIN_CLICK_MS + Randomization.MIN_CLICK.getValue().longValue()) * mult);
     }

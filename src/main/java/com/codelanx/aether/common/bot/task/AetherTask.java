@@ -3,6 +3,7 @@ package com.codelanx.aether.common.bot.task;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidators;
+import com.codelanx.aether.common.bot.task.predict.BranchPredictor;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -22,8 +24,13 @@ public abstract class AetherTask<T> {
     public static AetherTask<?> NOTHING = AetherTask.of(() -> {});
     private final Map<HashedTaskState<T>, AetherTask<?>> children = new HashMap<>();
     private final Map<Predicate<T>, AetherTask<?>> pickyKids = new LinkedHashMap<>();
+    private final BranchPredictor<T> predictor;
     private volatile CompletableFuture<T> state;
     private volatile CompletableFuture<Invalidator> execution;
+    
+    public AetherTask() {
+        this.predictor = new BranchPredictor<T>();
+    }
 
     public abstract Supplier<T> getStateNow();
 
@@ -110,9 +117,21 @@ public abstract class AetherTask<T> {
         this.invalidate();
         this.getChildren().forEach(AetherTask::forceInvalidate);
     }
+    
+    public boolean isExecutable(T state) {
+        return false;
+    }
 
     public boolean isExecutable() {
-        return false;
+        CompletableFuture<T> state = this.state; //non-blocking but potentially incorrect
+        if (state == null || state.isCancelled() || state.isCompletedExceptionally()) {
+            return false;
+        }
+        try {
+            return this.isExecutable(state.get());
+        } catch (InterruptedException | ExecutionException e) {
+            return false;
+        }
     }
 
     public static <E> AetherTask<E> of(Runnable task) {
@@ -141,6 +160,10 @@ public abstract class AetherTask<T> {
     }
 
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
+        return AetherTask.of(state -> task.get());
+    }
+    
+    public static <E> AetherTask<E> of(Function<E, Invalidator> task) {
         return new AetherTask<E>() {
             @Override
             public Supplier<E> getStateNow() {
@@ -159,7 +182,7 @@ public abstract class AetherTask<T> {
 
             @Override
             public Invalidator execute(E state) {
-                return task.get();
+                return task.apply(state);
             }
         };
     }
@@ -257,6 +280,10 @@ public abstract class AetherTask<T> {
 
     protected void registerDefault(Supplier<Invalidator> child) {
         this.registerDefault(AetherTask.of(child));
+    }
+    
+    protected void registerDefault(Function<T, Invalidator> executor) {
+        this.registerDefault(AetherTask.of(executor));
     }
 
     //provides an invalidator to dictate branch invalidation

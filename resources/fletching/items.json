@@ -4,6 +4,20 @@
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": true,
             "equippable": false,
+            "name": "Arrow shaft",
+            "id": 52
+        },
+        {
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+            "stackable": true,
+            "equippable": false,
+            "name": "Feather",
+            "id": 314
+        },
+        {
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+            "stackable": true,
+            "equippable": false,
             "name": "Headless arrow",
             "id": 53
         },
@@ -13,6 +27,27 @@
             "equippable": false,
             "name": "Steel arrowtips",
             "id": 41
+        },
+        {
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+            "stackable": true,
+            "equippable": false,
+            "name": "Bow string",
+            "id": 1777
+        },
+        {
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+            "stackable": true,
+            "equippable": false,
+            "name": "Maple longbow (u)",
+            "id": 62
+        },
+        {
+            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+            "stackable": true,
+            "equippable": false,
+            "name": "Maple logs",
+            "id": 1517
         }
     ]
 }

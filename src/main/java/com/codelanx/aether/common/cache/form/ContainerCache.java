@@ -6,6 +6,7 @@ import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Tab;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 

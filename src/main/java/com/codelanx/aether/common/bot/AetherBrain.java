@@ -252,8 +252,6 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
                 Environment.getLogger().info("#BrainDebug currentTask not complete");
                 return;
             }
-        } else {
-            this.invalidationQueue.clear();
         }
         /*if (!this.immediateTasks.isEmpty()) {
             Environment.getLogger().info("Running immediate task...");
@@ -271,10 +269,11 @@ public class AetherBrain extends AetherTask<AetherTask<?>> {
             if (!root.isStateRetrieved()) {
                 //try again next tick
                 Environment.getLogger().info("State not retrieved, checking later");
-                this.invalidationQueue.clear();
+                //this.invalidationQueue.clear();
                 return;
             }
             //this.setLastThought(prefix.toString() + "State retrieved: " + root.getTaskName());
+            
             AetherTask<?> next = null;
             try {
                 next = root.getChild();

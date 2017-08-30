@@ -30,6 +30,7 @@ public class Common {
                     return true;
                 }
                 Caches.forBank().replaceFirst(stack.getMaterial().toInquiry(), i -> i.derive(-stack.getQuantity()));
+                Caches.forInventory().invalidateByType(stack.getMaterial());
             }
             return false;
         }

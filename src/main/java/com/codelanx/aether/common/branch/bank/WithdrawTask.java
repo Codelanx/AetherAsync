@@ -40,7 +40,7 @@ public class WithdrawTask extends AetherTask<Boolean> {
                 Environment.getLogger().info("No more " + i.getMaterial().getName() + " available, unregistering mission...");
                 Aether.getBot().getBrain().popMission();
             });
-            return false;
+            return true;
         });
         this.registerRunemateCall(false, Common.Banks::depositInventory);
     }

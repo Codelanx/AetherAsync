@@ -5,8 +5,11 @@
             "name": "Headless Arrows",
             "type": "COMBINE",
             "automatic": false,
-            "container": -1,
+            "container": 582,
+            "child": 5,
             "ingredients": {
+                "52": 15,
+                "314": 15
             },
             "tools": {
             }
@@ -23,7 +26,36 @@
                 "53": 15
             },
             "tools": {
-                
+
+            }
+        },
+        {
+            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
+            "name": "Maple longbow (u)",
+            "type": "COMBINE",
+            "automatic": false,
+            "container": 582,
+            "child": 5,
+            "ingredients": {
+                "1517": 1
+            },
+            "tools": {
+                "946": 1
+            }
+        },
+        {
+            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
+            "name": "Maple longbow",
+            "type": "COMBINE",
+            "automatic": false,
+            "container": 582,
+            "child": 5,
+            "ingredients": {
+                "62": 1,
+                "1777": 1
+            },
+            "tools": {
+
             }
         }
     ]

@@ -2,6 +2,7 @@ package com.codelanx.aether.common.branch.recipe;
 
 import com.codelanx.aether.common.Interactables;
 import com.codelanx.aether.common.bot.task.AetherTask;
+import com.codelanx.aether.common.branch.GoToTargetTask;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.item.Material;
@@ -20,18 +21,15 @@ public class RecipeExecTask extends AetherTask<Boolean> {
 
     public RecipeExecTask(Recipe recipe) {
         this.recipe = recipe;
-        AetherTask<?> failure;
+        AetherTask<?> failure = new TargetSelectTask(recipe);
         Environment.getLogger().info("recipe: " + recipe);
         Environment.getLogger().info("type: " + Optional.ofNullable(recipe).map(Recipe::getRecipeType).map(Enum::name).orElse(null));
         switch (recipe.getRecipeType()) {
             case COOK:
-                failure = new GoToTargetTask<>(RecipeExecTask::findRange, recipe);
+                failure = new GoToTargetTask<>(RecipeExecTask::findRange, new TargetSelectTask(recipe));
                 break;
             case SMELT:
-                failure = new GoToTargetTask<>(RecipeExecTask::findFurnace, recipe);
-                break;
-            default:
-                failure = new TargetSelectTask(recipe);
+                failure = new GoToTargetTask<>(RecipeExecTask::findFurnace, new TargetSelectTask(recipe));
                 break;
         }
         this.registerRunemateCall(true, () -> {
