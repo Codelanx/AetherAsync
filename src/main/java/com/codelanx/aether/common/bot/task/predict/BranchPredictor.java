@@ -1,7 +1,10 @@
 package com.codelanx.aether.common.bot.task.predict;
 
+import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.commons.util.ref.Box;
+import com.runemate.game.api.script.framework.AbstractBot;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -17,8 +20,14 @@ public class BranchPredictor<E> {
     private static final boolean FINER_DEBUG = false;
     private final List<Object> mixedList = new ArrayList<>();
     private final Map<Integer, E> hashCodeToState = new HashMap<>();
+    private final AtomicInteger cost = new AtomicInteger();
+    private final AtomicInteger costRadix = new AtomicInteger();
 
     public static void main(String... args) {
+        testStrings();
+    }
+    
+    private static void testStrings() {
         List<String> tests = Arrays.asList("aaabaaabaaabaaab", "abcdcbabcdcbabcdcbabcdcbabcdcbabcdcb", "abbcabbcabbc", "aaabaaababbcabbcabbca", "aaabaaabcbcabbcabbcabbca");
         tests.forEach(test -> {
             char[] c = test.toCharArray();
@@ -30,13 +39,24 @@ public class BranchPredictor<E> {
                 System.out.println("printing predict (" + i + ")");
                 System.out.println("Next guess: " + predictor.predict());
                 System.out.println();
+                Aether.getBot().getMetaData().getName();
             }
         });
     }
     
     public void observeState(E state) {
+        this.observeState(state, -1);
+    }
+    
+    public void observeState(E state, int cost) {
         //TODO: State insertion
         this.hashCodeToState.putIfAbsent(state.hashCode(), state);
+        if (cost >= 0) {
+            int radix = this.costRadix.getAndIncrement();
+            this.cost.getAndUpdate(i -> {
+                return ((i * radix) + cost) / (radix + 1);
+            });
+        }
         this.bakeList(state);
     }
     
