@@ -1,7 +1,7 @@
 package com.codelanx.aether.bots.defender;
 
 import com.codelanx.aether.bots.defender.branch.InFightingRooms;
-import com.codelanx.aether.common.bot.AetherAsyncBot;
+import com.codelanx.aether.common.bot.AsyncBot;
 import com.codelanx.aether.common.bot.mission.AetherMission;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
@@ -11,7 +11,7 @@ import java.io.File;
 
 //Not for release, this is a conversion of a bot from snufalufugus (used for testing)
 //previously: RegalWarriorGuild
-public class DefenderBot extends AetherAsyncBot implements InventoryListener {
+public class DefenderBot extends AsyncBot implements InventoryListener {
 
     private boolean newDefender;
 
@@ -21,7 +21,7 @@ public class DefenderBot extends AetherAsyncBot implements InventoryListener {
     public void onStart(String... args) {
         super.onStart(args);
         getEventDispatcher().addListener(this);
-        this.getBrain().register(AetherMission.of(new InFightingRooms(this)));
+        this.getBrain().getLogicTree().register(AetherMission.of(new InFightingRooms(this)));
     }
 
     @Override

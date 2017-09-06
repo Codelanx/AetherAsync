@@ -22,7 +22,7 @@ public class AsyncExec {
                 box.value.cancel(true);
             }
         }, 0, 50);
-        Aether.getBot().getBrain().delayUntil(compl);
+        Aether.getBot().getBrain().getLogicTree().delayUntil(compl);
         return compl;
     }
 }

@@ -3,6 +3,7 @@ package com.codelanx.aether.common.branch.recipe;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.aether.common.branch.bank.BankTask;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 
 import java.util.function.Supplier;
@@ -20,7 +21,7 @@ public class RecipeTask extends AetherTask<Boolean> {
     @Override
     public Supplier<Boolean> getStateNow() {
         return () -> {
-            Environment.getLogger().info("Checking recipe: " + this.recipe);
+            Logging.info("Checking recipe: " + this.recipe);
             return this.recipe.getRemainder() > 0;
         };
     }

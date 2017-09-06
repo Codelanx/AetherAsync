@@ -5,6 +5,7 @@ import com.codelanx.aether.common.Common;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 
@@ -37,8 +38,8 @@ public class WithdrawTask extends AetherTask<Boolean> {
                 str = recipe.fullInventoryWithdrawl();
             }
             str.filter(Common.Banks::withdrawItem).findAny().ifPresent(i -> {
-                Environment.getLogger().info("No more " + i.getMaterial().getName() + " available, unregistering mission...");
-                Aether.getBot().getBrain().popMission();
+                Logging.info("No more " + i.getMaterial().getName() + " available, unregistering mission...");
+                Aether.getBot().getBrain().getLogicTree().popMission();
             });
             return true;
         });

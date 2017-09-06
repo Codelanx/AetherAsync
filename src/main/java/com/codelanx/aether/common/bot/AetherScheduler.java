@@ -1,10 +1,9 @@
 package com.codelanx.aether.common.bot;
 
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
-import com.runemate.game.api.hybrid.Environment;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 public class AetherScheduler {
 
@@ -29,21 +29,21 @@ public class AetherScheduler {
     private static final AtomicInteger BOT_INDEX = new AtomicInteger();
     private final ScheduledThreadPoolExecutor botThread;
     private final ThreadGroup ourGroup;
-    private final AetherAsyncBot bot;
+    private final AsyncBot bot;
     private ScheduledFuture<?> runningBotThread;
     private final List<Future<?>> tasks = new ArrayList<>();
     private final ReadWriteLock tasksLock = new ReentrantReadWriteLock();
 
-    AetherScheduler(AetherAsyncBot bot) {
+    AetherScheduler(AsyncBot bot) {
         this.bot = bot;
         this.ourGroup = Thread.currentThread().getThreadGroup();
         this.botThread = new ScheduledThreadPoolExecutor(1, this::newBotThread, (reject, scheduler) -> {
-            Environment.getLogger().warn("Bot task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
+            Logging.warning("Bot task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
             try {
                 reject.run();
             } catch (Throwable t) {
-                Environment.getLogger().severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                Environment.getLogger().severe(Reflections.stackTraceToString(t));
+                Logging.severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
+                Logging.severe(Reflections.stackTraceToString(t));
                 AetherScheduler.this.bot.stop();
                 return;
             }
@@ -55,19 +55,19 @@ public class AetherScheduler {
                             new UncaughtExceptionHandler() {
                                 @Override
                                 public void uncaughtException(Thread t, Throwable e) {
-                                    Environment.getLogger().info("Unhandled exception in worker thread " + t.getName() + ": " );
-                                    Environment.getLogger().info(Reflections.stackTraceToString(e));
+                                    Logging.info("Unhandled exception in worker thread " + t.getName() + ": " );
+                                    Logging.info(Reflections.stackTraceToString(e));
                                     AetherScheduler.this.bot.stop();
                                 }
                             }, true);
             CompletableFuture<?> comp = CompletableFuture.runAsync(() -> {}, workStealer);*/
             ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(2, this::newSchedulerThread, (reject, scheduler) -> {
-                Environment.getLogger().warn("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
+                Logging.warning("Scheduler task rejected for " + this.getClass().getSimpleName() + ", retrying..." );
                 try {
                     reject.run();
                 } catch (Throwable t) {
-                    Environment.getLogger().severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                    Environment.getLogger().severe(Reflections.stackTraceToString(t));
+                    Logging.severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
+                    Logging.severe(Reflections.stackTraceToString(t));
                     this.bot.stop();
                     return;
                 }
@@ -110,8 +110,7 @@ public class AetherScheduler {
                 setGroup.set(this, group);
                 reserveThreadToGroup.invoke(group);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                Environment.getLogger().severe("Failed to register our task to the correct botgroup, runemate gun b mad");
-                Environment.getLogger().severe(Reflections.stackTraceToString(e));
+                Logging.log(Level.SEVERE, "Failed to register our task to the correct botgroup, runemate gun b mad", e);
                 Aether.getScheduler().getBotThread().execute(Aether.getBot()::stop);
                 return;
             }
@@ -119,7 +118,7 @@ public class AetherScheduler {
         }
     }
 
-    void register(AetherAsyncBot bot) {
+    void register(AsyncBot bot) {
         if (this.runningBotThread != null) {
             throw new IllegalStateException("Already registered bot to scheduler");
         }
@@ -136,7 +135,7 @@ public class AetherScheduler {
         this.runningBotThread = null;
     }
 
-    void resume(AetherAsyncBot bot) {
+    void resume(AsyncBot bot) {
         this.register(bot);
     }
 

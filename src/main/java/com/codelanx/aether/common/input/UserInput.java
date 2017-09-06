@@ -5,6 +5,7 @@ import com.codelanx.aether.common.input.type.CombatTarget;
 import com.codelanx.aether.common.input.type.KeyboardTarget;
 import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.input.type.RunemateTarget;
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
@@ -36,30 +37,30 @@ public enum UserInput {
     }
 
     public static boolean attempt() {
-        Environment.getLogger().info("Running user input...");
+        Logging.info("Running user input...");
         InputTarget target = INSTANCE.getNextTarget();
         if (target == null) {
-            Environment.getLogger().info("Null next target");
+            Logging.info("Null next target");
             return false;
         }
         if (target.isAttempted()) {
             //hover secondary target
             if (!target.isSuccessful()) {
-                Environment.getLogger().info("Re-attempting input");
+                Logging.info("Re-attempting input");
                 target.attempt(); //immediate re-attempt
                 return true;
             }
-            Environment.getLogger().info("Input successful");
+            Logging.info("Input successful");
             INSTANCE.lastInputMs.set(System.currentTimeMillis());
             InputTarget next = INSTANCE.getNextTarget(1);
             if (next != null) {
-                Environment.getLogger().info("Hovering next input...");
+                Logging.info("Hovering next input...");
                 INSTANCE.actOnTarget(target, true);
             }
             INSTANCE.lastInputType = target.getClass();
             INSTANCE.queue.remove(0);
         } else if (!target.isAttempting()) {
-            Environment.getLogger().info("Starting user input (" + target.getClass().getSimpleName() + ")");
+            Logging.info("Starting user input (" + target.getClass().getSimpleName() + ")");
             INSTANCE.actOnTarget(target, false);
         }
         return true;

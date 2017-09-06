@@ -26,7 +26,7 @@ public class BranchPredictor<E> {
     public static void main(String... args) {
         testStrings();
     }
-    
+
     private static void testStrings() {
         List<String> tests = Arrays.asList("aaabaaabaaabaaab", "abcdcbabcdcbabcdcbabcdcbabcdcbabcdcb", "abbcabbcabbc", "aaabaaababbcabbcabbca", "aaabaaabcbcabbcabbcabbca");
         tests.forEach(test -> {
@@ -47,7 +47,7 @@ public class BranchPredictor<E> {
     public void observeState(E state) {
         this.observeState(state, -1);
     }
-    
+
     public void observeState(E state, int cost) {
         //TODO: State insertion
         this.hashCodeToState.putIfAbsent(state.hashCode(), state);
@@ -261,20 +261,20 @@ public class BranchPredictor<E> {
     }
     
     /*
-    
+
     Prediction will follow a reversal of the grammar
-    
+
     before:
                 a -> a
                 ab -> ab
                 aa -> {ax2}
                 {ax(n)}a -> {ax(n+1)}
                 {ax(n)}b{ax(n)}b -> {{ax(n)}bx2}
-    
-    
-    
-    
-    
+
+
+
+
+
      */
     private int predictCode() {
         //pre-check
@@ -305,10 +305,10 @@ public class BranchPredictor<E> {
         }
         //mixed list is > 2
         //iteration time
-        
+
         //TODO:
         //DONE:
-        
+
         //==predicting next shortest result
         //we're going to start basic, this won't be the most optimized but we can improve upon it later
         List<Object> base = this.mixedList;
@@ -331,7 +331,7 @@ public class BranchPredictor<E> {
             return 0;
         }
         DEBUG = old;
-        
+
         //here be old code
         if (false) {
 
@@ -341,8 +341,8 @@ public class BranchPredictor<E> {
                 this.bake(tempBake, state.hashCode(), true);
                 return tempBake.size();
             }));
-            
-            
+
+
             /*
             List<Object> tail = this.getTail(this.mixedList);
             //our tail is our powerful ally, as we use it to binary search the patterns:
@@ -403,7 +403,7 @@ public class BranchPredictor<E> {
     static String listToString(Function<Integer, Object> mapper, List<Object> patternObjects) {
         return patternObjects.stream().map(o -> BranchPredictor.objectToString(mapper, o)).collect(Collectors.joining());
     }
-    
+
     static String listToString(BranchPredictor<?> src, List<Object> patternObjects) {
         return listToString(src::reverseMap, patternObjects);
     }
@@ -411,7 +411,7 @@ public class BranchPredictor<E> {
     static String objectToString(BranchPredictor<?> src, Object o) {
         return objectToString(src::reverseMap, o);
     }
-    
+
     static String objectToString(Function<Integer, Object> mapper, Object o) {
         if (o instanceof Number) {
             Object back = mapper.apply((int) o);
@@ -420,5 +420,5 @@ public class BranchPredictor<E> {
             return o.toString();
         }
     }
-    
+
 }

@@ -2,6 +2,7 @@ package com.codelanx.aether.common.input;
 
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.AetherCompletableFuture;
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
@@ -22,8 +23,7 @@ public abstract class InputTarget {
     private final AtomicInteger attempts = new AtomicInteger();
 
     protected void doAttempt(Supplier<Boolean> task) {
-        Environment.getLogger().info("Registered input task (" + Scheduler.getTaskCount() + ")");
-        ;
+        Logging.info("Registered input task (" + Scheduler.getTaskCount() + ")");
         if (this.attempts.incrementAndGet() > MAX_ATTEMPTS) {
             throw new UserInputException("Couldn't successfully run input task");
         }
@@ -58,12 +58,12 @@ public abstract class InputTarget {
         try {
             return this.attempt.get();
         } catch (ExecutionException e) {
-            Environment.getLogger().severe("Error while attempting user input");
-            Environment.getLogger().severe(Reflections.stackTraceToString(e));
+            Logging.severe("Error while attempting user input");
+            Logging.severe(Reflections.stackTraceToString(e));
             return false;
         } catch (InterruptedException e) {
-            Environment.getLogger().severe("Error while attempting user input");
-            Environment.getLogger().severe(Reflections.stackTraceToString(e));
+            Logging.severe("Error while attempting user input");
+            Logging.severe(Reflections.stackTraceToString(e));
             Aether.getBot().stop();
             return false;
         }

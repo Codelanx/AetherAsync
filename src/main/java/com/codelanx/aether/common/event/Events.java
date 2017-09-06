@@ -107,7 +107,7 @@ public class Events {
             try {
                 registration.callEvent(event);
             } catch (Throwable ex) {
-                Environment.getLogger().severe("Could not pass event " + event.getEventName() + " to " + registration.getListener().getClass().getSimpleName() + "\n" + Reflections.stackTraceToString(ex));
+                Logging.severe("Could not pass event " + event.getEventName() + " to " + registration.getListener().getClass().getSimpleName() + "\n" + Reflections.stackTraceToString(ex));
             }
         }
     }*/

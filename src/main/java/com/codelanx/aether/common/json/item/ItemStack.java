@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.json.item;
 
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
@@ -64,7 +65,7 @@ public class ItemStack implements Item, Cloneable {
         try {
             return (ItemStack) super.clone();
         } catch (CloneNotSupportedException e) {
-            Environment.getLogger().info(this.getClass().getName() + " does not support cloneable, but should");
+            Logging.info(this.getClass().getName() + " does not support cloneable, but should");
             e.printStackTrace();
         }
         return new ItemStack(this.material, this.amount);

@@ -1,6 +1,7 @@
 package com.codelanx.aether.common.menu.dialog;
 
 import com.codelanx.aether.common.input.UserInput;
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog.Option;
@@ -29,16 +30,16 @@ public class Speech {
     //--NEGATED-- true if complete, false otherwise
     public boolean step() {
         if (!this.itr.hasNext()) {
-            Environment.getLogger().info("No dialogue available");
+            Logging.info("No dialogue available");
             return false;
         }
         if (this.index.get() >= this.actions.size()) {
-            Environment.getLogger().info("Actions exceeded");
+            Logging.info("Actions exceeded");
             return true;
         }
         if (!this.itr.isSameResult()) {
             Dialogue next = this.itr.next();
-            Environment.getLogger().info("next dialogue: " + next);
+            Logging.info("next dialogue: " + next);
             Supplier<Boolean> input = () -> this.actions.get(this.index.getAndIncrement()).test(next);
             UserInput.runemateInput(input).postAttempt().thenRun(this.index::decrementAndGet);
         }
@@ -119,13 +120,13 @@ public class Speech {
 
         public SpeechBuilder stepOption(String title, String text, Function<List<Option>, Option> selector) {
             return this.step(title, text, d -> {
-                Environment.getLogger().info("SpeechBuilder#stepOption$0:");
+                Logging.info("SpeechBuilder#stepOption$0:");
                 List<Option> lis = d.getOptionsList();
-                Environment.getLogger().info("\tlis: " + lis);
+                Logging.info("\tlis: " + lis);
                 Option sel = selector.apply(lis);
-                Environment.getLogger().info("\tsel: " + sel);
+                Logging.info("\tsel: " + sel);
                 Boolean back = sel.select();
-                Environment.getLogger().info("\tback: " + back);
+                Logging.info("\tback: " + back);
                 return back;
             });
         }

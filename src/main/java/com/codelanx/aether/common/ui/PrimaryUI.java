@@ -36,7 +36,7 @@ public class PrimaryUI extends GridPane implements Initializable {
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }*/
-        this.txt = new Text(Aether.getBot().getBrain().getLastThought());
+        this.txt = new Text(Aether.getBot().getBrain().getLogicTree().getLastThought());
     }
     
     private final Text txt;
@@ -47,7 +47,7 @@ public class PrimaryUI extends GridPane implements Initializable {
 
     public void update() {
         //update javafx elements
-        this.txt.setText(Aether.getBot().getBrain().getLastThought());
+        this.txt.setText(Aether.getBot().getBrain().getLogicTree().getLastThought());
     }
 
     @Override

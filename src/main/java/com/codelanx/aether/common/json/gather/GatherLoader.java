@@ -1,9 +1,9 @@
 package com.codelanx.aether.common.json.gather;
 
-import com.codelanx.aether.common.bot.AetherAsyncBot;
+import com.codelanx.aether.common.bot.AsyncBot;
 import com.codelanx.commons.data.FileDataType;
 import com.codelanx.commons.data.types.Json;
-import com.runemate.game.api.hybrid.Environment;
+import com.codelanx.commons.logging.Logging;
 
 import java.io.File;
 import java.util.HashMap;
@@ -14,25 +14,25 @@ public class GatherLoader {
 
     private final Map<String, Gather> recipes = new HashMap<>();
 
-    public GatherLoader(AetherAsyncBot bot) {
+    public GatherLoader(AsyncBot bot) {
         File f = new File(bot.getResourcePath(), "recipes.json");
         if (!f.exists()) {
-            Environment.getLogger().info("No resource for recipes found, shutting down...");
+            Logging.info("No resource for recipes found, shutting down...");
             bot.stop();
             return;
         }
         Json json = FileDataType.newInstance(Json.class, f);
         if (json.getMutable("recipes").get() == null) {
-            Environment.getLogger().info("No resource for recipes found, shutting down...");
+            Logging.info("No resource for recipes found, shutting down...");
             bot.stop();
             return;
         }
         List<SerializableGather> items = json.getMutable("recipes").as(List.class, SerializableGather.class);
         items.forEach(i -> this.recipes.put(i.getName(), i));
         if (this.recipes.isEmpty()) {
-            Environment.getLogger().info("No recipes found, continuing anyway...");
+            Logging.info("No recipes found, continuing anyway...");
         } else {
-            Environment.getLogger().info("Loaded " + this.recipes.size() + " recipes");
+            Logging.info("Loaded " + this.recipes.size() + " recipes");
         }
     }
 

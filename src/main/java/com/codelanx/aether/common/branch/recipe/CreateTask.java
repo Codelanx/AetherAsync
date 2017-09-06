@@ -8,6 +8,7 @@ import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainer;
@@ -30,7 +31,7 @@ public class CreateTask implements Supplier<Invalidator> {
 
     @Override
     public Invalidator get() {
-        Environment.getLogger().info("\t\t=>CreateTask");
+        Logging.info("\t\t=>CreateTask");
         InterfaceContainer cont;
         SpriteItem item;
         switch (this.recipe.getRecipeType()) {

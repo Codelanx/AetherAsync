@@ -3,6 +3,7 @@ package com.codelanx.aether.common.bot.task;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidators;
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.aether.common.bot.task.predict.BranchPredictor;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
@@ -27,7 +28,7 @@ public abstract class AetherTask<T> {
     private final BranchPredictor<T> predictor;
     private volatile CompletableFuture<T> state;
     private volatile CompletableFuture<Invalidator> execution;
-    
+
     public AetherTask() {
         this.predictor = new BranchPredictor<T>();
     }
@@ -82,7 +83,7 @@ public abstract class AetherTask<T> {
     }
 
     public void registerImmediate() {
-        Aether.getBot().getBrain().registerImmediate(this);
+        Aether.getBot().getBrain().getLogicTree().registerImmediate(this);
     }
 
     public final void invalidate() {
@@ -97,18 +98,18 @@ public abstract class AetherTask<T> {
     }
 
     protected void onInvalidate() {
-        Environment.getLogger().info("Invalidating: " + this.getClass().getSimpleName());
+        Logging.info("Invalidating: " + this.getClass().getSimpleName());
     }
 
     public AetherTask<?> getChild() throws ExecutionException, InterruptedException {
         try {
             T state = this.getState().get();
             AetherTask<?> back = this.getChild(state);
-            Environment.getLogger().info("Returning child (state: " + state + ", child: " + Optional.ofNullable(back).map(AetherTask::getTaskName).orElse(null) + ")");
+            Logging.info("Returning child (state: " + state + ", child: " + Optional.ofNullable(back).map(AetherTask::getTaskName).orElse(null) + ")");
             return back;
         } catch (Throwable t) {
-            Environment.getLogger().info("Sneaky ass exception");
-            Environment.getLogger().info(Reflections.stackTraceToString(t));
+            Logging.info("Sneaky ass exception");
+            Logging.info(Reflections.stackTraceToString(t));
             throw t;
         }
     }
@@ -117,7 +118,7 @@ public abstract class AetherTask<T> {
         this.invalidate();
         this.getChildren().forEach(AetherTask::forceInvalidate);
     }
-    
+
     public boolean isExecutable(T state) {
         return false;
     }
@@ -162,7 +163,7 @@ public abstract class AetherTask<T> {
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
         return AetherTask.of(state -> task.get());
     }
-    
+
     public static <E> AetherTask<E> of(Function<E, Invalidator> task) {
         return new AetherTask<E>() {
             @Override
@@ -281,7 +282,7 @@ public abstract class AetherTask<T> {
     protected void registerDefault(Supplier<Invalidator> child) {
         this.registerDefault(AetherTask.of(child));
     }
-    
+
     protected void registerDefault(Function<T, Invalidator> executor) {
         this.registerDefault(AetherTask.of(executor));
     }

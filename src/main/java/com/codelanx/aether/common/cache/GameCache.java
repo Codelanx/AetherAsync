@@ -2,6 +2,7 @@ package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.cache.query.Inquiry;
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
@@ -35,28 +36,28 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     
     //blocking, returns when completed
     protected final CacheHolder<T> compute(I inq) {
-        Environment.getLogger().info("#compute(" + inq + ")");
+        Logging.info("#compute(" + inq + ")");
         CacheHolder<T> back = Reflections.operateLock(this.lock.readLock(), () -> this.results.get(inq));
         if (back == null) {
             CompletableFuture<List<T>> query = this.getQuery(inq); //TODO: Thread safety
             try {
                 CacheHolder<T> res = new CacheHolder<>(query.get());
                 Scheduler.runAsyncTask(() -> {
-                    Environment.getLogger().info("Inserting results: " + res);
+                    Logging.info("Inserting results: " + res);
                     Reflections.operateLock(this.lock.writeLock(), () -> this.results.put(inq, res));
                     Reflections.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
                 });
-                Environment.getLogger().info("Returning new results: " + res);
+                Logging.info("Returning new results: " + res);
                 return res;
             } catch (ExecutionException | InterruptedException e) {
-                Environment.getLogger().info("Cache query interrupted / Error querying for information:");
-                Environment.getLogger().info(Reflections.stackTraceToString(e));
+                Logging.info("Cache query interrupted / Error querying for information:");
+                Logging.info(Reflections.stackTraceToString(e));
                 Reflections.operateLock(this.lock.writeLock(), () -> this.results.remove(inq));
                 Reflections.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
                 throw new RuntimeException("Cache failed to load", e);
             }
         }
-        Environment.getLogger().info("Returning cached results: " + back);
+        Logging.info("Returning cached results: " + back);
         return back;
     }
     
