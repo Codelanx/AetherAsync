@@ -1,6 +1,7 @@
 package com.codelanx.aether.common.cache.form;
 
 import com.codelanx.aether.common.cache.GameCache;
+import com.codelanx.aether.common.cache.QueryType;
 import com.codelanx.aether.common.cache.query.ComponentInquiry;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
@@ -25,5 +26,10 @@ public class InterfaceCache extends GameCache<InterfaceComponent, ComponentInqui
     @Override
     public Supplier<InterfaceComponentQueryBuilder> getRawQuery() {
         return Interfaces::newQuery;
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.COMPONENT;
     }
 }

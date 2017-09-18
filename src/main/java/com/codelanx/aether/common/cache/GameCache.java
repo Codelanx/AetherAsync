@@ -1,11 +1,9 @@
 package com.codelanx.aether.common.cache;
 
-import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.cache.query.Inquiry;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
-import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.queries.QueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.QueryResults;
@@ -32,7 +30,17 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     
     public abstract Supplier<? extends QueryResults<T, ?>> getResults(I inquiry);
     
+    public Supplier<? extends QueryResults<T, ?>> getResults(Queryable<T, I> queryable) {
+        return this.getResults(queryable.toInquiry());
+    }
+
     public abstract Supplier<? extends QueryBuilder<T, ?, ?>> getRawQuery();
+
+    public abstract QueryType getType();
+
+    public boolean isEmpty() {
+        return this.results.isEmpty();
+    }
     
     //blocking, returns when completed
     protected final CacheHolder<T> compute(I inq) {
@@ -67,7 +75,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         return Reflections.operateLock(hold.lock.readLock(), hold::getCopyList).stream(); //TODO: not copies, but something else
     }
 
-    public final Stream<T> get(Queryable<I> inq) {
+    public final Stream<T> get(Queryable<T, I> inq) {
         return this.get(inq.toInquiry());
     }
     
@@ -76,7 +84,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         return Reflections.operateLock(hold.lock.readLock(), hold.getList()::size);
     }
 
-    public final int size(Queryable<I> inq) {
+    public final int size(Queryable<T, I> inq) {
         return this.size(inq.toInquiry());
     }
     
@@ -99,7 +107,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         });
     }
 
-    public final void invalidate(Queryable<I> inq, T item) {
+    public final void invalidate(Queryable<T, I> inq, T item) {
         this.invalidate(inq.toInquiry(), item);
     }
     
@@ -114,7 +122,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         return null;
     }
 
-    public final List<T> invalidateByType(Queryable<I> inq) {
+    public final List<T> invalidateByType(Queryable<T, I> inq) {
         return this.invalidateByType(inq.toInquiry());
     }
 

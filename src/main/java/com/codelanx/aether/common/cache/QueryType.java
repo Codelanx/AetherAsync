@@ -8,6 +8,7 @@ import com.runemate.game.api.hybrid.region.GameObjects;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -15,8 +16,8 @@ import java.util.function.Supplier;
  */
 public enum QueryType {
     
-    BANK(Bank.class, () -> new ContainerCache(Bank::newQuery)),
-    INVENTORY(Inventory.class, () -> new ContainerCache(Inventory::newQuery)),
+    BANK(Bank.class, me -> new ContainerCache(Bank::newQuery, me)),
+    INVENTORY(Inventory.class, me -> new ContainerCache(Inventory::newQuery, me)),
     NPC(Npcs.class, NpcCache::new),
     GAME_OBJECT(GameObjects.class, GameObjectCache::new),
     PLAYER(Npcs.class, PlayerCache::new),
@@ -25,10 +26,14 @@ public enum QueryType {
     
     private final Class<?> token;
     private final GameCache<?, ?> cache;
-    
+
     private QueryType(Class<?> token, Supplier<GameCache<?, ?>> cache) {
+        this(token, me -> cache.get());
+    }
+    
+    private QueryType(Class<?> token, Function<QueryType, GameCache<?, ?>> cache) {
         this.token = token;
-        this.cache = cache.get();
+        this.cache = cache.apply(this);
     }
     
     public GameCache<?, ?> getCache() {

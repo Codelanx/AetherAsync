@@ -1,6 +1,7 @@
 package com.codelanx.aether.common.cache.form;
 
-import com.codelanx.aether.common.cache.query.ObjectInquiry;
+import com.codelanx.aether.common.cache.QueryType;
+import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -10,14 +11,14 @@ import java.util.function.Supplier;
 /**
  * Created by rogue on 8/14/2017.
  */
-public class NpcCache extends LocatableCache<Npc> {
+public class NpcCache extends LocatableCache<Npc, LocatableInquiry> {
 
     public NpcCache() {
-        super(null);
+        super(Npcs::newQuery);
     }
 
     @Override
-    public Supplier<NpcQueryBuilder> getBiasedQuery(ObjectInquiry inquiry) {
+    public Supplier<NpcQueryBuilder> getBiasedQuery(LocatableInquiry inquiry) {
         return () -> {
             NpcQueryBuilder build = this.getRawQuery().get();
             build.names(inquiry.getTarget().getName());
@@ -27,6 +28,11 @@ public class NpcCache extends LocatableCache<Npc> {
 
     @Override
     public Supplier<NpcQueryBuilder> getRawQuery() {
-        return Npcs::newQuery;
+        return (Supplier<NpcQueryBuilder>) super.getRawQuery();
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.NPC;
     }
 }

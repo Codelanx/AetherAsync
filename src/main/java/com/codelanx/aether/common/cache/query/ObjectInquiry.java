@@ -1,34 +1,18 @@
 package com.codelanx.aether.common.cache.query;
 
-import com.codelanx.aether.common.Identifiable;
+import com.codelanx.aether.common.json.locatable.GameObjectRef;
 
 /**
  * Created by rogue on 8/14/2017.
  */
-public class ObjectInquiry extends Inquiry {
+public class ObjectInquiry extends LocatableInquiry {
     
-    private final Identifiable target;
-    
-    public ObjectInquiry(Identifiable target) {
-        this.target = target;
+    public ObjectInquiry(GameObjectRef target) {
+        super(target);
     }
     
-    public Identifiable getTarget() {
-        return this.target;
+    public GameObjectRef getTarget() {
+        return (GameObjectRef) super.getTarget();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ObjectInquiry inquiry = (ObjectInquiry) o;
-
-        return getTarget().equals(inquiry.getTarget());
-    }
-
-    @Override
-    public int hashCode() {
-        return getTarget().hashCode();
-    }
 }

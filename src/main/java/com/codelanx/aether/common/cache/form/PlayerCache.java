@@ -1,7 +1,10 @@
 package com.codelanx.aether.common.cache.form;
 
+import com.codelanx.aether.common.cache.QueryType;
+import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.Player;
+import com.runemate.game.api.hybrid.queries.LocatableEntityQueryBuilder;
 import com.runemate.game.api.hybrid.queries.PlayerQueryBuilder;
 import com.runemate.game.api.hybrid.region.Players;
 
@@ -10,14 +13,14 @@ import java.util.function.Supplier;
 /**
  * Created by rogue on 8/14/2017.
  */
-public class PlayerCache extends LocatableCache<Player> {
+public class PlayerCache extends LocatableCache<Player, LocatableInquiry> {
     
     public PlayerCache() {
-        super(null);
+        super(Players::newQuery);
     }
 
     @Override
-    public Supplier<PlayerQueryBuilder> getBiasedQuery(ObjectInquiry inquiry) {
+    public Supplier<PlayerQueryBuilder> getBiasedQuery(LocatableInquiry inquiry) {
         return () -> {
             PlayerQueryBuilder build = this.getRawQuery().get();
             build.names(inquiry.getTarget().getName());
@@ -27,6 +30,11 @@ public class PlayerCache extends LocatableCache<Player> {
 
     @Override
     public Supplier<PlayerQueryBuilder> getRawQuery() {
-        return Players::newQuery;
+        return (Supplier<PlayerQueryBuilder>) super.getRawQuery();
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.PLAYER;
     }
 }

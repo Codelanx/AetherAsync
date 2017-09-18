@@ -1,7 +1,11 @@
 package com.codelanx.aether.common.cache.form;
 
+import com.codelanx.aether.common.bot.Aether;
+import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.cache.GameCache;
+import com.codelanx.aether.common.cache.QueryType;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
+import com.codelanx.aether.common.json.item.Material;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.Environment;
@@ -10,6 +14,8 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Tab;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
+import com.runemate.game.api.script.framework.listeners.InventoryListener;
+import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,16 +26,25 @@ import java.util.function.Supplier;
 /**
  * Created by rogue on 8/14/2017.
  */
-public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> {
+//container as in, item containers
+public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> implements InventoryListener {
     
     private final Supplier<SpriteItemQueryBuilder> target;
     private final Map<MaterialInquiry, Integer> offset = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final QueryType type;
     
-    public ContainerCache(Supplier<SpriteItemQueryBuilder> target) {
+    public ContainerCache(Supplier<SpriteItemQueryBuilder> target, QueryType type) {
         this.target = target;
+        this.type = type;
+        Aether.getBot().getEventDispatcher().addListener(this);
     }
-    
+
+    @Override
+    public QueryType getType() {
+        return this.type;
+    }
+
     @Override
     public Supplier<SpriteItemQueryResults> getResults(MaterialInquiry inquiry) {
         return () -> {
@@ -90,5 +105,18 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> {
     @Override
     public Supplier<SpriteItemQueryBuilder> getRawQuery() {
         return this.target;
+    }
+
+    @Override
+    public void onItemAdded(ItemEvent event) {
+        SpriteItem i = event.getItem();
+        Logging.simple().print("[Cache | %s] Item add event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName());
+        //Material m = Aether.getBot(); //TODO:
+    }
+
+    @Override
+    public void onItemRemoved(ItemEvent event) {
+        SpriteItem i = event.getItem();
+        Logging.simple().print("[Cache | %s] Item remove event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName());
     }
 }

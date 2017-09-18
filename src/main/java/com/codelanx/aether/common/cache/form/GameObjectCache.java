@@ -1,9 +1,9 @@
 package com.codelanx.aether.common.cache.form;
 
+import com.codelanx.aether.common.cache.QueryType;
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.queries.GameObjectQueryBuilder;
-import com.runemate.game.api.hybrid.queries.results.QueryResults;
 import com.runemate.game.api.hybrid.region.GameObjects;
 
 import java.util.function.Supplier;
@@ -11,15 +11,10 @@ import java.util.function.Supplier;
 /**
  * Created by rogue on 8/14/2017.
  */
-public class GameObjectCache extends LocatableCache<GameObject> {
+public class GameObjectCache extends LocatableCache<GameObject, ObjectInquiry> {
     
     public GameObjectCache() {
-        super(null);
-    }
-
-    @Override
-    public Supplier<? extends QueryResults<GameObject, ?>> getResults(ObjectInquiry inquiry) {
-        return super.getResults(inquiry);
+        super(GameObjects::newQuery);
     }
 
     @Override
@@ -34,6 +29,11 @@ public class GameObjectCache extends LocatableCache<GameObject> {
 
     @Override
     public Supplier<GameObjectQueryBuilder> getRawQuery() {
-        return GameObjects::newQuery;
+        return (Supplier<GameObjectQueryBuilder>) super.getRawQuery();
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.GAME_OBJECT;
     }
 }
