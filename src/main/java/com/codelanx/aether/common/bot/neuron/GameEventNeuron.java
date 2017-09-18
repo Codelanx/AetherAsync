@@ -2,9 +2,12 @@ package com.codelanx.aether.common.bot.neuron;
 
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Brain;
+import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.commons.logging.Logging;
+import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.script.framework.task.Task;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameEventNeuron extends Neuron {
@@ -22,15 +25,24 @@ public class GameEventNeuron extends Neuron {
         this.handlingGameEvent.set(true);
         Logging.info("[Bot] Registering game event task...");
         Logging.info(t.getClass().getName());
-        Logging.info(t.getChildren().toString());
-        Logging.info(t.getParent().toString());
-        brain.getLogicTree().registerImmediate(() -> {
+        Logging.info(Objects.toString(t.getChildren()));
+        Logging.info(Objects.toString(t.getParent()));
+        UserInput.runemateInput(() -> {
             if (t.validate()) {
-                brain.getLogicTree().registerImmediate(() -> {
-                    t.execute();
-                    this.handlingGameEvent.set(false);
-                });
+                t.execute();
             }
+            this.handlingGameEvent.set(false);
+            return true;
         });
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return Environment.getBot().getGameEventController() != null;
+    }
+
+    @Override
+    public boolean isEvaluationSkipped() {
+        return this.handlingGameEvent.get();
     }
 }

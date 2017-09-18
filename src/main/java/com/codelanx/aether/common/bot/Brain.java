@@ -1,9 +1,11 @@
 package com.codelanx.aether.common.bot;
 
+import com.codelanx.aether.common.bot.neuron.BotFailureNeuron;
 import com.codelanx.aether.common.bot.neuron.CombatNeuron;
 import com.codelanx.aether.common.bot.neuron.GameEventNeuron;
+import com.codelanx.aether.common.bot.neuron.LogoutNeuron;
 import com.codelanx.aether.common.bot.neuron.Neuron;
-import com.codelanx.aether.common.bot.neuron.PrimaryNeuron;
+import com.codelanx.aether.common.bot.neuron.LogicTreeNeuron;
 import com.codelanx.aether.common.bot.neuron.UserInputNeuron;
 import com.codelanx.commons.logging.Logging;
 
@@ -13,12 +15,14 @@ import java.util.List;
 
 public class Brain {
 
-    private final PrimaryNeuron logicTree = new PrimaryNeuron();
+    private final LogicTreeNeuron primary = new LogicTreeNeuron();
     private final List<? extends Neuron> neurons = Collections.unmodifiableList(Arrays.asList(
             new UserInputNeuron(),
             new GameEventNeuron(),
             new CombatNeuron(),
-            this.logicTree
+            new BotFailureNeuron(),
+            this.primary,
+            new LogoutNeuron()
     ));
     private final AsyncBot bot;
 
@@ -30,19 +34,34 @@ public class Brain {
         return this.bot;
     }
 
-    public PrimaryNeuron getLogicTree() {
-        return this.logicTree;
+    public LogicTreeNeuron getLogicTree() {
+        return this.primary;
     }
 
     void loop() {
-        Neuron n = this.neurons.stream().filter(Neuron::applies).findFirst().orElse(null);
-        if (n != null) {
-            n.fire(this);
+        //Neuron n = this.neurons.stream().filter(Neuron::applies).findFirst().orElse(null);
+        Neuron n = null;
+        for (int i = 0; i < this.neurons.size(); i++) {
+            Neuron nn = this.neurons.get(i);
+            boolean blocked = nn.isBlocking();
+            boolean skipped = nn.isEvaluationSkipped();
+            if (skipped) {
+                if (blocked) {
+                    return;
+                }
+            } else if (nn.applies()) {
+                n = nn;
+                break;
+            }
+        }
+        if (n == null) {
+            //stop bot
+            Logging.severe("No neurons available to be fired, bot finished");
+            this.bot.stop();
             return;
         }
-        //stop bot
-        Logging.severe("No neurons available to be fired, bot finished");
-        this.bot.stop();
+        Logging.info("Firing neuron: " + n.getClass().getSimpleName());
+        n.fire(this);
     }
 
 }

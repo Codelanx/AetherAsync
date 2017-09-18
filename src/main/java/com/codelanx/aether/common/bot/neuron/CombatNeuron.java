@@ -8,20 +8,15 @@ public class CombatNeuron extends Neuron {
 
     @Override
     public boolean applies() {
+        if (true) {
+            return false;
+        }
         Player p = Players.getLocal();
         return p.getTarget() != null || p.getHealthGauge() != null;
     }
 
     @Override
     public void fire(Brain brain) {
-        //TODO: Combat management
-        //determine health safety first
-        if (false) { //health is low
-            //eat food
-        }
-        //potion management
-        if (false) {
-
-        }
+        //TODO: Combat management, snipped for now (incomplete)
     }
 }

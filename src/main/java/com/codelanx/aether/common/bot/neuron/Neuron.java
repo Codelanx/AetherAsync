@@ -17,4 +17,16 @@ public abstract class Neuron {
     //fires this neuron, aka executing whatever neuron tasks need be executed
     public abstract void fire(Brain brain);
 
+    //returns true when this neuron is busy calculating state changes (e.g. input)
+    //this is to allow resting the bot and not validating state that will soon be potentially invalid
+    public boolean isBlocking() {
+        return false;
+    }
+
+    //returns whether or not this neuron is skipped
+    //if a neuron is both skipped and blocking, it acts as a sleep on the main bot thread
+    public boolean isEvaluationSkipped() {
+        return false;
+    }
+
 }

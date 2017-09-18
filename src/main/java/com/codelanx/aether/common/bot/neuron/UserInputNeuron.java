@@ -25,4 +25,9 @@ public class UserInputNeuron extends Neuron {
             Caches.invalidateAll();
         }
     }
+
+    @Override
+    public boolean isBlocking() {
+        return UserInput.hasTasks();
+    }
 }

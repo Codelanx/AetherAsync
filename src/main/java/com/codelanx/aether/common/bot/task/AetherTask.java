@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -61,6 +62,10 @@ public abstract class AetherTask<T> {
     }
 
     public final CompletableFuture<T> getState() {
+        CompletableFuture<T> back;
+        if ((back = stateOverride()) != null) {
+            return back;
+        }
         if (this.state == null) {
             CompletableFuture<T> state = this.register();
             if (this.state == null) {
@@ -68,6 +73,10 @@ public abstract class AetherTask<T> {
             }
         }
         return this.state;
+    }
+
+    CompletableFuture<T> stateOverride() {
+        return null;
     }
 
     private CompletableFuture<T> register() {
@@ -161,10 +170,35 @@ public abstract class AetherTask<T> {
     }
 
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
-        return AetherTask.of(state -> task.get());
+        return AetherTask.of((Supplier<E>) null, state -> task.get());
     }
 
-    public static <E> AetherTask<E> of(Function<E, Invalidator> task) {
+    public static <E> AetherTask<E> of(Supplier<E> state, Function<E, Invalidator> task) {
+        return new AetherTask<E>() {
+            @Override
+            public Supplier<E> getStateNow() {
+                return state;
+            }
+
+            @Override
+            public boolean isExecutable() {
+                return true;
+            }
+
+            @Override
+            public Class<?> getToken() {
+                return task.getClass();
+            }
+
+            @Override
+            public Invalidator execute(E state) {
+                return task.apply(state);
+            }
+        };
+    }
+
+    //since these tasks utilize their parent's state, we save an evaluation as well
+    public static <E> AetherTask<E> of(AetherTask<E> derivedState, Function<E, Invalidator> task) {
         return new AetherTask<E>() {
             @Override
             public Supplier<E> getStateNow() {
@@ -175,6 +209,12 @@ public abstract class AetherTask<T> {
             public boolean isExecutable() {
                 return true;
             }
+
+            @Override
+            CompletableFuture<E> stateOverride() {
+                return derivedState.getState();
+            }
+
 
             @Override
             public Class<?> getToken() {
@@ -263,8 +303,13 @@ public abstract class AetherTask<T> {
         return this.invalidationOverride() != null && this.invalidationOverride().isAll();
     }
 
+    //this should be async
     public Invalidator execute() {
-        return this.execute(this.getStateNow().get());
+        T override = Optional.ofNullable(this.stateOverride()).map(comp -> comp.getNow(null)).orElse(null);
+        if (override == null) {
+            override = this.getStateNow().get();
+        }
+        return this.execute(override);
     }
 
     public Invalidator execute(T state) {
@@ -284,12 +329,20 @@ public abstract class AetherTask<T> {
     }
 
     protected void registerDefault(Function<T, Invalidator> executor) {
-        this.registerDefault(AetherTask.of(executor));
+        this.registerDefault(AetherTask.of(this, executor));
     }
 
     //provides an invalidator to dictate branch invalidation
     protected void registerInvalidator(T key, Supplier<Invalidator> rangeInvalidated) {
         this.register(key, AetherTask.of(rangeInvalidated));
+    }
+
+    protected void registerInvalidator(Predicate<T> applicable, Supplier<Invalidator> child) {
+        this.register(applicable, AetherTask.of(child));
+    }
+
+    protected void registerInvalidator(Predicate<T> applicable, Function<T, Invalidator> child) {
+        this.pickyKids.put(applicable, AetherTask.of(this, child));
     }
 
     protected <E> void register(T key, AetherTask<E> child) {
@@ -300,15 +353,27 @@ public abstract class AetherTask<T> {
         this.register(key, AetherTask.of(child));
     }
 
+    protected void register(Predicate<T> applicable, Runnable child) {
+        this.register(applicable, AetherTask.of(child));
+    }
+
+    protected void register(Predicate<T> applicable, Consumer<? super T> child) {
+        this.register(applicable, AetherTask.of(this, state -> {
+            child.accept(state);
+            return null;
+        }));
+    }
+
+    protected <E> void register(Predicate<T> applicable, AetherTask<E> child) {
+        this.pickyKids.put(applicable, child);
+    }
+
     //registers a child supplier for a boolean, which invalidates all previous branches
     //if it returns true
     protected void registerRunemateCall(T key, Supplier<Boolean> invalidateAll) {
         this.register(key, AetherTask.ofRunemateFailable(invalidateAll));
     }
 
-    protected <E> void register(Predicate<T> applicable, AetherTask<E> child) {
-        this.pickyKids.put(applicable, child);
-    }
 
     @Override
     public String toString() {

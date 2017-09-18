@@ -7,16 +7,16 @@ import com.runemate.game.api.hybrid.local.Skill;
 
 import java.util.*;
 
-public abstract class AetherMission<E> extends AetherTaskWrapper<E> {
+public abstract class Mission<E> extends AetherTaskWrapper<E> {
 
-    public AetherMission(AetherTask<E> root) {
+    public Mission(AetherTask<E> root) {
         super(root);
     }
 
     public abstract boolean hasEnded();
 
-    public static <T> AetherMission<T> of(AetherTask<T> root) {
-        return new AetherMission<T>(root) {
+    public static <T> Mission<T> of(AetherTask<T> root) {
+        return new Mission<T>(root) {
             @Override
             public boolean hasEnded() {
                 return false;
@@ -62,9 +62,9 @@ public abstract class AetherMission<E> extends AetherTaskWrapper<E> {
             return this;
         }
         
-        public AetherMission<E> build() {
+        public Mission<E> build() {
             AetherMissionBuilder<E> amb = this;
-            return new AetherMission<E>(this.root) {
+            return new Mission<E>(this.root) {
                 @Override
                 public boolean hasEnded() {
                     Skill exceeded = amb.trackedSkills.stream().filter(s -> {

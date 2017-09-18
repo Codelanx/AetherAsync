@@ -2,7 +2,7 @@ package com.codelanx.aether.common.bot.neuron;
 
 import com.codelanx.aether.common.bot.Brain;
 import com.codelanx.aether.common.bot.Invalidator;
-import com.codelanx.aether.common.bot.mission.AetherMission;
+import com.codelanx.aether.common.bot.mission.Mission;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
@@ -12,6 +12,7 @@ import com.runemate.game.api.script.framework.AbstractBot.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +22,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
 
 //TODO: Import brain logic
-public class PrimaryNeuron extends Neuron {
+public class LogicTreeNeuron extends Neuron {
 
     private static final long START_MS = System.currentTimeMillis();
     private final List<Runnable> immediateTasks = new ArrayList<>();
     private final List<AetherTask<?>> immediateRoot = new ArrayList<>();
-    private final List<AetherMission<?>> nextMission = new ArrayList<>();
+    private final List<Mission<?>> nextMission = new ArrayList<>();
     private final LinkedList<AetherTask<?>> invalidationQueue = new LinkedList<>();
     private final Map<Class<?>, AetherTask<?>> taskMap = new HashMap<>();
     private final ReadWriteLock taskMapLock = new ReentrantReadWriteLock();
@@ -38,7 +38,7 @@ public class PrimaryNeuron extends Neuron {
 
     @Override
     public boolean applies() {
-        return true; //TODO: false on no more tasks
+        return !this.nextMission.isEmpty() || !this.immediateRoot.isEmpty() || !this.immediateTasks.isEmpty();
     }
 
     //invalidates and removes immediate tasks
@@ -48,6 +48,16 @@ public class PrimaryNeuron extends Neuron {
         this.nextMission.forEach(AetherTask::forceInvalidate);
         this.runningExecs.forEach(c -> c.cancel(true));
         this.runningExecs.clear();
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return this.applies();
+    }
+
+    @Override
+    public boolean isEvaluationSkipped() {
+        return this.isThinking();
     }
 
     //removes all tasks and missions
@@ -86,19 +96,17 @@ public class PrimaryNeuron extends Neuron {
                     Logging.info("#BrainDebug Invalidator: " + inv);
                     if (!inv.isNone()) {
                         Logging.info("#BrainDebug invalidating...");
-                        Stream<AetherTask<?>> auto = inv.isAll() ? Stream.empty() : this.invalidationQueue.stream().filter(AetherTask::invalidateAnyway);
-                        Stream<AetherTask<?>> invalidate;
                         if (inv.isRange()) {
-                            invalidate = this.invalidationQueue.subList(0, inv.getRange()).stream();
-                        } else {
-                            if (inv.isAll()) {
-                                invalidate = this.invalidationQueue.stream();
-                            } else {
-                                invalidate = Stream.empty();
+                            Iterator<AetherTask<?>> itr = this.invalidationQueue.iterator();
+                            for (int i = 0; i < inv.getRange() && itr.hasNext(); i++) {
+                                itr.next().invalidate();
+                                itr.remove();
                             }
+                        } else {
+                            //invalidate all
+                            this.invalidationQueue.forEach(AetherTask::invalidate);
+                            this.invalidationQueue.clear();
                         }
-                        Stream.concat(auto, invalidate).distinct().forEach(AetherTask::invalidate);
-                        Logging.info("#BrainDebug invalidated");
                     } else if (inv.isEnd()) {
                         Logging.info("#BrainDebug Hit invalid state - ending bot");
                         brain.getBot().stop();
@@ -200,7 +208,7 @@ public class PrimaryNeuron extends Neuron {
         }
     }
 
-    public void register(AetherMission<?> mission) {
+    public void register(Mission<?> mission) {
         this.nextMission.add(mission);
     }
 
@@ -216,11 +224,11 @@ public class PrimaryNeuron extends Neuron {
         });
     }
 
-    public void forget(AetherMission<?> m) {
+    public void forget(Mission<?> m) {
         this.nextMission.remove(m);
     }
 
-    public AetherMission<?> popMission() {
+    public Mission<?> popMission() {
         //this.forget(this.getCurrentMission());
         if (!this.nextMission.isEmpty()) {
             return this.nextMission.remove(0);
@@ -250,7 +258,10 @@ public class PrimaryNeuron extends Neuron {
             this.setLastThought("Running immediate AetherTask (" + immediateRoot.getTaskName() + ")...");
             return immediateRoot;
         }
-        AetherMission<?> task = this.nextMission.get(0);
+        if (this.nextMission.isEmpty()) {
+            return brain.getBot().getState() == State.UNSTARTED ? AetherTask.NOTHING : null;
+        }
+        Mission<?> task = this.nextMission.get(0);
         if (task.hasEnded()) {
             this.nextMission.remove(0);
             if (this.nextMission.isEmpty()) {
@@ -270,7 +281,7 @@ public class PrimaryNeuron extends Neuron {
         this.runningExecs.add(0, task);
     }
 
-    public AetherMission<?> getCurrentMission() {
+    public Mission<?> getCurrentMission() {
         return this.nextMission.isEmpty() ? null : this.nextMission.get(0);
     }
 
