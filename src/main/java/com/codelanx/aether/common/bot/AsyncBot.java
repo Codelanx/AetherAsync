@@ -3,8 +3,7 @@ package com.codelanx.aether.common.bot;
 import com.codelanx.aether.common.RunemateLoggerProxy;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.cache.Caches;
-import com.codelanx.aether.common.json.item.ItemLoader;
-import com.codelanx.aether.common.json.recipe.RecipeLoader;
+import com.codelanx.aether.common.rest.RestLoader;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.script.framework.AbstractBot;
@@ -13,21 +12,22 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AsyncBot extends AbstractBot {
 
     private AetherScheduler scheduler;
     private final Brain brain;
-    private final ItemLoader items;
-    private final RecipeLoader recipes;
     private final AtomicBoolean stopping = new AtomicBoolean();
+    private final RestLoader data;
 
     public AsyncBot() {
         Aether.setBot(this);
         this.scheduler = new AetherScheduler(this);
-        this.items = new ItemLoader(this);
-        this.recipes = new RecipeLoader(this);
+        this.data = new RestLoader(this);
         this.brain = new Brain(this);
+        Logger l = new RunemateLoggerProxy(this.getLogger());
+        Logging.setNab(() -> l);
     }
 
     @Override
@@ -51,7 +51,6 @@ public abstract class AsyncBot extends AbstractBot {
 
     public void loop() {
         try {
-            Logging.info("[Bot] Running brain loop...");
             this.brain.loop();
         } catch (Throwable t) {
             Logging.log(Level.SEVERE, "Uncaught exception in bot loop", t);
@@ -63,36 +62,52 @@ public abstract class AsyncBot extends AbstractBot {
         return this.brain;
     }
 
+    public RestLoader getData() {
+        return this.data;
+    }
+
     @Override
-    public void onStart(String... strings) {
+    public final void onStart(String... strings) {
         super.onStart(strings);
-        Logging.setNab(() -> new RunemateLoggerProxy(this.getLogger()));
         Logging.info("#onStart(" + Arrays.toString(strings) + ")");
+        this.onBotStart(strings);
         this.scheduler.register(this);
     }
 
+
     @Override
-    public void onStop() {
+    public final void onStop() {
         Logging.info("#onStop");
         super.onStop();
         this.stopping.set(true);
+        this.scheduler.stop();
         this.brain.getLogicTree().clear();
         UserInput.wipe();
         Caches.invalidateAll();
+        this.onBotStop();
     }
+    //instead of being empty, we leave them as abstract to discourage autofillers from placing a supercall
+    //a recurrant supercall to #onStart or similar is quite dangerous
+    //thus the methods are forced to be filled in, and in many cases everything but #onBotStart may be blank
+    public abstract void onBotStart(String... args);
+    public abstract void onBotStop();
+    public abstract void onBotPause();
+    public abstract void onBotResume();
 
     @Override
-    public void onPause() {
+    public final void onPause() {
         super.onPause();
         this.scheduler.pause();
         this.brain.getLogicTree().invalidate();
         UserInput.wipe();
         Caches.invalidateAll();
+        this.onBotPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        this.onBotResume();
         this.scheduler.resume(this);
     }
 
@@ -102,13 +117,5 @@ public abstract class AsyncBot extends AbstractBot {
 
     public AetherScheduler getScheduler() {
         return this.scheduler;
-    }
-
-    public RecipeLoader getRecipes() {
-        return this.recipes;
-    }
-
-    public ItemLoader getKnownItems() {
-        return this.items;
     }
 }

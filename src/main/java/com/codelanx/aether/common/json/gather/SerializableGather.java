@@ -22,7 +22,7 @@ public class SerializableGather implements FileSerializable, Gather {
     public SerializableGather(String name, boolean automatic, Map<Integer, Integer> tools) {
         this.name = name;
         this.automatic = automatic;
-        ItemLoader items = Aether.getBot().getKnownItems();
+        ItemLoader items = Aether.getBot().getData().getKnownItems();
         this.tools = tools.entrySet().stream().collect(
                 Collectors.toMap(
                         e -> items.getItem(e.getKey()),
@@ -33,7 +33,7 @@ public class SerializableGather implements FileSerializable, Gather {
     public SerializableGather(Map<String, Object> data) {
         this.name = (String) data.get("name");
         this.automatic = (Boolean) data.get("automatic");
-        ItemLoader items = Aether.getBot().getKnownItems();
+        ItemLoader items = Aether.getBot().getData().getKnownItems();
         this.tools = ((Map<String, Object>) data.get("tools")).entrySet().stream().collect(
                 Collectors.toMap(
                         e -> items.getItem(Integer.parseInt(e.getKey())),
