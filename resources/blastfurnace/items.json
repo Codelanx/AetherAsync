@@ -154,14 +154,14 @@
       "equippable": false,
       "name": "Runite Bar",
       "id": 2363
-    }
+    },
     {
       "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
       "stackable": false,
       "equippable": false,
       "name": "Ice gloves",
       "id": 1580
-    }
+    },
     {
       "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
       "stackable": false,
