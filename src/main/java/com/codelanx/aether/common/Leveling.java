@@ -1,19 +1,15 @@
 package com.codelanx.aether.common;
 
-import com.codelanx.aether.common.json.item.ItemLoader;
 import com.codelanx.aether.common.json.item.Material;
 import com.codelanx.aether.common.json.item.SerializableMaterial;
 import com.codelanx.aether.common.json.recipe.Recipe;
 import com.codelanx.aether.common.json.recipe.SerializableRecipe;
 import com.codelanx.commons.data.types.Json;
-import com.codelanx.commons.logging.Logging;
-import com.runemate.game.api.hybrid.Environment;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Leveling {
@@ -42,13 +38,10 @@ public class Leveling {
         return levels.length;
     }
 
-    private static final Logger LOG = Logger.getLogger("Testing");
 
     public static void main(String... args) throws IOException {
         //exportMaterials(CraftingMaterial.values(), new File("resources/crafting/items.json"));
         //exportRecipes(CraftingRecipe.values(), new File("resources/crafting/recipes.json"));
-        Logging.setNab(() -> Leveling.LOG);
-
     }
 
     private static void exportMaterials(Material[] values, File target) throws IOException {

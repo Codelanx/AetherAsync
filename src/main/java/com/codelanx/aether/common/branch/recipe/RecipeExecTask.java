@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 public class RecipeExecTask extends AetherTask<Boolean> {
 
     private final Recipe recipe;
+    private long lastInvalidation = System.currentTimeMillis();
 
     public RecipeExecTask(Recipe recipe) {
         this.recipe = recipe;
@@ -34,7 +35,11 @@ public class RecipeExecTask extends AetherTask<Boolean> {
         }
         this.registerRunemateCall(true, () -> {
             this.recipe.getIngredients().map(ItemStack::getMaterial).map(Material::toInquiry).forEach(Caches.forInventory()::invalidateByType);
-            return true;
+            if (this.lastInvalidation > System.currentTimeMillis() - 2000) {
+                this.lastInvalidation = System.currentTimeMillis();
+                return true;
+            }
+            return false;
         });
         this.register(false, failure);
     }
@@ -47,13 +52,11 @@ public class RecipeExecTask extends AetherTask<Boolean> {
 
     //TODO: private/remove
     public static GameObject findRange() {
-        LocatableEntityQueryResults<GameObject> res = Interactables.RANGE.query();
-        return res.isEmpty() ? null : res.nearest();
+        return Interactables.RANGE.queryGlobal().findAny().orElse(null);
     }
 
     private static GameObject findFurnace() {
-        LocatableEntityQueryResults<GameObject> res = Interactables.FURNACE.query();
-        return res.isEmpty() ? null : res.nearest();
+        return Interactables.FURNACE.queryGlobal().findAny().orElse(null);
     }
 
 }

@@ -3,7 +3,7 @@ package com.codelanx.aether.bots.cowkiller;
 import com.codelanx.aether.bots.cowkiller.UI.CowInfoUI;
 import com.codelanx.aether.bots.cowkiller.branches.InventoryFull;
 import com.codelanx.aether.common.bot.AsyncBot;
-import com.codelanx.aether.common.bot.mission.AetherMission;
+import com.codelanx.aether.common.bot.mission.Mission;
 import com.runemate.game.api.client.embeddable.EmbeddableUI;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.location.Area;
@@ -60,12 +60,27 @@ public class CowKiller extends AsyncBot implements InventoryListener, Embeddable
     }
 
     @Override
-    public void onStart(String... args) {
+    public void onBotStart(String... args) {
         stopWatch.start();
-        this.getBrain().getLogicTree().register(AetherMission.of(new InventoryFull()));
+        this.getBrain().getLogicTree().register(Mission.of(new InventoryFull()));
         new LoopingThread(() -> Platform.runLater(this::updateInfo), 1000).start();
         // Add this class as a listener for the Event Dispatcher
         getEventDispatcher().addListener(this);
+    }
+
+    @Override
+    public void onBotStop() {
+
+    }
+
+    @Override
+    public void onBotPause() {
+
+    }
+
+    @Override
+    public void onBotResume() {
+
     }
 
     @Override

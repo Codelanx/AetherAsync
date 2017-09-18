@@ -80,6 +80,21 @@ public enum UserInput {
         return tar;
     }
 
+    //time between two different inputs
+    private long getInterval(Class<? extends InputTarget> targetType) {
+        long delay = System.currentTimeMillis() - this.lastInputMs.get();
+        if (this.lastInputType != targetType) {
+            //we've got an input type switch
+            Randomization r = Randomization.TASK_SWITCHING_DELAY;
+            return (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue());
+        }
+        return 0;
+    }
+
+    public static long getInputIntervalDelay(Class<? extends InputTarget> targetType) {
+        return INSTANCE.getInterval(targetType);
+    }
+
     private void actOnTarget(InputTarget target, boolean hover) {
         long delay = System.currentTimeMillis() - this.lastInputMs.get();
         if (!hover && this.lastInputType != target.getClass()) {

@@ -4,13 +4,22 @@ import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.task.AetherTask;
+import com.codelanx.aether.common.cache.Caches;
+import com.codelanx.aether.common.cache.GameCache;
+import com.codelanx.aether.common.cache.Queryable;
+import com.codelanx.aether.common.cache.query.Inquiry;
+import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.input.UserInput;
-import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.aether.common.json.locatable.Findable;
+import com.codelanx.aether.common.json.locatable.NpcRef;
+import com.codelanx.aether.common.json.locatable.SerializableGameObject;
+import com.codelanx.aether.common.json.locatable.SerializableLocatable;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.ref.Box;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
+import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.location.Coordinate;
@@ -25,15 +34,16 @@ import static com.runemate.game.api.hybrid.entities.GameObject.Direction.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GoToTargetTask<T extends LocatableEntity> extends AetherTask<Double> {
+public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extends AetherTask<Double> {
 
     private static final int INTERACTION_DISTANCE = 3;
     private static final int INTERACTION_DISTANCE_SQ = INTERACTION_DISTANCE * INTERACTION_DISTANCE;
     private final Supplier<T> target;
+    private T lastTarget;
 
     public GoToTargetTask(Supplier<T> target, AetherTask<?> interaction) {
         this.target = target;
@@ -42,10 +52,31 @@ public class GoToTargetTask<T extends LocatableEntity> extends AetherTask<Double
         this.registerDefault(new MoveToTargetTask(target));
     }
 
+    public GoToTargetTask(Supplier<T> target, Consumer<T> action) {
+        this.target = target;
+        this.registerRunemateCall(Double.NEGATIVE_INFINITY, () -> Camera.turnTo(this.target.get()));
+        this.register(d -> Math.abs(d) < INTERACTION_DISTANCE_SQ, () -> action.accept(this.lastTarget));
+        this.registerDefault(new MoveToTargetTask(target));
+    }
+
+    public GoToTargetTask(Queryable<T, I> target, Consumer<T> action) {
+        this(() -> target.queryGlobal().findFirst().orElse(null), action);
+    }
+
+    public GoToTargetTask(Queryable<T, I> target, AetherTask<?> child) {
+        this(() -> target.queryGlobal().findFirst().orElse(null), child);
+    }
+
+    @Override
+    protected void onInvalidate() {
+        this.lastTarget = null;
+    }
+
     @Override
     public Supplier<Double> getStateNow() {
         return () -> {
             T obj = this.target.get();
+            this.lastTarget = obj;
             if (obj != null) {
                 double dist = Distance.between(obj, Players.getLocal(), Algorithm.EUCLIDEAN_SQUARED);
                 if (!obj.isVisible() && dist < INTERACTION_DISTANCE_SQ) {
@@ -102,7 +133,7 @@ public class GoToTargetTask<T extends LocatableEntity> extends AetherTask<Double
                     Coordinate origin = this.cachedCoordinate == null ? this.cached.getPosition() : this.cachedCoordinate;
                     Locatable last = Reflections.operateLock(this.targetLock.readLock(), () -> this.lastTarget.value);
                     if (last != null && Distance.between(origin, last, Algorithm.EUCLIDEAN_SQUARED) <= INTERACTION_DISTANCE_SQ) {
-                        return null;
+                        return new PathWrapper(Invalidators.SELF);
                     }
                     double dist = Distance.between(this.cached, Players.getLocal(), Distance.Algorithm.EUCLIDEAN_SQUARED);
                     if (dist > INTERACTION_DISTANCE_SQ) {
@@ -113,10 +144,10 @@ public class GoToTargetTask<T extends LocatableEntity> extends AetherTask<Double
                             if (path == null) {
                                 Environment.getLogger().severe("No possible pathing found, shutting down bot...");
                                 Aether.getBot().stop();
-                                return null;
+                                return new PathWrapper(Invalidators.SELF);
                             }
                         } else if (path == null) {
-                            return null;
+                            return new PathWrapper(Invalidators.SELF);
                         }
                     /*Locatable next = path.getNext();
                     dist = Distance.between(this.cached, next);

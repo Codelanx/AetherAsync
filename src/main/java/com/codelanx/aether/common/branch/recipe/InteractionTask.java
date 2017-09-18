@@ -103,4 +103,14 @@ public class InteractionTask implements Supplier<Invalidator> {
         }
         return Invalidators.ALL;
     }
+
+    private static class Maker {
+
+        private static final String PREFIXES = "cook|make|smelt|";
+
+        //returns amount made
+        public int make(Recipe recipe) {
+            return 0;
+        }
+    }
 }

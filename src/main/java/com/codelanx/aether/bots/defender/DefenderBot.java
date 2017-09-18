@@ -2,7 +2,7 @@ package com.codelanx.aether.bots.defender;
 
 import com.codelanx.aether.bots.defender.branch.InFightingRooms;
 import com.codelanx.aether.common.bot.AsyncBot;
-import com.codelanx.aether.common.bot.mission.AetherMission;
+import com.codelanx.aether.common.bot.mission.Mission;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
 import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
@@ -18,10 +18,25 @@ public class DefenderBot extends AsyncBot implements InventoryListener {
     public DefenderBot() {
     }
 
-    public void onStart(String... args) {
+    public void onBotStart(String... args) {
         super.onStart(args);
         getEventDispatcher().addListener(this);
-        this.getBrain().getLogicTree().register(AetherMission.of(new InFightingRooms(this)));
+        this.getBrain().getLogicTree().register(Mission.of(new InFightingRooms(this)));
+    }
+
+    @Override
+    public void onBotStop() {
+
+    }
+
+    @Override
+    public void onBotPause() {
+
+    }
+
+    @Override
+    public void onBotResume() {
+
     }
 
     @Override
