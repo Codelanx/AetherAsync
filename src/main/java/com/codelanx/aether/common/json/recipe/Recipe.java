@@ -37,6 +37,8 @@ public interface Recipe extends Withdrawable {
      */
     public Stream<ItemStack> getTools();
 
+    public Stream<ItemStack> getOutput();
+
     default public Stream<SpriteItem> getIngredientsInInventory() {
         return itemStackToTarget(this.getIngredients(), Caches.forInventory());
     }

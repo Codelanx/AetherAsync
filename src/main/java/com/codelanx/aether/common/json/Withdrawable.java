@@ -2,6 +2,7 @@ package com.codelanx.aether.common.json;
 
 import com.codelanx.aether.common.json.item.ItemStack;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**

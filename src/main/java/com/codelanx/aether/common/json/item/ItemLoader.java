@@ -13,6 +13,7 @@ import java.util.Map;
 public class ItemLoader {
 
     private final Map<Integer, Material> materials = new HashMap<>();
+    private final Map<String, Material> byName = new HashMap<>();
 
     public ItemLoader(AsyncBot bot) {
         File f = new File(bot.getResourcePath(), "items.json");
@@ -53,5 +54,9 @@ public class ItemLoader {
 
     public Material getItem(int id) {
         return this.materials.get(id);
+    }
+
+    public Material getItem(String name) {
+        return this.byName.computeIfAbsent(name, k -> this.materials.values().stream().filter(m -> k.equals(m.getName())).findFirst().orElse(null));
     }
 }

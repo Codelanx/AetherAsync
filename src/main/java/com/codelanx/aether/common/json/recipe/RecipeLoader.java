@@ -4,6 +4,7 @@ import com.codelanx.aether.common.bot.AsyncBot;
 import com.codelanx.commons.data.FileDataType;
 import com.codelanx.commons.data.types.Json;
 import com.codelanx.commons.logging.Logging;
+import com.codelanx.commons.util.Scheduler;
 
 import java.io.File;
 import java.util.HashMap;
@@ -21,6 +22,10 @@ public class RecipeLoader {
             bot.stop();
             return;
         }
+        Scheduler.runAsyncTask(() -> this.load(bot, f));
+    }
+
+    private void load(AsyncBot bot, File f) {
         Json json = FileDataType.newInstance(Json.class, f);
         if (json.getMutable("recipes").get() == null) {
             Logging.info("No resource for recipes found, shutting down...");

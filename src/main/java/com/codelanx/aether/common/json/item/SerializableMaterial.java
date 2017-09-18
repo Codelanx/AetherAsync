@@ -2,6 +2,7 @@ package com.codelanx.aether.common.json.item;
 
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
 import com.codelanx.commons.data.FileSerializable;
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,33 +11,36 @@ public class SerializableMaterial implements FileSerializable, Material {
 
     private final Boolean stackable;
     private final Boolean equippable;
-    private final String plural;
     private final String name;
     private final int id;
     private volatile MaterialInquiry inq;
 
-    public SerializableMaterial(String name, String plural, int id, boolean stacks, boolean equips) {
+    public SerializableMaterial(String name, int id, boolean stacks, boolean equips) {
         this.name = name;
         this.id = id;
-        this.plural = plural;
         this.stackable = stacks;
         this.equippable = equips;
     }
 
-    public SerializableMaterial(Map<String, Object> serialized) {
+    protected SerializableMaterial(Map<String, Object> serialized) {
         this.name = (String) serialized.get("name");
         this.id = ((Long) serialized.get("id")).intValue();
-        this.plural = (String) serialized.get("plural");
         this.stackable = (Boolean) serialized.get("stackable");
         this.equippable = (Boolean) serialized.get("equippable");
     }
 
     public SerializableMaterial(Material other) {
         this.name = other.getName();
-        this.plural = other.getPlural();
         this.equippable = other.isEquippable();
         this.stackable = other.isStackable();
         this.id = other.getId();
+    }
+
+    public SerializableMaterial(ItemDefinition other) {
+        this.name = other.getName();
+        this.id = other.getId();
+        this.stackable = other.stacks();
+        this.equippable = other.isEquipable();
     }
 
     @Override
@@ -44,9 +48,6 @@ public class SerializableMaterial implements FileSerializable, Material {
         Map<String, Object> back = new HashMap<>();
         back.put("name", this.name);
         back.put("id", this.id);
-        if (!this.name.equals(this.plural)) {
-            back.put("plural", this.name);
-        }
         back.put("stackable", this.stackable);
         back.put("equippable", this.equippable);
         return back;
@@ -63,11 +64,6 @@ public class SerializableMaterial implements FileSerializable, Material {
     }
 
     @Override
-    public String getPlural() {
-        return this.plural == null ? this.name : this.plural;
-    }
-
-    @Override
     public boolean isStackable() {
         return this.stackable;
     }
@@ -80,7 +76,7 @@ public class SerializableMaterial implements FileSerializable, Material {
     @Override
     public MaterialInquiry toInquiry() {
         if (this.inq == null) {
-            MaterialInquiry back = new MaterialInquiry(this);
+            MaterialInquiry back = this.toUncachedInquiry();
             if (this.inq == null) {
                 this.inq = back;
             }
@@ -115,7 +111,6 @@ public class SerializableMaterial implements FileSerializable, Material {
         return "SerializableMaterial{" +
                 "stackable=" + stackable +
                 ", equippable=" + equippable +
-                ", plural='" + plural + '\'' +
                 ", name='" + name + '\'' +
                 ", id=" + id +
                 '}';

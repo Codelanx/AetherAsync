@@ -1,25 +1,21 @@
 package com.codelanx.aether.common.json.item;
 
+import com.codelanx.aether.common.cache.query.MaterialInquiry;
+
 //common enum for items, should stick to basics here and keep skill-specific items in a different enum
 //this is for a lower memory footprint, but this will likely be externalized in the future anyhow
 public enum Materials implements Material {
 
-    COINS(995, "Coin", "Coins"),
+    COINS(995, "Coins"),
     KNIFE(946, "Knife"),
     ;
 
     private final int id;
     private final String name;
-    private final String plural;
 
     private Materials(int id, String name) {
-        this(id, name, name);
-    }
-
-    private Materials(int id, String name, String plural) {
         this.id = id;
         this.name = name;
-        this.plural = plural;
     }
 
     @Override
@@ -30,11 +26,6 @@ public enum Materials implements Material {
     @Override
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public String getPlural() {
-        return this.plural;
     }
 
     @Override
