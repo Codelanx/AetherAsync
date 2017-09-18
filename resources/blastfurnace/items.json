@@ -1,0 +1,173 @@
+{
+  "items": [
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Stamina potion(1)",
+      "id": 12631
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Stamina potion(2)",
+      "id": 12629
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Stamina potion(3)",
+      "id": 12627
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Stamina potion(4)",
+      "id": 12625
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Copper Ore",
+      "id": 436
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Tin Ore",
+      "id": 438
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Iron Ore",
+      "id": 440
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Coal",
+      "id": 453
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Silver Ore",
+      "id": 442
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Gold Ore",
+      "id": 444
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Mithril Ore",
+      "id": 447
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Adamantite Ore",
+      "id": 449
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Runite Ore",
+      "id": 451
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Bucket of Water",
+      "id": 1929
+    },
+
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Bronze Bar",
+      "id": 2349
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Iron Bar",
+      "id": 2351
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Steel Bar",
+      "id": 2353
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Silver Bar",
+      "id": 2355
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Gold Bar",
+      "id": 2357
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Mithril Bar",
+      "id": 2359
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Adamantite Bar",
+      "id": 2361
+    },
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Runite Bar",
+      "id": 2363
+    }
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Ice gloves",
+      "id": 1580
+    }
+    {
+      "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
+      "stackable": false,
+      "equippable": false,
+      "name": "Goldsmith gauntlets",
+      "id": 772
+    }
+  ]
+}
