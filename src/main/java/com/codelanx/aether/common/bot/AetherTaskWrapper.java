@@ -20,8 +20,18 @@ public class AetherTaskWrapper<T> extends AetherTask<T> {
     }
 
     @Override
+    public boolean isSync() {
+        return true;
+    }
+
+    @Override
     public AetherTask<?> getChild() {
         return this.child;
+    }
+
+    @Override
+    public AetherTask<?> getChild(T state) {
+        return this.getChild();
     }
 
     @Override
