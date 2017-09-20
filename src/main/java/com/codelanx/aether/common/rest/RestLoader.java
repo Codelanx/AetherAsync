@@ -46,7 +46,7 @@ public class RestLoader {
 
     public Material getItem(int id, String name) {
         if (id <= 0 && name == null) {
-            throw new IllegalArgumentException("Must supply a valid name or id above 0");
+            throw new IllegalArgumentException("Must supply a valid name or id above 0 [" + id + "," + name + "]");
         }
         Material ported = null;
         //is it in the older cache system? (json flatfile)

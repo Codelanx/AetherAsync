@@ -7,14 +7,12 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainers;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
 import com.runemate.game.api.hybrid.queries.results.InterfaceComponentQueryResults;
-import com.runemate.game.api.script.Execution;
 
 import java.util.function.Supplier;
 
 public class TargetSelectTask extends AetherTask<Boolean> {
 
     private final Recipe recipe;
-    private boolean justClicked = false;
 
     public TargetSelectTask(Recipe recipe) {
         this.recipe = recipe;
@@ -22,14 +20,17 @@ public class TargetSelectTask extends AetherTask<Boolean> {
         this.registerInvalidator(false, new InteractionTask(recipe));
     }
 
-    /*@Override
+    @Override
     public boolean isSync() {
-        return !this.recipe.isAutomatic();
-    }*/
+        return !this.recipe.hasContainer();
+    }
 
     @Override
     public Supplier<Boolean> getStateNow() {
         return () -> {
+            if (!this.recipe.hasContainer()) {
+                return false;
+            }
             //TODO: Optimize
             Environment.getLogger().info("Recipe target validation time");
             Environment.getLogger().info("Chat title: " + DialogueIterator.getTitleSafe());

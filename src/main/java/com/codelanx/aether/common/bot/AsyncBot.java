@@ -17,17 +17,12 @@ import java.util.logging.Logger;
 public abstract class AsyncBot extends AbstractBot {
 
     private AetherScheduler scheduler;
-    private final Brain brain;
+    private Brain brain;
     private final AtomicBoolean stopping = new AtomicBoolean();
-    private final RestLoader data;
+    private RestLoader data;
 
     public AsyncBot() {
         Aether.setBot(this);
-        this.scheduler = new AetherScheduler(this);
-        this.data = new RestLoader(this);
-        this.brain = new Brain(this);
-        Logger l = new RunemateLoggerProxy(this.getLogger());
-        Logging.setNab(() -> l);
     }
 
     @Override
@@ -69,6 +64,15 @@ public abstract class AsyncBot extends AbstractBot {
     @Override
     public final void onStart(String... strings) {
         super.onStart(strings);
+        {
+            //THIS IS ACTUALLY CONSTRUCTOR MATERIAL
+            //but we can't modify loggers in constructors
+            this.scheduler = new AetherScheduler(this);
+            this.data = new RestLoader(this);
+            this.brain = new Brain(this);
+            Logger l = new RunemateLoggerProxy(this.getLogger());
+            Logging.setNab(() -> l);
+        }
         Logging.info("#onStart(" + Arrays.toString(strings) + ")");
         this.onBotStart(strings);
         this.scheduler.register(this);

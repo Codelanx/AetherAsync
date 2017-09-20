@@ -154,5 +154,9 @@ public interface Recipe extends Withdrawable {
      */
     public boolean isAutomatic();
 
+    default public boolean hasContainer() {
+        return this.getContainerId() != -1;
+    }
+
     public RecipeType getRecipeType();
 }

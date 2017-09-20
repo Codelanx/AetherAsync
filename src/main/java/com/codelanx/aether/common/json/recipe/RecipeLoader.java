@@ -8,8 +8,10 @@ import com.codelanx.commons.util.Scheduler;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RecipeLoader {
 
@@ -32,8 +34,8 @@ public class RecipeLoader {
             bot.stop();
             return;
         }
-        List<SerializableRecipe> items = json.getMutable("recipes").as(List.class, SerializableRecipe.class);
-        items.forEach(i -> this.recipes.put(i.getName(), i));
+        List<SerializableRecipe> raw = json.getMutable("recipes").as(List.class, SerializableRecipe.class);
+        raw.forEach(i -> this.recipes.put(i.getName(), i));
         if (this.recipes.isEmpty()) {
             Logging.info("No recipes found, continuing anyway...");
         } else {

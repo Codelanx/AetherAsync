@@ -1,17 +1,13 @@
 package com.codelanx.aether.common.cache.form;
 
 import com.codelanx.aether.common.bot.Aether;
-import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.cache.GameCache;
 import com.codelanx.aether.common.cache.QueryType;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
-import com.codelanx.aether.common.json.item.Material;
+import com.codelanx.aether.common.json.item.SerializableMaterial;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
-import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Tab;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
@@ -28,7 +24,8 @@ import java.util.function.Supplier;
  */
 //container as in, item containers
 public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> implements InventoryListener {
-    
+
+    private final SpriteItem[] backing;
     private final Supplier<SpriteItemQueryBuilder> target;
     private final Map<MaterialInquiry, Integer> offset = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -37,7 +34,12 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     public ContainerCache(Supplier<SpriteItemQueryBuilder> target, QueryType type) {
         this.target = target;
         this.type = type;
-        Aether.getBot().getEventDispatcher().addListener(this);
+        if (this.type == QueryType.INVENTORY) {
+            Aether.getBot().getEventDispatcher().addListener(this);
+            this.backing = new SpriteItem[28];
+        } else {
+            this.backing = null;
+        }
     }
 
     @Override
@@ -72,6 +74,9 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     }
 
     public int update(MaterialInquiry inq, int amount) {
+        if (true) { //TODO: We may be removing this method, especially if the listener pays off
+            return 0;
+        }
         if (amount == 0) {
             return Reflections.operateLock(this.lock.readLock(), () -> this.offset.get(inq));
         }
@@ -118,5 +123,9 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     public void onItemRemoved(ItemEvent event) {
         SpriteItem i = event.getItem();
         Logging.simple().print("[Cache | %s] Item remove event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName());
+    }
+
+    private void change(SpriteItem item, int amount) {
+        //this.get(new SerializableMaterial(item.getDefinition()).toInquiry()).
     }
 }

@@ -12,11 +12,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameEventNeuron extends Neuron {
 
+    private static final boolean ENABLED = false; //false atm because there's a looping event bug
     private final AtomicBoolean handlingGameEvent = new AtomicBoolean();
 
     @Override
     public boolean applies() {
-        return Aether.getBot().getGameEventController() != null && !this.handlingGameEvent.get();
+        return ENABLED && Aether.getBot().getGameEventController() != null && !this.handlingGameEvent.get();
     }
 
     @Override

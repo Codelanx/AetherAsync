@@ -170,7 +170,7 @@ public abstract class AetherTask<T> {
     }
 
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
-        return AetherTask.of((Supplier<E>) null, state -> task.get());
+        return AetherTask.of(() -> null, state -> task.get());
     }
 
     public static <E> AetherTask<E> of(Supplier<E> state, Function<E, Invalidator> task) {

@@ -4,9 +4,9 @@ import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.AsyncExec;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
-import com.codelanx.aether.common.branch.recipe.RecipeExecTask;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.cache.Caches;
+import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.recipe.Recipe;
 import com.runemate.game.api.hybrid.Environment;
@@ -48,7 +48,7 @@ public class InteractionTask implements Supplier<Invalidator> {
                 }
                 UserInput.click(item).postAttempt().thenRun(() -> {
                     //Locate range, then click it
-                    GameObject range = RecipeExecTask.findRange();
+                    GameObject range = RecipeTask.findRange();
                     if (range == null) {
                         //well fuck
                         Environment.getLogger().info("Error: Cannot locate target at time of interaction");
@@ -74,7 +74,7 @@ public class InteractionTask implements Supplier<Invalidator> {
                         if (target != null) {
                             Environment.getLogger().info("queueing input (tool)");
                             UserInput.interact(item, "Use");
-                            UserInput.click(target);
+                            this.delayOn(this.recipe, UserInput.click(target));
                         } else {
                             Environment.getLogger().warn("null selection target");
                         }
@@ -91,17 +91,29 @@ public class InteractionTask implements Supplier<Invalidator> {
                     }
                     Environment.getLogger().info("queueing input (mix)");
                     UserInput.click(items.get(0));
-                    UserInput.click(items.get(1)).postAttempt().thenRun(() -> {
-                        AsyncExec.delayUntil(() -> {
-                            return Interfaces.newQuery().containers(this.recipe.getContainerId()).visible().results().size() > 0;
-                        });
-                    });
+                    this.delayOn(this.recipe, UserInput.click(items.get(1)));
                     return Invalidators.ALL;
                     //return this.recipe.isAutomatic() ? Invalidators.ALL : Invalidators.NONE;
                 }
                 throw new RuntimeException("Bad combination recipe - not enough ingredients: " + this.recipe);
         }
         return Invalidators.ALL;
+    }
+
+    private void delayOn(Recipe recipe, MouseTarget target) {
+        if (recipe.hasContainer()) {
+            target.postAttempt().thenRun(() -> {
+                AsyncExec.delayUntil(() -> {
+                    return Interfaces.newQuery().containers(recipe.getContainerId()).visible().results().size() > 0;
+                });
+            });
+        } else if (recipe.isAutomatic()) {
+            target.postAttempt().thenRun(() -> {
+                AsyncExec.delayUntil(() -> {
+                    return recipe.getRemainder() <= 0;
+                });
+            });
+        }
     }
 
     private static class Maker {
