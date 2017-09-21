@@ -4,6 +4,7 @@ import com.codelanx.aether.common.RunemateLoggerProxy;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.rest.RestLoader;
+import com.codelanx.commons.logging.Debugger;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.script.framework.AbstractBot;
@@ -67,11 +68,13 @@ public abstract class AsyncBot extends AbstractBot {
         {
             //THIS IS ACTUALLY CONSTRUCTOR MATERIAL
             //but we can't modify loggers in constructors
-            this.scheduler = new AetherScheduler(this);
-            this.data = new RestLoader(this);
-            this.brain = new Brain(this);
             Logger l = new RunemateLoggerProxy(this.getLogger());
             Logging.setNab(() -> l);
+            Debugger.DebugUtil.getOpts().setLogger(l);
+            this.scheduler = new AetherScheduler(this);
+            this.data = new RestLoader(this);
+            this.data.loadLocal();
+            this.brain = new Brain(this);
         }
         Logging.info("#onStart(" + Arrays.toString(strings) + ")");
         this.onBotStart(strings);

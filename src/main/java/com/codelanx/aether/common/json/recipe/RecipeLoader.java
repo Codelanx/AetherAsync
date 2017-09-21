@@ -1,6 +1,7 @@
 package com.codelanx.aether.common.json.recipe;
 
 import com.codelanx.aether.common.bot.AsyncBot;
+import com.codelanx.aether.common.rest.Loader;
 import com.codelanx.commons.data.FileDataType;
 import com.codelanx.commons.data.types.Json;
 import com.codelanx.commons.logging.Logging;
@@ -13,21 +14,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class RecipeLoader {
+public class RecipeLoader implements Loader {
 
     private final Map<String, Recipe> recipes = new HashMap<>();
+    private final AsyncBot bot;
+    private final File f;
 
     public RecipeLoader(AsyncBot bot) {
-        File f = new File(bot.getResourcePath(), "recipes.json");
+        this.f = new File(bot.getResourcePath(), "recipes.json");
+        this.bot = bot;
         if (!f.exists()) {
             Logging.info("No resource for recipes found, shutting down...");
             bot.stop();
-            return;
         }
-        Scheduler.runAsyncTask(() -> this.load(bot, f));
     }
 
-    private void load(AsyncBot bot, File f) {
+    public Recipe getRecipe(String name) {
+        return this.recipes.get(name);
+    }
+
+    @Override
+    public void loadLocal() {
         Json json = FileDataType.newInstance(Json.class, f);
         if (json.getMutable("recipes").get() == null) {
             Logging.info("No resource for recipes found, shutting down...");
@@ -39,11 +46,8 @@ public class RecipeLoader {
         if (this.recipes.isEmpty()) {
             Logging.info("No recipes found, continuing anyway...");
         } else {
+            this.recipes.values().forEach(System.out::println);
             Logging.info("Loaded " + this.recipes.size() + " recipes");
         }
-    }
-
-    public Recipe getRecipe(String name) {
-        return this.recipes.get(name);
     }
 }

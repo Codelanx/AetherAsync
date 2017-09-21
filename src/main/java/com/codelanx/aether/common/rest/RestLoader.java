@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class RestLoader {
 
@@ -36,6 +37,12 @@ public class RestLoader {
         this.loader = new RecipeLoader(bot);
     }
 
+    //triggers a local load from files
+    //this also relieves any static access for backreferencing other data sources (e.g. recipes -> items)
+    public void loadLocal() {
+        Stream.of(this.items, this.loader).forEach(Loader::loadLocal);
+    }
+
     public Material getItem(int id) {
         return this.getItem(id, null);
     }
@@ -45,16 +52,23 @@ public class RestLoader {
     }
 
     public Material getItem(int id, String name) {
+        Material back = this.itemGet(id, name);
+        Logging.info("RestLoader#getItem(" + id + "," + name + "): " + back);
+        return back;
+    }
+
+    //allows us to print about return value
+    private Material itemGet(int id, String name) {
         if (id <= 0 && name == null) {
             throw new IllegalArgumentException("Must supply a valid name or id above 0 [" + id + "," + name + "]");
         }
         Material ported = null;
         //is it in the older cache system? (json flatfile)
         if (id > 0) {
-            ported = Aether.getBot().getData().getKnownItems().getItem(id);
+            ported = this.getKnownItems().getItem(id);
         }
         if (ported == null && name != null) {
-            ported = Aether.getBot().getData().getKnownItems().getItem(name);
+            ported = this.getKnownItems().getItem(name);
         }
         if (ported != null) {
             return ported;
