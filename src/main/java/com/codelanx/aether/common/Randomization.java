@@ -22,6 +22,8 @@ public enum Randomization implements MemoryConfig<Number> {
     //end results: [-35,65] range for minimum click (applied over +100 ms)
     MIN_CLICK("min_click", () -> (ThreadLocalRandom.current().nextGaussian() * 30) - (WPM.getValue().doubleValue() - 112)),
     INPUT_TYPE_SWITCH_DELAY("input_switch_delay_ceiling", () -> ThreadLocalRandom.current().nextInt(200)),
+    //how many times are we willing to left click if it withdraws all the necessary items
+    LEFT_CLICK_WITHDRAW_TOLERANCE("left_click_withdraw_tolerance", () -> ThreadLocalRandom.current().nextInt(1, 3)) //TODO: bell curve? this is a pretty small range
     ;
 
     private final String key;

@@ -41,7 +41,7 @@ public class InteractionTask implements Supplier<Invalidator> {
                     //CommonTasks.END.asTask().registerImmediate(); //TODO: uncomment
                     return Invalidators.NONE;
                 }
-                SpriteItem item = Caches.forInventory().get(ritem.getMaterial().toInquiry()).findAny().orElse(null);
+                SpriteItem item = Caches.forInventory().getCurrent(ritem.getMaterial().toInquiry()).findAny().orElse(null);
                 if (item == null) {
                     Environment.getLogger().info("Attempted to click a recipe ingredient, but they're all gone. Returning to bank");
                     return Invalidators.NONE;

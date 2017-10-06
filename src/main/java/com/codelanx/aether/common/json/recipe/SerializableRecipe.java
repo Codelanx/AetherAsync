@@ -1,17 +1,19 @@
 package com.codelanx.aether.common.json.recipe;
 
 import com.codelanx.aether.common.bot.Aether;
-import com.codelanx.aether.common.json.item.ItemLoader;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.rest.RestLoader;
 import com.codelanx.commons.data.FileSerializable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,6 +80,30 @@ public class SerializableRecipe implements FileSerializable, Recipe {
     }
 
     @Override
+    public Recipe setIngredients(List<ItemStack> ingredients) {
+        SerializableRecipe back = new SerializableRecipe(this);
+        back.ingredients.clear();
+        back.ingredients.addAll(ingredients);
+        return back;
+    }
+
+    @Override
+    public Recipe setTools(List<ItemStack> tools) {
+        SerializableRecipe back = new SerializableRecipe(this);
+        back.tools.clear();
+        back.tools.addAll(tools);
+        return back;
+    }
+
+    @Override
+    public Recipe setOutput(List<ItemStack> output) {
+        SerializableRecipe back = new SerializableRecipe(this);
+        back.output.clear();
+        back.output.addAll(output);
+        return back;
+    }
+
+    @Override
     public Stream<ItemStack> getIngredients() {
         return this.ingredients.stream();
     }
@@ -100,6 +126,18 @@ public class SerializableRecipe implements FileSerializable, Recipe {
     @Override
     public int getContainerId() {
         return this.containerId;
+    }
+
+    @Override
+    public Recipe modify(UnaryOperator<ItemStack> rawInputModifier) {
+        List<ItemStack> ingredients = new ArrayList<>(this.tools);
+        ingredients.addAll(this.ingredients);
+        ingredients.replaceAll(rawInputModifier);
+        ingredients.removeIf(Objects::isNull);
+        SerializableRecipe back = new SerializableRecipe(this);
+        back.ingredients.clear();
+        back.ingredients.addAll(ingredients);
+        return back;
     }
 
     @Override

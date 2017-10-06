@@ -1,12 +1,11 @@
-package com.codelanx.aether.common.json.locatable;
+package com.codelanx.aether.common.json.entity;
 
 import com.codelanx.aether.common.cache.Caches;
-import com.codelanx.aether.common.cache.GameCache;
 import com.codelanx.aether.common.cache.form.GameObjectCache;
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.GameObject;
 
-public interface GameObjectRef extends Findable<GameObject, ObjectInquiry> {
+public interface GameObjectRef extends Entity<GameObject, ObjectInquiry> {
 
     public GameObject.Type getType();
 

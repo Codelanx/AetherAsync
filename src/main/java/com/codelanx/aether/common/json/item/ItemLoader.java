@@ -3,11 +3,14 @@ package com.codelanx.aether.common.json.item;
 import com.codelanx.aether.common.bot.AsyncBot;
 import com.codelanx.aether.common.rest.Loader;
 import com.codelanx.commons.data.FileDataType;
+import com.codelanx.commons.data.FileSerializable;
 import com.codelanx.commons.data.types.Json;
 import com.codelanx.commons.logging.Logging;
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,15 @@ public class ItemLoader implements Loader {
     public ItemLoader(AsyncBot bot, File f) {
         this.bot = bot;
         this.f = f;
+    }
+
+    public Material from(ItemDefinition definition) {
+        Material mat = this.getItem(definition.getId());
+        if (mat == null) {
+            mat = new SerializableMaterial(definition);
+            this.materials.put(mat.getId(), mat);
+        }
+        return mat;
     }
 
     public Material getItem(int id) {

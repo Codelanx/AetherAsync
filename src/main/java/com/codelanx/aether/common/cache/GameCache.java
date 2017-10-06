@@ -7,6 +7,7 @@ import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.queries.QueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.QueryResults;
+import com.runemate.game.api.hybrid.util.Validatable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
  */
 //calls to caches will block until correct info is available. Try to avoid main bot thread
 public abstract class GameCache<T extends Interactable, I extends Inquiry> {
-    
+
     private final Map<I, CacheHolder<T>> results = new HashMap<>();
     private final Map<I, CompletableFuture<List<T>>> queries = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -69,10 +70,22 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         return back;
     }
     
-    public final Stream<T> get(I inq) {
+    public final Stream<T> getCurrent(I inq) {
         CacheHolder<T> hold = this.compute(inq);
         //uses a copy atm in case list changes
         return Reflections.operateLock(hold.lock.readLock(), hold::getCopyList).stream(); //TODO: not copies, but something else
+    }
+
+    //validates as well
+    public final Stream<T> get(I inq) {
+        return this.getCurrent(inq).map(i -> {
+            if (!(i instanceof Validatable) || ((Validatable) i).isValid()) {
+                return i;
+            } else {
+                this.invalidate(inq, i);
+                return null;
+            }
+        }).filter(Objects::nonNull);
     }
 
     public final Stream<T> get(Queryable<T, I> inq) {
@@ -136,7 +149,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     //null if not present, otherwise current
-    protected CacheHolder<T> getCurrent(I inq) {
+    protected CacheHolder<T> getCurrentRaw(I inq) {
         return Reflections.operateLock(this.lock.readLock(), () -> this.results.get(inq));
     }
     

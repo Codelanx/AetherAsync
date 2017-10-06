@@ -4,22 +4,15 @@ import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.task.AetherTask;
-import com.codelanx.aether.common.cache.Caches;
-import com.codelanx.aether.common.cache.GameCache;
 import com.codelanx.aether.common.cache.Queryable;
 import com.codelanx.aether.common.cache.query.Inquiry;
-import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.input.UserInput;
-import com.codelanx.aether.common.json.locatable.Findable;
-import com.codelanx.aether.common.json.locatable.NpcRef;
-import com.codelanx.aether.common.json.locatable.SerializableGameObject;
-import com.codelanx.aether.common.json.locatable.SerializableLocatable;
+import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.ref.Box;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
-import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.location.Coordinate;
@@ -38,17 +31,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extends AetherTask<Double> {
+public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends AetherTask<Double> {
 
     private static final int INTERACTION_DISTANCE = 3;
     private static final int INTERACTION_DISTANCE_SQ = INTERACTION_DISTANCE * INTERACTION_DISTANCE;
     private final Supplier<T> target;
     private T lastTarget;
 
-    public GoToTargetTask(Supplier<T> target, AetherTask<?> interaction) {
+    public GoToTargetTask(Supplier<T> target, AetherTask<?> arrival) {
         this.target = target;
         this.registerRunemateCall(Double.NEGATIVE_INFINITY, () -> Camera.turnTo(this.target.get()));
-        this.register(d -> Math.abs(d) < INTERACTION_DISTANCE_SQ, interaction);
+        this.register(d -> Math.abs(d) < INTERACTION_DISTANCE_SQ, arrival);
         this.registerDefault(new MoveToTargetTask(target));
     }
 
@@ -59,12 +52,12 @@ public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extend
         this.registerDefault(new MoveToTargetTask(target));
     }
 
-    public GoToTargetTask(Queryable<T, I> target, Consumer<T> action) {
-        this(() -> target.queryGlobal().findFirst().orElse(null), action);
+    public <V extends LocatableEntity> GoToTargetTask(Queryable<V, I> target, Consumer<V> action) {
+        this(() -> (T) target.queryGlobal().findFirst().orElse(null), (Consumer<T>) action);
     }
 
-    public GoToTargetTask(Queryable<T, I> target, AetherTask<?> child) {
-        this(() -> target.queryGlobal().findFirst().orElse(null), child);
+    public <V extends LocatableEntity> GoToTargetTask(Queryable<V, I> target, AetherTask<?> arrival) {
+        this(() -> (T) target.queryGlobal().findFirst().orElse(null), arrival);
     }
 
     @Override
@@ -79,7 +72,7 @@ public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extend
             this.lastTarget = obj;
             if (obj != null) {
                 double dist = Distance.between(obj, Players.getLocal(), Algorithm.EUCLIDEAN_SQUARED);
-                if (!obj.isVisible() && dist < INTERACTION_DISTANCE_SQ) {
+                if (obj instanceof LocatableEntity && !((LocatableEntity) obj).isVisible() && dist < INTERACTION_DISTANCE_SQ) {
                     return Double.NEGATIVE_INFINITY;
                 }
                 return dist;
@@ -102,14 +95,14 @@ public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extend
 
     private class MoveToTargetTask extends AetherTask<PathWrapper> {
 
-        private final Supplier<? extends LocatableEntity> target;
-        private LocatableEntity cached;
+        private final Supplier<? extends Locatable> target;
+        private Locatable cached;
         private Coordinate cachedCoordinate;
         private AtomicLong lastClickMs = new AtomicLong();
         private final Box<Locatable> lastTarget = new Box<>();
         private final ReadWriteLock targetLock = new ReentrantReadWriteLock();
 
-        public MoveToTargetTask(Supplier<? extends LocatableEntity> target) {
+        public MoveToTargetTask(Supplier<? extends Locatable> target) {
             this.target = target;
             this.register(Objects::isNull, AetherTask.of(() -> {}));//Environment.getLogger().warn("Null path for target")));
             this.registerDefault(p -> this.execute(p));
@@ -121,7 +114,7 @@ public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extend
                 if (this.lastClickMs.get() > System.currentTimeMillis() - UserInput.getMinimumClick()) {
                     return new PathWrapper(Invalidators.SELF);
                 }
-                if (this.cached == null || !this.cached.isValid()) {
+                if (this.cached == null || (this.cached instanceof LocatableEntity && !((LocatableEntity) this.cached).isValid())) {
                     this.cached = this.target.get();
                     this.cachedCoordinate = null;
                 }
@@ -220,12 +213,12 @@ public class GoToTargetTask<T extends LocatableEntity, I extends Inquiry> extend
         }
         
         private Path createPath(Locatable loc) {
-            Environment.getLogger().info("Pathing to: " + loc.getPosition());
+            Logging.fine("Pathing to: " + loc.getPosition());
             Path path = RegionPath.buildTo(loc);
             if (path == null) {
                 path = Traversal.getDefaultWeb().getPathBuilder().buildTo(loc);
                 if (path == null) {
-                    Environment.getLogger().warn("Null path returned");
+                    Logging.warning("Null path returned");
                 }
             }
             return path;

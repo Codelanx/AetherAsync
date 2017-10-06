@@ -2,6 +2,7 @@ package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.cache.form.ContainerCache;
 import com.codelanx.aether.common.cache.form.GameObjectCache;
+import com.codelanx.aether.common.cache.form.GroundItemCache;
 import com.codelanx.aether.common.cache.form.InterfaceCache;
 import com.codelanx.aether.common.cache.form.NpcCache;
 import com.codelanx.aether.common.cache.form.PlayerCache;
@@ -44,4 +45,13 @@ public final class Caches {
     public static InterfaceCache forInterfaces() {
         return (InterfaceCache) QueryType.COMPONENT.getCache();
     }
+
+    public static GroundItemCache forGroundItems() {
+        return (GroundItemCache) QueryType.GROUND_ITEMS.getCache();
+    }
+
+    public static ContainerCache forEquipment() {
+        return (ContainerCache) QueryType.EQUIPMENT.getCache();
+    }
+
 }

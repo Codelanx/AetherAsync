@@ -1,8 +1,10 @@
 package com.codelanx.aether.bots.smithing;
 
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
-import com.codelanx.aether.common.json.locatable.GameObjectRef;
+import com.codelanx.aether.common.json.entity.GameObjectRef;
 import com.runemate.game.api.hybrid.entities.GameObject.Type;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 //TODO: jsonify
 public enum BlastObject implements GameObjectRef {
@@ -19,17 +21,16 @@ public enum BlastObject implements GameObjectRef {
     private final int id;
     private final String name;
     private final Type type;
-    private final ObjectInquiry inq;
+    private final AtomicReference<ObjectInquiry> inq = new AtomicReference<>();
 
     private BlastObject(int id, String name, Type type) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.inq = this.toUncachedInquiry();
     }
 
     @Override
-    public ObjectInquiry toInquiry() {
+    public AtomicReference<ObjectInquiry> getReferenceToInquiry() {
         return this.inq;
     }
 

@@ -5,15 +5,11 @@ import com.codelanx.aether.common.cache.form.ContainerCache;
 import com.codelanx.aether.common.json.Withdrawable;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.commons.logging.Logging;
-import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
-import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
-import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 
-import java.util.Map;
+import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 public interface Recipe extends Withdrawable {
@@ -48,7 +44,7 @@ public interface Recipe extends Withdrawable {
     }
 
     public static Stream<SpriteItem> itemStackToTarget(Stream<ItemStack> items, ContainerCache cache) {
-        return items.map(i -> cache.get(i.getMaterial().toInquiry())).flatMap(Function.identity());
+        return items.map(i -> cache.getCurrent(i.getMaterial().toInquiry())).flatMap(Function.identity());
     }
 
     /**
@@ -109,7 +105,7 @@ public interface Recipe extends Withdrawable {
         return this.getFullUnit().map(i -> {
             int amt;
             if (i.getMaterial().isStackable()) {
-                amt = Caches.forInventory().get(i.getMaterial().toInquiry())
+                amt = Caches.forInventory().getCurrent(i.getMaterial().toInquiry())
                         .map(SpriteItem::getQuantity)
                         .reduce(0, Integer::sum);
             } else {
@@ -129,10 +125,17 @@ public interface Recipe extends Withdrawable {
         return Stream.concat(this.getIngredients().map(i -> i.setQuantity(i.getQuantity() * fmult)), this.getTools());
     }
 
+    //modifier will modify tools AND ingredients
+    public Recipe modify(UnaryOperator<ItemStack> rawInputModifier);
+
     //return
     default public int getFullUnitSize() {
         return (this.getRecipeSpace() * this.recipesPerTool()) + this.getToolSpace();
     }
+
+    public Recipe setTools(List<ItemStack> tools);
+    public Recipe setIngredients(List<ItemStack> tools);
+    public Recipe setOutput(List<ItemStack> tools);
 
     @Override
     default public Stream<ItemStack> fullInventoryWithdrawl(int space) {

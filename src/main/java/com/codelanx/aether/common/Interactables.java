@@ -1,12 +1,13 @@
 package com.codelanx.aether.common;
 
 import com.codelanx.aether.common.cache.Caches;
-import com.codelanx.aether.common.cache.GameCache;
 import com.codelanx.aether.common.cache.form.GameObjectCache;
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
-import com.codelanx.aether.common.json.locatable.GameObjectRef;
-import com.runemate.game.api.hybrid.entities.GameObject;
+import com.codelanx.aether.common.json.entity.GameObjectRef;
+import com.codelanx.commons.util.Parallel;
 import com.runemate.game.api.hybrid.entities.GameObject.Type;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public enum Interactables implements GameObjectRef {
     RANGE(26181, "Range", Type.PRIMARY),
@@ -16,7 +17,7 @@ public enum Interactables implements GameObjectRef {
     private final int id;
     private final String name;
     private final Type type;
-    private volatile ObjectInquiry inquiry;
+    private final AtomicReference<ObjectInquiry> inquiry = new AtomicReference<>();
 
     private Interactables(int id, String name, Type type) {
         this.id = id;
@@ -40,13 +41,7 @@ public enum Interactables implements GameObjectRef {
     }
 
     @Override
-    public ObjectInquiry toInquiry() {
-        if (this.inquiry == null) {
-            ObjectInquiry inquiry = this.toUncachedInquiry();
-            if (this.inquiry == null) {
-                this.inquiry = inquiry;
-            }
-        }
+    public AtomicReference<ObjectInquiry> getReferenceToInquiry() {
         return this.inquiry;
     }
 

@@ -23,7 +23,13 @@ public class BlastFurnaceTask extends AetherTask<BlastState> {
         this.state.set(BlastState.BANKING);
         this.register(BlastState.BANKING, new BlastBankTask(bar));
         Supplier<Optional<GameObject>> getObj = () -> Caches.forGameObject().get(BlastObject.BELT).findAny();
-        this.register(BlastState.PLACE_ORES, new GoToTargetTask<>(() -> getObj.get().orElse(null), AetherTask.of(() -> getObj.get().ifPresent(UserInput::click)))); //raw coal
+        this.register(BlastState.PLACE_ORES, new GoToTargetTask<>(() -> getObj.get().orElse(null), AetherTask.of(() -> {
+            if (BlastData.CARRYING_COAL.as(boolean.class)) {
+                BlastData.COAL_IN_FURNACE.set(BlastData.COAL_IN_FURNACE.as(int.class) + BlastData.ORE_PER_TRIP);
+                BlastData.CARRYING_COAL.set(false);
+            }
+            getObj.get().ifPresent(UserInput::click);
+        }))); //raw coal
         this.register(BlastState.FILL_BUCKET, () -> Caches.forGameObject().get(BlastObject.SINK).findAny().ifPresent(o -> UserInput.interact(o, "Fill-bucket")));
         this.register(BlastState.GETTING_BARS, new GoToTargetTask<>(BlastObject.BAR_DISPENSER, new GetBarTask(bar)));
     }
@@ -38,7 +44,7 @@ public class BlastFurnaceTask extends AetherTask<BlastState> {
         public BlastState getNextState() {
             switch (this) {
                 case PLACE_ORES:
-                    return BlastData.ORES_IN_FURNACE.as(int.class) >= BlastData.ORE_RECLAIM_LIMIT ? GETTING_BARS : BANKING;
+                    return BlastData.BARS_IN_FURNACE.as(int.class) >= BlastData.ORE_RECLAIM_LIMIT ? GETTING_BARS : BANKING;
                 case GETTING_BARS:
                     return FILL_BUCKET;
                 case FILL_BUCKET:
@@ -60,7 +66,5 @@ public class BlastFurnaceTask extends AetherTask<BlastState> {
     public Supplier<BlastState> getStateNow() {
         return this.state::get;
     }
-
-
 
 }

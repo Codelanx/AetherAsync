@@ -1,0 +1,14 @@
+{
+  "recipes": [
+    {
+      "name": "Burn willow logs",
+      "type": "COMBINE",
+      "ingredients": {
+        "1519": 1
+      },
+      "tools": {
+        "590": 1
+      }
+    }
+  ]
+}

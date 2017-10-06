@@ -1,0 +1,9 @@
+{
+  "entities": [
+    {
+      "name": "Fishing spot",
+      "id": 20926,
+      "type": "PRIMARY"
+    }
+  ]
+}

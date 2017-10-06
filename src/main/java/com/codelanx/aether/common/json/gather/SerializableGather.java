@@ -1,8 +1,13 @@
 package com.codelanx.aether.common.json.gather;
 
 import com.codelanx.aether.common.bot.Aether;
+import com.codelanx.aether.common.json.entity.Entity;
+import com.codelanx.aether.common.json.gather.meta.GatherMeta;
 import com.codelanx.aether.common.json.item.ItemLoader;
 import com.codelanx.aether.common.json.item.ItemStack;
+import com.codelanx.aether.common.json.item.Material;
+import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.aether.common.json.region.Region;
 import com.codelanx.commons.data.FileSerializable;
 import com.runemate.game.api.hybrid.location.Area;
 
@@ -16,12 +21,10 @@ import java.util.stream.Stream;
 public class SerializableGather implements FileSerializable, Gather {
 
     private final String name;
-    private final boolean automatic;
     private final List<ItemStack> tools;
 
-    public SerializableGather(String name, boolean automatic, Map<Integer, Integer> tools) {
+    public SerializableGather(String name, Map<Integer, Integer> tools) {
         this.name = name;
-        this.automatic = automatic;
         ItemLoader items = Aether.getBot().getData().getKnownItems();
         this.tools = tools.entrySet().stream().collect(
                 Collectors.toMap(
@@ -32,7 +35,6 @@ public class SerializableGather implements FileSerializable, Gather {
 
     public SerializableGather(Map<String, Object> data) {
         this.name = (String) data.get("name");
-        this.automatic = (Boolean) data.get("automatic");
         ItemLoader items = Aether.getBot().getData().getKnownItems();
         this.tools = ((Map<String, Object>) data.get("tools")).entrySet().stream().collect(
                 Collectors.toMap(
@@ -42,19 +44,18 @@ public class SerializableGather implements FileSerializable, Gather {
     }
 
     public SerializableGather(Gather other) {
-        this.name = other.getName();
-        this.automatic = other.isAutomatic();
+        this.name = other.getDisplayName();
         this.tools = other.getTools().collect(Collectors.toList());
     }
 
     @Override
-    public Area getArea() {
-        return null;
+    public String getDisplayName() {
+        return this.name;
     }
 
     @Override
-    public String getName() {
-        return this.name;
+    public Stream<Recipe> getRecipes() {
+        return null;
     }
 
     @Override
@@ -63,15 +64,49 @@ public class SerializableGather implements FileSerializable, Gather {
     }
 
     @Override
-    public boolean isAutomatic() {
-        return this.automatic;
+    public Stream<Material> getBankedItems() {
+        return null;
+    }
+
+    @Override
+    public Stream<Material> getDroppedItems() {
+        return null;
+    }
+
+    @Override
+    public Stream<GatherMeta> getAllMeta() {
+        return null;
+    }
+
+    @Override
+    public GatherMeta getMeta(String key) {
+        return null;
+    }
+
+    @Override
+    public Stream<Entity<?, ?>> getTargets() {
+        return null;
+    }
+
+    @Override
+    public Stream<ItemStack> getProducedItems() {
+        return null;
+    }
+
+    @Override
+    public Stream<GatherMeta> getMetadata() {
+        return null;
+    }
+
+    @Override
+    public Stream<Region> getRegions() {
+        return null;
     }
 
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> back = new LinkedHashMap<>();
         back.put("name", this.name);
-        back.put("automatic", this.automatic);
         back.put("tools", this.tools.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
         return back;
     }

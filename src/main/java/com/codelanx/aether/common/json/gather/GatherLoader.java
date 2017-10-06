@@ -28,7 +28,7 @@ public class GatherLoader {
             return;
         }
         List<SerializableGather> items = json.getMutable("recipes").as(List.class, SerializableGather.class);
-        items.forEach(i -> this.recipes.put(i.getName(), i));
+        items.forEach(i -> this.recipes.put(i.getDisplayName(), i));
         if (this.recipes.isEmpty()) {
             Logging.info("No recipes found, continuing anyway...");
         } else {

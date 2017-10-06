@@ -24,8 +24,10 @@ public abstract class InputTarget {
 
     protected void doAttempt(Supplier<Boolean> task) {
         Logging.info("Registered input task (" + Scheduler.getTaskCount() + ")");
-        if (this.attempts.incrementAndGet() > MAX_ATTEMPTS) {
-            throw new UserInputException("Couldn't successfully run input task");
+        if (this.attempts.incrementAndGet() >= MAX_ATTEMPTS) {
+            UserInputException t = new UserInputException("Failed to run input task");
+            this.postAttempt.completeExceptionally(t); //contract chaining
+            throw t;
         }
         this.attempt = Scheduler.complete(task);
         this.attempt.whenComplete((value, ex) -> {
@@ -33,6 +35,10 @@ public abstract class InputTarget {
                 this.postAttempt.complete(value); //true only, we only complete (in total) when successful
             }
         });
+    }
+
+    boolean doneMaxAttempts() {
+        return this.attempts.get() + 1 >= MAX_ATTEMPTS;
     }
     
     public CompletableFuture<Boolean> postAttempt() {

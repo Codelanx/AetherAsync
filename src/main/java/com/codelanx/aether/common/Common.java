@@ -6,6 +6,7 @@ import com.codelanx.aether.common.json.item.ItemStack;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
+import java.util.Comparator;
 import java.util.regex.Pattern;
 
 //many input calls here will NOT delegate to UserInput
@@ -21,14 +22,35 @@ public class Common {
             return com.runemate.game.api.hybrid.local.hud.interfaces.Bank.depositInventory();
         }
 
+        public static boolean depositItem(ItemStack stack) {
+            if (!Bank.open()) {
+                return false;
+            }
+            //get last item in inventory
+            int count = Caches.forInventory().count(stack.getMaterial());
+            SpriteItem item = Caches.forInventory().get(stack.getMaterial()).max(Comparator.comparing(SpriteItem::getIndex)).orElse(null);
+            if (item != null) {
+                if (count < 5) {
+                    //rapid click
+                    for (int i = 0; i < count; i++) {
+                        UserInput.click(item);
+                    }
+                }
+            }
+            return false;
+        }
+
         //true on failure, to allow breaking a stream pipeline
         public static boolean withdrawItem(ItemStack stack) {
+            if (!Bank.open()) {
+                return false;
+            }
             while (!Bank.withdraw(stack.getMaterial().getId(), stack.getQuantity())) {
                 if (!Bank.contains(stack.getMaterial().getId())) {
                     return true;
                 }
             }
-            SpriteItem item = Caches.forBank().get(stack.getMaterial().toInquiry()).findAny().orElse(null);
+            SpriteItem item = Caches.forBank().getCurrent(stack.getMaterial().toInquiry()).findAny().orElse(null);
             if (item != null) {
                 //here's where we can note offsets
                 if (item.getQuantity() < stack.getQuantity()) {

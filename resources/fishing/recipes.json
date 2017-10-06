@@ -1,0 +1,14 @@
+{
+  "recipes": [
+    {
+      "name": "Gut Leaping Trout",
+      "type": "COMBINE",
+      "ingredients": {
+        "11328": 1
+      },
+      "tools": {
+        "946": 1
+      }
+    }
+  ]
+}

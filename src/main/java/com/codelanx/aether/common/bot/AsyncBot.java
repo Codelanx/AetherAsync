@@ -1,6 +1,7 @@
 package com.codelanx.aether.common.bot;
 
 import com.codelanx.aether.common.RunemateLoggerProxy;
+import com.codelanx.aether.common.action.HMagic;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.rest.RestLoader;
@@ -75,27 +76,33 @@ public abstract class AsyncBot extends AbstractBot {
             this.data = new RestLoader(this);
             this.data.loadLocal();
             this.brain = new Brain(this);
+            HMagic.setInputSupplier(spell -> {
+                UserInput.runemateInput(spell::activate);
+                return true;
+            });
         }
         Logging.info("#onStart(" + Arrays.toString(strings) + ")");
         this.onBotStart(strings);
         this.scheduler.register(this);
     }
 
-
     @Override
     public final void onStop() {
         Logging.info("#onStop");
-        super.onStop();
         this.stopping.set(true);
+        this.onBotStop();
         this.scheduler.stop();
         this.brain.getLogicTree().clear();
         UserInput.wipe();
         Caches.invalidateAll();
-        this.onBotStop();
+        super.onStop();
     }
+
     //instead of being empty, we leave them as abstract to discourage autofillers from placing a supercall
     //a recurrant supercall to #onStart or similar is quite dangerous
     //thus the methods are forced to be filled in, and in many cases everything but #onBotStart may be blank
+    //
+    //additionally, it helps force authors to consider the different states of their bot
     public abstract void onBotStart(String... args);
     public abstract void onBotStop();
     public abstract void onBotPause();

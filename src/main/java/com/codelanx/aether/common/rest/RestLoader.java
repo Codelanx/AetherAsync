@@ -10,6 +10,7 @@ import com.codelanx.commons.data.FileSerializable;
 import com.codelanx.commons.data.types.Json;
 import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -41,6 +42,14 @@ public class RestLoader {
     //this also relieves any static access for backreferencing other data sources (e.g. recipes -> items)
     public void loadLocal() {
         Stream.of(this.items, this.loader).forEach(Loader::loadLocal);
+    }
+
+    public Material fromDefinition(ItemDefinition definition) {
+        return this.items.from(definition);
+    }
+
+    public Material fromSpriteItem(SpriteItem item) {
+        return this.fromDefinition(item.getDefinition());
     }
 
     public Material getItem(int id) {

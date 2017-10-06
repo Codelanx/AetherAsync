@@ -1,4 +1,4 @@
-package com.codelanx.aether.common.json.locatable;
+package com.codelanx.aether.common.json.entity;
 
 import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.GameObject;
@@ -6,11 +6,13 @@ import com.runemate.game.api.hybrid.entities.GameObject.Type;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class SerializableGameObject extends SerializableLocatable<GameObject, ObjectInquiry> implements GameObjectRef {
+public class SerializableGameObject extends SerializableEntity<GameObject, ObjectInquiry> implements GameObjectRef {
 
     private final int id;
     private final Type type;
+    private final AtomicReference<ObjectInquiry> inq = new AtomicReference<>();
 
     public SerializableGameObject(String name, int id, Type type) {
         super(name);
@@ -31,8 +33,13 @@ public class SerializableGameObject extends SerializableLocatable<GameObject, Ob
     }
 
     @Override
+    public AtomicReference<ObjectInquiry> getReferenceToInquiry() {
+        return this.inq;
+    }
+
+    @Override
     public ObjectInquiry toUncachedInquiry() {
-        return new ObjectInquiry(this);
+        return GameObjectRef.super.toUncachedInquiry();
     }
 
     @Override

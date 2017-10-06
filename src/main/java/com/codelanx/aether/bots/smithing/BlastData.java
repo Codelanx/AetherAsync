@@ -9,7 +9,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public enum BlastData implements MemoryConfig<Object> {
 
     COAL_IN_FURNACE(0),
-    ORES_IN_FURNACE(0),
+    BARS_IN_FURNACE(0),
+    CARRYING_COAL(false),
     HAS_ICE_GLOVES(false),
     HAS_GOLDSMITH_GAUNTLETS(false),
     ;

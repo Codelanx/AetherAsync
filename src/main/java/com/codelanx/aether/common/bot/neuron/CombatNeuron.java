@@ -19,4 +19,14 @@ public class CombatNeuron extends Neuron {
     public void fire(Brain brain) {
         //TODO: Combat management, snipped for now (incomplete)
     }
+
+    @Override
+    public boolean isEvaluationSkipped() {
+        return true;
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
 }

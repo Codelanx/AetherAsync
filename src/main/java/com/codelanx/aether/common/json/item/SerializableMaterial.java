@@ -1,11 +1,13 @@
 package com.codelanx.aether.common.json.item;
 
+import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
 import com.codelanx.commons.data.FileSerializable;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SerializableMaterial implements FileSerializable, Material {
 
@@ -13,7 +15,8 @@ public class SerializableMaterial implements FileSerializable, Material {
     private final Boolean equippable;
     private final String name;
     private final int id;
-    private volatile MaterialInquiry inq;
+    private final AtomicReference<MaterialInquiry> inq = new AtomicReference<>();
+    private final AtomicReference<LocatableInquiry> groundItem = new AtomicReference<>();
 
     public SerializableMaterial(String name, int id, boolean stacks, boolean equips) {
         this.name = name;
@@ -74,13 +77,12 @@ public class SerializableMaterial implements FileSerializable, Material {
     }
 
     @Override
-    public MaterialInquiry toInquiry() {
-        if (this.inq == null) {
-            MaterialInquiry back = this.toUncachedInquiry();
-            if (this.inq == null) {
-                this.inq = back;
-            }
-        }
+    public AtomicReference<LocatableInquiry> getReferenceGroundItemInquiry() {
+        return this.groundItem;
+    }
+
+    @Override
+    public AtomicReference<MaterialInquiry> getReferenceToInquiry() {
         return this.inq;
     }
 

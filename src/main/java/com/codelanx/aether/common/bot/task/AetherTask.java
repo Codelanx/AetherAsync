@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 public abstract class AetherTask<T> {
 
     public static AetherTask<?> NOTHING = AetherTask.of(() -> {});
+    private static final Map<Invalidator, AetherTask<?>> invalidators = new HashMap<>();
     private final Map<HashedTaskState<T>, AetherTask<?>> children = new HashMap<>();
     private final Map<Predicate<T>, AetherTask<?>> pickyKids = new LinkedHashMap<>();
     private final BranchPredictor<T> predictor;
@@ -167,6 +168,10 @@ public abstract class AetherTask<T> {
                 return Invalidators.ALL;
             }
         };
+    }
+
+    public static <E> AetherTask<E> of(Invalidator invalidator) {
+        return (AetherTask<E>) AetherTask.invalidators.computeIfAbsent(invalidator, i -> AetherTask.of(() -> i));
     }
 
     public static <E> AetherTask<E> of(Supplier<Invalidator> task) {
@@ -324,12 +329,16 @@ public abstract class AetherTask<T> {
         this.registerDefault(AetherTask.of(child));
     }
 
+    protected void registerDefault(Invalidator invalidator) {
+        this.registerDefault(() -> invalidator);
+    }
+
     protected void registerDefault(Supplier<Invalidator> child) {
         this.registerDefault(AetherTask.of(child));
     }
 
-    protected void registerDefault(Function<T, Invalidator> executor) {
-        this.registerDefault(AetherTask.of(this, executor));
+    protected void registerDefault(Function<? super T, Invalidator> executor) {
+        this.registerDefault(AetherTask.of(this, executor::apply));
     }
 
     //provides an invalidator to dictate branch invalidation
@@ -357,11 +366,23 @@ public abstract class AetherTask<T> {
         this.register(applicable, AetherTask.of(child));
     }
 
+    protected void register(Predicate<T> applicable, Supplier<Invalidator> child) {
+        this.register(applicable, AetherTask.of(child));
+    }
+
     protected void register(Predicate<T> applicable, Consumer<? super T> child) {
-        this.register(applicable, AetherTask.of(this, state -> {
+        this.register(applicable, state -> {
             child.accept(state);
-            return null;
-        }));
+            return Invalidators.SELF;
+        });
+    }
+
+    protected void register(Predicate<T> applicable, Function<? super T, Invalidator> child) {
+        this.register(applicable, AetherTask.of(this, child::apply));
+    }
+
+    protected void register(Predicate<T> applicable, Invalidator invalidator) {
+        this.register(applicable, AetherTask.of(invalidator));
     }
 
     protected <E> void register(Predicate<T> applicable, AetherTask<E> child) {

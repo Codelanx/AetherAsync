@@ -17,17 +17,31 @@ public class RecipeTask extends AetherTask<Boolean> {
     private final Recipe recipe;
 
     public RecipeTask(Recipe recipe) {
+        this(recipe, null);
+    }
+
+    public RecipeTask(Recipe recipe, AetherTask<?> activateOverride) {
+        this(recipe, activateOverride, activateOverride != null);
+    }
+
+    //useOverride is basically fluff to prevent constructor sig clash
+    private RecipeTask(Recipe recipe, AetherTask<?> override, boolean useOverride) {
         this.recipe = recipe;
-        AetherTask<?> incomplete = new TargetSelectTask(recipe);
-        Environment.getLogger().info("recipe: " + recipe);
-        Environment.getLogger().info("type: " + Optional.ofNullable(recipe).map(Recipe::getRecipeType).map(Enum::name).orElse(null));
-        switch (recipe.getRecipeType()) {
-            case COOK:
-                incomplete = new GoToTargetTask<>(RecipeTask::findRange, new TargetSelectTask(recipe));
-                break;
-            case SMELT:
-                incomplete = new GoToTargetTask<>(RecipeTask::findFurnace, new TargetSelectTask(recipe));
-                break;
+        AetherTask<?> incomplete;
+        if (useOverride) {
+            incomplete = override;
+        } else {
+            incomplete = new TargetSelectTask(recipe);
+            Environment.getLogger().info("recipe: " + recipe);
+            Environment.getLogger().info("type: " + Optional.ofNullable(recipe).map(Recipe::getRecipeType).map(Enum::name).orElse(null));
+            switch (recipe.getRecipeType()) {
+                case COOK:
+                    incomplete = new GoToTargetTask<>(RecipeTask::findRange, new TargetSelectTask(recipe));
+                    break;
+                case SMELT:
+                    incomplete = new GoToTargetTask<>(RecipeTask::findFurnace, new TargetSelectTask(recipe));
+                    break;
+            }
         }
         this.register(true, incomplete);
         this.register(false, new BankTask(recipe));

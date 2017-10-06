@@ -1,12 +1,43 @@
 {
-  "spots": [
+  "gather": [
     {
-      "==": "com.codelanx.aether.common.json.gather.SerializableGather",
       "area": 99999,
       "name": "Draynor",
       "targets": [
         666
       ]
+    },
+    {
+      "name": "Willow Trees",
+      "tools": [11323, 314],
+      "drop": [11324, 11326, 11328, 11330, 11332],
+      "bank": [],
+      "use-recipes-option": "Gut fish",
+      "recipes": ["Burn willow logs"],
+      "produced": [11328, 11330, 11332],
+      "areas": [
+        {
+          "name": "Draynor Village",
+          "min": {
+            "x": 2499,
+            "y": 3490,
+            "z": 0
+          },
+          "max": {
+            "x": 2507,
+            "y": 3513,
+            "z": 0
+          }
+        }
+      ],
+      "target": [20926],
+      "meta": {
+        "uses-recipes": {
+          "default": true,
+          "label": "Gut fish",
+          "//TODO": "type information"
+        }
+      }
     }
   ]
 }

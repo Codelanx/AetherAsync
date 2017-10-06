@@ -1,19 +1,19 @@
 package com.codelanx.aether.common.cache.query;
 
-import com.codelanx.aether.common.json.locatable.Findable;
+import com.codelanx.aether.common.json.entity.Entity;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 
 //while the queries themselves aren't strictly related to location, the query results are
 //this is to aid in api design, e.g. Queryable<? extends LocatableInquiry>
 public class LocatableInquiry extends Inquiry {
 
-    private final Findable<? extends Interactable, ? extends LocatableInquiry> target;
+    private final Entity<? extends Interactable, ? extends LocatableInquiry> target;
 
-    public LocatableInquiry(Findable<? extends Interactable, ? extends LocatableInquiry> target) {
+    public LocatableInquiry(Entity<? extends Interactable, ? extends LocatableInquiry> target) {
         this.target = target;
     }
 
-    public Findable<? extends Interactable, ? extends LocatableInquiry> getTarget() {
+    public Entity<? extends Interactable, ? extends LocatableInquiry> getTarget() {
         return this.target;
     }
 

@@ -4,6 +4,7 @@ import com.codelanx.aether.common.bot.neuron.BotFailureNeuron;
 import com.codelanx.aether.common.bot.neuron.CombatNeuron;
 import com.codelanx.aether.common.bot.neuron.GameEventNeuron;
 import com.codelanx.aether.common.bot.neuron.LogoutNeuron;
+import com.codelanx.aether.common.bot.neuron.LootNeuron;
 import com.codelanx.aether.common.bot.neuron.Neuron;
 import com.codelanx.aether.common.bot.neuron.LogicTreeNeuron;
 import com.codelanx.aether.common.bot.neuron.UserInputNeuron;
@@ -21,6 +22,7 @@ public class Brain {
             new GameEventNeuron(),
             new CombatNeuron(),
             new BotFailureNeuron(),
+            new LootNeuron(),
             this.primary,
             new LogoutNeuron()
     ));

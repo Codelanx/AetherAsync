@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "stackable": true,
+      "equippable": false,
+      "name": "Fish offcuts",
+      "id": 11334
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Knife",
+      "id": 946
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Barbarian rod",
+      "id": 11323
+    },
+    {
+      "stackable": true,
+      "equippable": false,
+      "name": "Feather",
+      "id": 314
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Leaping salmon",
+      "id": 11330
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Leaping sturgeon",
+      "id": 11332
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Leaping trout",
+      "id": 11328
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Roe",
+      "id": 11324
+    },
+    {
+      "stackable": false,
+      "equippable": false,
+      "name": "Caviar",
+      "id": 11326
+    }=
+  ]
+}
