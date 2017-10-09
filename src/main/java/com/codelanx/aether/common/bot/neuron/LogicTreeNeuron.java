@@ -163,8 +163,10 @@ public class LogicTreeNeuron extends Neuron {
             }
             //this.setLastThought(prefix.toString() + "State retrieved: " + root.getTaskName());
             AetherTask<?> next = null;
+            Object state = null;
             try {
                 next = root.getChild();
+                state = root.getState().get();
             } catch (ExecutionException e) {
                 Logging.info("Error retrieving child task:");
                 Logging.info(Reflections.stackTraceToString(e));
@@ -175,9 +177,8 @@ public class LogicTreeNeuron extends Neuron {
                 brain.getBot().stop();
                 return;
             }
-            this.setLastThought(prefix.toString() + "Next child: " + Optional.ofNullable(next).map(AetherTask::getTaskName).orElse(null));
             if (next == null) {
-                next = root.getChild(null); //default handling
+                next = root.getDefaultChild();
                 if (next == null) {
                     this.setLastThought("State hit null end in tree - stopping bot");
                     brain.getBot().stop();
@@ -185,6 +186,7 @@ public class LogicTreeNeuron extends Neuron {
                     return;
                 }
             }
+            this.setLastThought(prefix.toString() + root.getTaskName() + " returning child (state: " + state + ", child: " + Optional.ofNullable(next).map(AetherTask::getTaskName).orElse(null) + ")");
             prefix.append('\t');
             this.invalidationQueue.push(root);
             AetherTask<?> froot = root;

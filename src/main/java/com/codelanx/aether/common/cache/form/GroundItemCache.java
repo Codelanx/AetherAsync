@@ -33,4 +33,9 @@ public class GroundItemCache extends GameCache<GroundItem, LocatableInquiry> {
     public QueryType getType() {
         return QueryType.GROUND_ITEMS;
     }
+
+    @Override
+    public long getLifetimeMS() {
+        return 500;
+    }
 }

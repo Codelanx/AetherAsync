@@ -1,12 +1,12 @@
 package com.codelanx.aether.common.json.item;
 
 import com.codelanx.commons.logging.Logging;
-import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -69,6 +69,20 @@ public class ItemStack implements Item, Cloneable {
             e.printStackTrace();
         }
         return new ItemStack(this.material, this.amount);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ItemStack itemStack = (ItemStack) o;
+        return amount == itemStack.amount &&
+                Objects.equals(getMaterial(), itemStack.getMaterial());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getMaterial(), amount);
     }
 
     public static Collector<ItemStack, ?, Map<Material, Integer>> toSummingMap() {

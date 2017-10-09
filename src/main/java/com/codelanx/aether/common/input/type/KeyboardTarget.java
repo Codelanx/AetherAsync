@@ -28,4 +28,12 @@ public class KeyboardTarget extends InputTarget {
             return Keyboard.type(this.input, this.enter, (int) mpc);
         });
     }
+
+    @Override
+    public String toString() {
+        return "KeyboardTarget{" +
+                "enter=" + enter +
+                ", input='" + input + '\'' +
+                '}';
+    }
 }

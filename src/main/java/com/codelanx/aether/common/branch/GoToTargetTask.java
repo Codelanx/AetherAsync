@@ -253,6 +253,9 @@ public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends Aeth
         }
         
         public PathWrapper(Path path, Invalidator suggestion) {
+            if (path == null && suggestion == null) {
+                throw new IllegalArgumentException("Null PathWrapper");
+            }
             this.path = path;
             this.suggestion = suggestion;
         }

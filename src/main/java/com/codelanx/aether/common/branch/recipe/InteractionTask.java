@@ -9,6 +9,7 @@ import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.recipe.Recipe;
+import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
@@ -72,14 +73,14 @@ public class InteractionTask implements Supplier<Invalidator> {
                     if (item != null) {
                         SpriteItem target = this.recipe.getIngredientsInInventory().findAny().orElse(null);
                         if (target != null) {
-                            Environment.getLogger().info("queueing input (tool)");
+                            Logging.info("queueing input (tool)");
                             UserInput.interact(item, "Use");
                             this.delayOn(this.recipe, UserInput.click(target));
                         } else {
-                            Environment.getLogger().warn("null selection target");
+                            Logging.warning("null selection target");
                         }
                     } else {
-                        Environment.getLogger().warn("null tool");
+                        Logging.warning("null tool");
                     }
                     break;
                 } else if (this.recipe.getIngredientCount() > 1) {

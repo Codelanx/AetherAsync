@@ -16,7 +16,7 @@ public class TargetSelectTask extends AetherTask<Boolean> {
 
     public TargetSelectTask(Recipe recipe) {
         this.recipe = recipe;
-        this.registerInvalidator(true, new CreateTask(recipe));
+        this.register(true, new CreateTask(recipe));
         this.registerInvalidator(false, new InteractionTask(recipe));
     }
 

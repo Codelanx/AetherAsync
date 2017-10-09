@@ -2,6 +2,7 @@ package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.cache.query.Inquiry;
 import com.codelanx.commons.logging.Logging;
+import com.codelanx.commons.util.Parallel;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
@@ -12,6 +13,7 @@ import com.runemate.game.api.hybrid.util.Validatable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -45,7 +47,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     
     //blocking, returns when completed
     protected final CacheHolder<T> compute(I inq) {
-        Logging.info("#compute(" + inq + ")");
+        Logging.info(this.getType().name() + "(cache)#compute(" + inq + ")");
         CacheHolder<T> back = Reflections.operateLock(this.lock.readLock(), () -> this.results.get(inq));
         if (back == null) {
             CompletableFuture<List<T>> query = this.getQuery(inq); //TODO: Thread safety
@@ -69,11 +71,16 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         Logging.info("Returning cached results: " + back);
         return back;
     }
+
+    public abstract long getLifetimeMS();
     
     public final Stream<T> getCurrent(I inq) {
         CacheHolder<T> hold = this.compute(inq);
+        if (this.getLifetimeMS() <= 0 || hold.getLastUpdateMS() + this.getLifetimeMS() > System.currentTimeMillis()) {
+            hold.update(this, inq);
+        }
         //uses a copy atm in case list changes
-        return Reflections.operateLock(hold.lock.readLock(), hold::getCopyList).stream(); //TODO: not copies, but something else
+        return hold.getCopyList().stream(); //TODO: not copies, but something else
     }
 
     //validates as well
@@ -94,27 +101,31 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     
     public int size(I inq) {
         CacheHolder<T> hold = this.compute(inq);
-        return Reflections.operateLock(hold.lock.readLock(), hold.getList()::size);
+        return Parallel.operateLock(hold.lock.readLock(), hold.getList()::size);
     }
 
     public final int size(Queryable<T, I> inq) {
         return this.size(inq.toInquiry());
     }
-    
+
     public final void replaceFirst(I inq, UnaryOperator<T> replacement) {
         CacheHolder<T> hold = this.compute(inq);
-        Reflections.operateLock(hold.getLock().writeLock(), () -> {
+        Parallel.operateLock(hold.getLock().writeLock(), () -> {
             List<T> vals = hold.getList();
             if (!vals.isEmpty()) {
                 vals.set(0, replacement.apply(vals.get(0)));
             }
         });
     }
+
+    public final void replaceFirst(Queryable<T, I> inq, UnaryOperator<T> replacement) {
+        this.replaceFirst(inq.toInquiry(), replacement);
+    }
     
     public final void invalidate(I inq, T item) {
-        Reflections.operateLock(this.lock.writeLock(), () -> {
+        Parallel.operateLock(this.lock.writeLock(), () -> {
             CacheHolder<?> hold = this.results.getOrDefault(inq, CacheHolder.EMPTY);
-            if (Reflections.operateLock(hold.lock.writeLock(), () -> hold.getList().remove(item))) {
+            if (Parallel.operateLock(hold.lock.writeLock(), () -> hold.getList().remove(item))) {
                 this.onInvalidate(inq, item);
             }
         });
@@ -166,26 +177,40 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
 
     
-    private static class CacheHolder<T> {
+    private static class CacheHolder<T extends Interactable> {
 
-        private static final CacheHolder EMPTY = new CacheHolder(Collections.emptyList());
+        private static final CacheHolder EMPTY = new CacheHolder<>(Collections.emptyList());
         private final List<T> list = new ArrayList<>();
+        private final AtomicLong lastUpdate = new AtomicLong(System.currentTimeMillis());
         private final ReadWriteLock lock = new ReentrantReadWriteLock();
         
         public CacheHolder(List<T> list) {
             this.list.addAll(list);
         }
         
-        public List<T> getList() {
+        List<T> getList() {
             return this.list;
         }
         
         public List<T> getCopyList() {
-            return new ArrayList<>(this.list);
+            return Parallel.operateLock(this.lock.readLock(), () -> new ArrayList<>(this.list));
         }
         
-        public ReadWriteLock getLock() {
+        ReadWriteLock getLock() {
             return this.lock;
+        }
+
+        public <I extends Inquiry> void update(GameCache<T, I> cache, I inquiry) {
+            List<T> fresh = cache.getResults(inquiry).get().asList();
+            Parallel.operateLock(this.lock.writeLock(), () -> {
+                this.list.clear();
+                this.list.addAll(fresh);
+            });
+            this.lastUpdate.set(System.currentTimeMillis());
+        }
+
+        public long getLastUpdateMS() {
+            return this.lastUpdate.get();
         }
 
         @Override

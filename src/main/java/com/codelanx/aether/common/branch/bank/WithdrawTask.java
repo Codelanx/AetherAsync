@@ -77,7 +77,7 @@ public class WithdrawTask extends AetherTask<Map<ItemStack, List<SpriteItem>>> {
     }
 
     public WithdrawTask(List<ItemStack> items) {
-        this(items, AetherTask.ofRunemateFailable(() -> items.stream().noneMatch(Common.Banks::withdrawItem)));
+        this(items, AetherTask.of(() -> items.stream().map(i -> (Supplier<Boolean>) () -> Common.Banks.withdrawItem(i)).forEach(UserInput::runemateInput)));
     }
 
     private WithdrawTask(List<ItemStack> items, AetherTask<?> onWithdrawl) {

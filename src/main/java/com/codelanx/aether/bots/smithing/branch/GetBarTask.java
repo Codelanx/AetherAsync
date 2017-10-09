@@ -22,6 +22,7 @@ public class GetBarTask extends AetherTask<Boolean> {
         this.bar = bar;
         this.register(true, () -> {
             //interact with it, then open menu
+
         });
         this.register(false, () -> {
             //use a bucket on it

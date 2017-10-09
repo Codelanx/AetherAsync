@@ -34,8 +34,8 @@
             "name": "Maple longbow (u)",
             "type": "COMBINE",
             "automatic": false,
-            "container": 582,
-            "child": 5,
+            "container": 305,
+            "child": 4,
             "ingredients": {
                 "1517": 1
             },
@@ -48,8 +48,8 @@
             "name": "Maple longbow",
             "type": "COMBINE",
             "automatic": false,
-            "container": 582,
-            "child": 5,
+            "container": 309,
+            "child": 2,
             "ingredients": {
                 "62": 1,
                 "1777": 1

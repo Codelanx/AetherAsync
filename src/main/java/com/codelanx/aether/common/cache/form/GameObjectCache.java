@@ -36,4 +36,9 @@ public class GameObjectCache extends LocatableCache<GameObject, ObjectInquiry> {
     public QueryType getType() {
         return QueryType.GAME_OBJECT;
     }
+
+    @Override
+    public long getLifetimeMS() {
+        return Long.MAX_VALUE;
+    }
 }

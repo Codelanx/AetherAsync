@@ -5,8 +5,13 @@ import com.codelanx.aether.common.cache.form.ContainerCache;
 import com.codelanx.aether.common.json.Withdrawable;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.commons.logging.Logging;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainer;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainers;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -34,6 +39,29 @@ public interface Recipe extends Withdrawable {
     public Stream<ItemStack> getTools();
 
     public Stream<ItemStack> getOutput();
+
+    public List<Integer> componentInquiry();
+
+    default public InterfaceComponent queryInputComponent() {
+        List<Integer> ints = this.componentInquiry();
+        if (ints.isEmpty()) {
+            return null;
+        }
+        Iterator<Integer> itr = ints.iterator();
+        InterfaceContainer cont = InterfaceContainers.getAt(itr.next());
+        if (cont == null || !itr.hasNext()) {
+            return null;
+        }
+        InterfaceComponent next = cont.getComponent(itr.next());
+        while (itr.hasNext()) {
+            InterfaceComponent n = next.getComponent(itr.next());
+            if (n == null) {
+                return null;
+            }
+            next = n;
+        }
+        return next;
+    }
 
     default public Stream<SpriteItem> getIngredientsInInventory() {
         return itemStackToTarget(this.getIngredients(), Caches.forInventory());

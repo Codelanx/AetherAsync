@@ -10,6 +10,7 @@ import com.codelanx.aether.common.json.item.Materials;
 import com.codelanx.aether.common.rest.RestLoader;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Parallel;
+import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -49,7 +51,14 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
             Aether.getBot().getEventDispatcher().addListener(this);
             this.backing = new SpriteItem[28];
         } else {
-            this.backing = null;
+            this.backing = new SpriteItem[0];
+        }
+    }
+
+    public void loadAll() {
+        //load full container
+        if (this.type == QueryType.INVENTORY) {
+
         }
     }
 
@@ -59,12 +68,20 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     }
 
     @Override
+    public long getLifetimeMS() {
+        //return this.type == QueryType.INVENTORY ? Integer.MAX_VALUE : TimeUnit.SECONDS.toMillis(2);
+        return TimeUnit.SECONDS.toMillis(1);
+    }
+
+    @Override
     public Supplier<SpriteItemQueryResults> getResults(MaterialInquiry inquiry) {
         return () -> {
             SpriteItemQueryBuilder query = this.getRawQuery().get();
             query.ids(inquiry.getMaterial().getId());
             query.names(inquiry.getMaterial().getName());
-            query.equipable(inquiry.getMaterial().isEquippable());
+            if (!Environment.isOSRS()) {
+                query.equipable(inquiry.getMaterial().isEquippable());
+            }
             query.stacks(inquiry.getMaterial().isStackable());
             return query.results();
         };
@@ -79,7 +96,7 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     }
 
     public int count(Queryable<SpriteItem, MaterialInquiry> inq) {
-        return ContainerCache.count(this.get(inq));
+        return this.count(inq.toInquiry());
     }
 
     public static int count(Stream<SpriteItem> stream) {
@@ -177,14 +194,14 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     @Override
     public void onItemAdded(ItemEvent event) {
         SpriteItem i = event.getItem();
-        Logging.simple().print("[Cache | %s] Item add event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName());
+        Logging.info(String.format("[Cache | %s] Item add event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName()));
         //Material m = Aether.getBot(); //TODO:
     }
 
     @Override
     public void onItemRemoved(ItemEvent event) {
         SpriteItem i = event.getItem();
-        Logging.simple().print("[Cache | %s] Item remove event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName());
+        Logging.info(String.format("[Cache | %s] Item remove event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName()));
     }
 
     private void change(SpriteItem item, int amount) {

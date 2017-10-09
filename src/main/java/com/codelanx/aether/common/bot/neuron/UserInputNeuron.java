@@ -7,6 +7,8 @@ import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.input.UserInputException;
 import com.codelanx.commons.logging.Logging;
 
+import java.util.logging.Level;
+
 public class UserInputNeuron extends Neuron {
 
     @Override
@@ -19,7 +21,7 @@ public class UserInputNeuron extends Neuron {
         try {
             UserInput.attempt();
         } catch (UserInputException ex) {
-            Logging.info("Error while attempting user input, invalidating bot and retrying...");
+            Logging.log(Level.SEVERE, "Error while attempting user input, invalidating bot and retrying...", ex);
             Aether.getBot().getBrain().getLogicTree().invalidate();
             UserInput.wipe();
             Caches.invalidateAll();

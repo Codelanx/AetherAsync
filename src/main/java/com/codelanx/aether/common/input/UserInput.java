@@ -26,7 +26,7 @@ public enum UserInput {
     ;
 
     private static final long MIN_CLICK_MS = 100;
-    private static final long TASK_SWITCH_DELAY = 400;
+    private static final long TASK_SWITCH_DELAY = 300;
     private final List<InputTarget> queue = new LinkedList<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final AtomicLong lastInputMs = new AtomicLong();
@@ -37,7 +37,7 @@ public enum UserInput {
     }
 
     public static boolean attempt() {
-        Logging.info("Running user input...");
+        //Logging.info("Running user input...");
         InputTarget target = INSTANCE.getNextTarget();
         if (target == null) {
             Logging.info("Null next target");
@@ -60,7 +60,7 @@ public enum UserInput {
             INSTANCE.lastInputType = target.getClass();
             INSTANCE.queue.remove(0);
         } else if (!target.isAttempting()) {
-            Logging.info("Starting user input (" + target.getClass().getSimpleName() + ")");
+            Logging.info("Starting user input (" + target.toString() + ")");
             INSTANCE.actOnTarget(target, false);
         }
         return true;
@@ -73,9 +73,13 @@ public enum UserInput {
     
     //hmmmmm
     public static RunemateTarget runemateInput(Supplier<Boolean> inputter) {
-        RunemateTarget tar = new RunemateTarget(inputter);
+        return UserInput.runemateInput(null, inputter);
+    }
+
+    public static RunemateTarget runemateInput(String debugDescription, Supplier<Boolean> inputter) {
+        RunemateTarget tar = new RunemateTarget(debugDescription, inputter);
         Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(new RunemateTarget(inputter));
+            INSTANCE.queue.add(tar);
         });
         return tar;
     }
@@ -83,11 +87,11 @@ public enum UserInput {
     //time between two different inputs
     private long getInterval(Class<? extends InputTarget> targetType) {
         long delay = System.currentTimeMillis() - this.lastInputMs.get();
-        if (this.lastInputType != targetType) {
+        /*if (this.lastInputType != targetType) {
             //we've got an input type switch
             Randomization r = Randomization.TASK_SWITCHING_DELAY;
             return (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue());
-        }
+        }*/
         return 0;
     }
 
@@ -169,7 +173,7 @@ public enum UserInput {
         return back;
     }
     
-    public static KeyboardTarget chatInput(String input, boolean enter) {
+    public static KeyboardTarget type(String input, boolean enter) {
         KeyboardTarget back = new KeyboardTarget(input, enter);
         Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);

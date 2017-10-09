@@ -5,6 +5,7 @@ import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.aether.common.bot.task.predict.BranchPredictor;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
@@ -28,6 +29,7 @@ public abstract class AetherTask<T> {
     private final Map<HashedTaskState<T>, AetherTask<?>> children = new HashMap<>();
     private final Map<Predicate<T>, AetherTask<?>> pickyKids = new LinkedHashMap<>();
     private final BranchPredictor<T> predictor;
+    private AetherTask<?> defaultChild = null;
     private volatile CompletableFuture<T> state;
     private volatile CompletableFuture<Invalidator> execution;
 
@@ -115,11 +117,10 @@ public abstract class AetherTask<T> {
         try {
             T state = this.getState().get();
             AetherTask<?> back = this.getChild(state);
-            Logging.info("Returning child (state: " + state + ", child: " + Optional.ofNullable(back).map(AetherTask::getTaskName).orElse(null) + ")");
             return back;
         } catch (Throwable t) {
             Logging.info("Sneaky ass exception");
-            Logging.info(Reflections.stackTraceToString(t));
+            Logging.info(Readable.stackTraceToString(t));
             throw t;
         }
     }
@@ -287,6 +288,10 @@ public abstract class AetherTask<T> {
         };
     }
 
+    public AetherTask<?> getDefaultChild() {
+        return this.defaultChild;
+    }
+
     //
     //
     //
@@ -321,8 +326,8 @@ public abstract class AetherTask<T> {
         throw new UnsupportedOperationException("Cannot execute a validation task");
     }
 
-    protected <E> void registerDefault(AetherTask<E> child) {
-        this.children.put(new HashedTaskState<>(null), child);
+    protected void registerDefault(AetherTask<?> child) {
+        this.defaultChild = child;
     }
 
     protected void registerDefault(Runnable child) {
@@ -354,11 +359,15 @@ public abstract class AetherTask<T> {
         this.pickyKids.put(applicable, AetherTask.of(this, child));
     }
 
-    protected <E> void register(T key, AetherTask<E> child) {
+    protected void register(T key, AetherTask<?> child) {
         this.children.put(new HashedTaskState<>(key), child);
     }
 
     protected void register(T key, Runnable child) {
+        this.register(key, AetherTask.of(child));
+    }
+
+    protected void register(T key, Invalidator child) {
         this.register(key, AetherTask.of(child));
     }
 
@@ -385,7 +394,7 @@ public abstract class AetherTask<T> {
         this.register(applicable, AetherTask.of(invalidator));
     }
 
-    protected <E> void register(Predicate<T> applicable, AetherTask<E> child) {
+    protected void register(Predicate<T> applicable, AetherTask<?> child) {
         this.pickyKids.put(applicable, child);
     }
 

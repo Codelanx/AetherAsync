@@ -35,4 +35,9 @@ public class NpcCache extends LocatableCache<Npc, LocatableInquiry> {
     public QueryType getType() {
         return QueryType.NPC;
     }
+
+    @Override
+    public long getLifetimeMS() {
+        return Long.MAX_VALUE;
+    }
 }

@@ -8,6 +8,7 @@ import com.runemate.game.api.hybrid.queries.LocatableEntityQueryBuilder;
 import com.runemate.game.api.hybrid.queries.PlayerQueryBuilder;
 import com.runemate.game.api.hybrid.region.Players;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -36,5 +37,10 @@ public class PlayerCache extends LocatableCache<Player, LocatableInquiry> {
     @Override
     public QueryType getType() {
         return QueryType.PLAYER;
+    }
+
+    @Override
+    public long getLifetimeMS() {
+        return TimeUnit.SECONDS.toMillis(5);
     }
 }

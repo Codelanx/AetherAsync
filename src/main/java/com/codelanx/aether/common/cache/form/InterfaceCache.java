@@ -32,4 +32,9 @@ public class InterfaceCache extends GameCache<InterfaceComponent, ComponentInqui
     public QueryType getType() {
         return QueryType.COMPONENT;
     }
+
+    @Override
+    public long getLifetimeMS() {
+        return Long.MAX_VALUE;
+    }
 }

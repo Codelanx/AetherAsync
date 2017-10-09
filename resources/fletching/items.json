@@ -30,24 +30,30 @@
         },
         {
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
-            "stackable": true,
+            "stackable": false,
             "equippable": false,
             "name": "Bow string",
             "id": 1777
         },
         {
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
-            "stackable": true,
+            "stackable": false,
             "equippable": false,
             "name": "Maple longbow (u)",
             "id": 62
         },
         {
             "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
-            "stackable": true,
+            "stackable": false,
             "equippable": false,
             "name": "Maple logs",
             "id": 1517
+        },
+        {
+            "stackable": false,
+            "equippable": true,
+            "name": "Knife",
+            "id": 946
         }
     ]
 }

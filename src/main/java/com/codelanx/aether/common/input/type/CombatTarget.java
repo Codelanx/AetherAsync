@@ -7,7 +7,7 @@ public class CombatTarget extends MouseTarget {
 
     //TODO: Left/right click determination of target (probably combat level and settings to take into account)
     public CombatTarget(Interactable target) {
-        super(target);
+        super(target, "Attack");
     }
 
     //TODO: Finish input validation at moment of combat start. Rather, we need a way to ensure combat was attempted,

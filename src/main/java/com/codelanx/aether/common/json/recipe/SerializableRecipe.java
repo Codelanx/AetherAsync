@@ -20,17 +20,17 @@ import java.util.stream.Stream;
 public class SerializableRecipe implements FileSerializable, Recipe {
 
     private final String name;
-    private final int containerId;
+    private final List<Integer> component;
     private final boolean automatic;
     private final RecipeType type;
     private final List<ItemStack> output;
     private final List<ItemStack> ingredients;
     private final List<ItemStack> tools;
 
-    public SerializableRecipe(String name, int containerId, boolean automatic, RecipeType type, Map<Integer, Integer> ingredients, Map<Integer, Integer> tools, Map<Integer, Integer> output) {
+    public SerializableRecipe(String name, boolean automatic, RecipeType type, Map<Integer, Integer> ingredients, Map<Integer, Integer> tools, Map<Integer, Integer> output, List<Integer> component) {
         this.output = this.fromIntMap(output);
         this.name = Optional.ofNullable(name).orElseGet(() -> this.output.isEmpty() ? null : this.output.get(0).getMaterial().getName());
-        this.containerId = containerId;
+        this.component = Collections.unmodifiableList(new ArrayList<>(component));
         this.automatic = automatic;
         this.type = type;
         this.ingredients = this.fromIntMap(ingredients);
@@ -40,7 +40,32 @@ public class SerializableRecipe implements FileSerializable, Recipe {
     public SerializableRecipe(Map<String, Object> data) {
         this.output = this.fromMap((Map<String, Object>) data.get("output"));
         this.name = Optional.ofNullable((String) data.get("name")).orElseGet(() -> this.output.isEmpty() ? null : this.output.get(0).getMaterial().getName());
-        this.containerId = Optional.ofNullable((Long) data.get("container")).map(Long::intValue).orElse(-1);
+        Object compRaw = data.get("component");
+        if (compRaw == null) {
+            long container = Optional.ofNullable((Long) data.get("container")).map(Long::intValue).orElse(-1);
+            if (container > 0) {
+                List<Integer> ref = new ArrayList<>();
+                ref.add((int) container);
+                //check for child as well
+                long child = Optional.ofNullable((Long) data.get("child")).map(Long::intValue).orElse(-1);
+                if (child > 0) {
+                    ref.add((int) child);
+                }
+                this.component = Collections.unmodifiableList(ref);
+            } else {
+                this.component = Collections.emptyList();
+            }
+        } else {
+            List<Integer> ref;
+            if (compRaw instanceof Number) {
+                ref = Collections.singletonList(((Number) compRaw).intValue());
+            } else if (compRaw instanceof List) {
+                ref = Collections.unmodifiableList(((List<Long>) compRaw).stream().map(i -> (int) (long) i).collect(Collectors.toList()));
+            } else {
+                ref = Collections.emptyList();
+            }
+            this.component = ref;
+        }
         this.automatic = Optional.ofNullable((Boolean) data.get("automatic")).orElse(false);
         this.ingredients = this.fromMap((Map<String, Object>) data.get("ingredients"));
         this.tools = this.fromMap((Map<String, Object>) data.get("tools"));
@@ -50,7 +75,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
     public SerializableRecipe(Recipe other) {
         this.name = other.getName();
         this.automatic = other.isAutomatic();
-        this.containerId = other.getContainerId();
+        this.component = other.componentInquiry();
         this.ingredients = other.getIngredients().collect(Collectors.toList());
         this.tools = other.getTools().collect(Collectors.toList());
         this.type = other.getRecipeType();
@@ -124,8 +149,13 @@ public class SerializableRecipe implements FileSerializable, Recipe {
     }
 
     @Override
+    public List<Integer> componentInquiry() {
+        return this.component;
+    }
+
+    @Override
     public int getContainerId() {
-        return this.containerId;
+        return this.component.isEmpty() ? -1 : this.component.iterator().next();
     }
 
     @Override
@@ -156,7 +186,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         back.put("name", this.name);
         back.put("type", this.type);
         back.put("automatic", this.automatic);
-        back.put("container", this.containerId);
+        back.put("component", this.component);
         back.put("output", this.output);
         back.put("ingredients", this.ingredients.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
         back.put("tools", this.tools.stream().collect(Collectors.toMap(i -> String.valueOf(i.getMaterial().getId()), ItemStack::getQuantity)));
@@ -168,7 +198,7 @@ public class SerializableRecipe implements FileSerializable, Recipe {
         return "SerializableRecipe{" +
                 "output=" + output +
                 ", name='" + name + '\'' +
-                ", containerId=" + containerId +
+                ", component=" + component +
                 ", automatic=" + automatic +
                 ", type=" + type +
                 ", ingredients=" + ingredients +

@@ -17,6 +17,9 @@ public class MouseTarget extends InputTarget {
     
     public MouseTarget(Interactable target, String action) {
         //this(target, action, false);
+        if (target == null) {
+            throw new IllegalArgumentException("Cannot click a null object");
+        }
         this.target = target;
         this.action = action;
     }
@@ -48,5 +51,12 @@ public class MouseTarget extends InputTarget {
                 ? this.target::click
                 : () -> this.target.interact(this.action));
     }
-    
+
+    @Override
+    public String toString() {
+        return "MouseTarget{" +
+                "action='" + action + '\'' +
+                ", target=" + target +
+                '}';
+    }
 }
