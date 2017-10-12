@@ -4,6 +4,7 @@ import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
 import com.codelanx.commons.data.FileSerializable;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,13 @@ public class SerializableMaterial implements FileSerializable, Material {
     }
 
     public SerializableMaterial(ItemDefinition other) {
+        this.name = other.getName();
+        this.id = other.getId();
+        this.stackable = other.stacks();
+        this.equippable = other.isEquipable();
+    }
+
+    public SerializableMaterial(SpriteItem other) {
         this.name = other.getName();
         this.id = other.getId();
         this.stackable = other.stacks();

@@ -1,18 +1,14 @@
 package com.codelanx.aether.common.branch.bank;
 
 import com.codelanx.aether.common.Common.Banks;
-import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.Common;
-import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.aether.common.json.recipe.Recipe;
-import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.RNG;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
 import java.util.ArrayList;
@@ -150,7 +146,7 @@ public class WithdrawTask extends AetherTask<Map<ItemStack, List<SpriteItem>>> {
             List<ItemStack> consumed = this.withdrawl.stream().filter(this.reusable::contains).collect(Collectors.toList());
             //an expensive operation
             Map<ItemStack, List<SpriteItem>> rawInventory = consumed.stream().collect(Collectors.toMap(Function.identity(), i -> {
-                return Caches.forInventory().getResults(i.getMaterial()).get().asList();
+                return Caches.forInventory().getRunemateResults(i.getMaterial()).get().asList();
             }));
             rawInventory.values().removeIf(Collection::isEmpty); //remove already deposited items
             if (rawInventory.isEmpty()) { //well, empty enough anyhow

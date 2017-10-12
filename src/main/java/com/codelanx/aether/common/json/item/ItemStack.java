@@ -14,6 +14,7 @@ public class ItemStack implements Item, Cloneable {
 
     private Material material;
     private final int amount;
+    private final boolean noted = false; //TODO, but this'll be way better than handling multiple item ids
 
     public ItemStack(Material material) {
         this(material, 1);

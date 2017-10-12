@@ -49,7 +49,7 @@ public class RestLoader {
     }
 
     public Material fromSpriteItem(SpriteItem item) {
-        return this.fromDefinition(item.getDefinition());
+        return this.items.from(item);
     }
 
     public Material getItem(int id) {

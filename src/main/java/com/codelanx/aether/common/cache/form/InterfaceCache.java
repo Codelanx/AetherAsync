@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class InterfaceCache extends GameCache<InterfaceComponent, ComponentInquiry> {
 
     @Override
-    public Supplier<InterfaceComponentQueryResults> getResults(ComponentInquiry inquiry) {
+    public Supplier<InterfaceComponentQueryResults> getRunemateResults(ComponentInquiry inquiry) {
         return () -> {
             InterfaceComponentQueryBuilder builder = this.getRawQuery().get();
             builder.types(inquiry.getType());

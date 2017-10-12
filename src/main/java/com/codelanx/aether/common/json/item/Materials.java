@@ -52,7 +52,14 @@ public enum Materials implements Material {
         if (item == null) {
             return null;
         }
-        return Aether.getBot().getData().fromDefinition(item.getDefinition());
+        return Aether.getBot().getData().fromSpriteItem(item);
+    }
+
+    public static Material getMaterial(ItemDefinition definition) {
+        if (definition == null) {
+            return null;
+        }
+        return Aether.getBot().getData().fromDefinition(definition);
     }
 
     @Override

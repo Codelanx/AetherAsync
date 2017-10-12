@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class GroundItemCache extends GameCache<GroundItem, LocatableInquiry> {
 
     @Override
-    public Supplier<LocatableEntityQueryResults<GroundItem>> getResults(LocatableInquiry inquiry) {
+    public Supplier<LocatableEntityQueryResults<GroundItem>> getRunemateResults(LocatableInquiry inquiry) {
         return () -> {
             GroundItemQueryBuilder query = this.getRawQuery().get();
             Entity target = inquiry.getTarget();

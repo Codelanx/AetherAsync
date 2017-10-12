@@ -1,6 +1,9 @@
 package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.cache.form.*;
+import com.codelanx.aether.common.cache.form.container.BankCache;
+import com.codelanx.aether.common.cache.form.container.EquipmentCache;
+import com.codelanx.aether.common.cache.form.container.InventoryCache;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
@@ -8,9 +11,7 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.region.GameObjects;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Npcs;
-import com.runemate.game.api.hybrid.region.Players;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -18,9 +19,9 @@ import java.util.function.Supplier;
  */
 public enum QueryType {
     
-    BANK(Bank.class, me -> new ContainerCache(Bank::newQuery, me)),
-    INVENTORY(Inventory.class, me -> new ContainerCache(Inventory::newQuery, me)),
-    EQUIPMENT(Equipment.class, me -> new ContainerCache(Equipment::newQuery, me)),
+    BANK(Bank.class, BankCache::new),
+    INVENTORY(Inventory.class, InventoryCache::new),
+    EQUIPMENT(Equipment.class, EquipmentCache::new),
     NPC(Npcs.class, NpcCache::new),
     GAME_OBJECT(GameObjects.class, GameObjectCache::new),
     PLAYER(Npcs.class, PlayerCache::new),
@@ -32,12 +33,8 @@ public enum QueryType {
     private final GameCache<?, ?> cache;
 
     private QueryType(Class<?> token, Supplier<GameCache<?, ?>> cache) {
-        this(token, me -> cache.get());
-    }
-    
-    private QueryType(Class<?> token, Function<QueryType, GameCache<?, ?>> cache) {
         this.token = token;
-        this.cache = cache.apply(this);
+        this.cache = cache.get();
     }
     
     public GameCache<?, ?> getCache() {

@@ -3,6 +3,7 @@ package com.codelanx.aether.common.cache;
 import com.codelanx.aether.common.cache.query.Inquiry;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Parallel;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
@@ -31,10 +32,10 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final ReadWriteLock queryLock = new ReentrantReadWriteLock();
     
-    public abstract Supplier<? extends QueryResults<T, ?>> getResults(I inquiry);
+    public abstract Supplier<? extends QueryResults<T, ?>> getRunemateResults(I inquiry);
     
-    public Supplier<? extends QueryResults<T, ?>> getResults(Queryable<T, I> queryable) {
-        return this.getResults(queryable.toInquiry());
+    public Supplier<? extends QueryResults<T, ?>> getRunemateResults(Queryable<T, I> queryable) {
+        return this.getRunemateResults(queryable.toInquiry());
     }
 
     public abstract Supplier<? extends QueryBuilder<T, ?, ?>> getRawQuery();
@@ -48,23 +49,23 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     //blocking, returns when completed
     protected final CacheHolder<T> compute(I inq) {
         Logging.info(this.getType().name() + "(cache)#compute(" + inq + ")");
-        CacheHolder<T> back = Reflections.operateLock(this.lock.readLock(), () -> this.results.get(inq));
+        CacheHolder<T> back = Parallel.operateLock(this.lock.readLock(), () -> this.results.get(inq));
         if (back == null) {
             CompletableFuture<List<T>> query = this.getQuery(inq); //TODO: Thread safety
             try {
                 CacheHolder<T> res = new CacheHolder<>(query.get());
                 Scheduler.runAsyncTask(() -> {
                     Logging.info("Inserting results: " + res);
-                    Reflections.operateLock(this.lock.writeLock(), () -> this.results.put(inq, res));
-                    Reflections.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
+                    Parallel.operateLock(this.lock.writeLock(), () -> this.results.put(inq, res));
+                    Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
                 });
                 Logging.info("Returning new results: " + res);
                 return res;
             } catch (ExecutionException | InterruptedException e) {
                 Logging.info("Cache query interrupted / Error querying for information:");
-                Logging.info(Reflections.stackTraceToString(e));
-                Reflections.operateLock(this.lock.writeLock(), () -> this.results.remove(inq));
-                Reflections.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
+                Logging.info(Readable.stackTraceToString(e));
+                Parallel.operateLock(this.lock.writeLock(), () -> this.results.remove(inq));
+                Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
                 throw new RuntimeException("Cache failed to load", e);
             }
         }
@@ -72,8 +73,10 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         return back;
     }
 
+    //lifetime of a cached object in milliseconds
     public abstract long getLifetimeMS();
-    
+
+    //gets a copy of the currently held cached value, and updates it if necessary
     public final Stream<T> getCurrent(I inq) {
         CacheHolder<T> hold = this.compute(inq);
         if (this.getLifetimeMS() <= 0 || hold.getLastUpdateMS() + this.getLifetimeMS() > System.currentTimeMillis()) {
@@ -84,15 +87,20 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
 
     //validates as well
+    //gets current cache values, invalidating old results if applicable
     public final Stream<T> get(I inq) {
-        return this.getCurrent(inq).map(i -> {
-            if (!(i instanceof Validatable) || ((Validatable) i).isValid()) {
-                return i;
-            } else {
-                this.invalidate(inq, i);
-                return null;
-            }
-        }).filter(Objects::nonNull);
+        Stream<T> held = this.getCurrent(inq);
+        if (this.compute(inq).getLastUpdateMS() + 20 < System.currentTimeMillis()) { //if not updated within the last 20 ms
+            held = held.map(i -> {
+                if (!(i instanceof Validatable) || ((Validatable) i).isValid()) {
+                    return i;
+                } else {
+                    this.invalidate(inq, i);
+                    return null;
+                }
+            }).filter(Objects::nonNull);
+        }
+        return held;
     }
 
     public final Stream<T> get(Queryable<T, I> inq) {
@@ -136,7 +144,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     public final List<T> invalidateByType(I inq) {
-        CacheHolder<T> back = Reflections.operateLock(this.lock.writeLock(), () -> {
+        CacheHolder<T> back = Parallel.operateLock(this.lock.writeLock(), () -> {
             return this.results.remove(inq);
         });
         if (back != null) {
@@ -155,25 +163,21 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     public final void invalidateAll() {
-        Reflections.operateLock(this.lock.writeLock(), this.results::clear);
+        Parallel.operateLock(this.lock.writeLock(), this.results::clear);
         this.onInvalidate(null, null);
     }
     
     //null if not present, otherwise current
     protected CacheHolder<T> getCurrentRaw(I inq) {
-        return Reflections.operateLock(this.lock.readLock(), () -> this.results.get(inq));
+        return Parallel.operateLock(this.lock.readLock(), () -> this.results.get(inq));
     }
     
     protected final CompletableFuture<List<T>> getQuery(I inq) {
-        return Reflections.operateLock(this.queryLock.writeLock(), () -> this.queries.computeIfAbsent(inq, this::schedule));
+        return Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.computeIfAbsent(inq, this::schedule));
     }
     
-    private CompletableFuture<List<T>> schedule(I inq) {
-        return Scheduler.complete(this.getResults(inq)).thenApply(QueryResults::asList).thenApply(this::convertList);
-    }
-    
-    protected List<T> convertList(List<T> raw) {
-        return raw;
+    protected CompletableFuture<List<T>> schedule(I inq) {
+        return Scheduler.complete(this.getRunemateResults(inq)).thenApply(QueryResults::asList);
     }
 
     
@@ -201,7 +205,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         }
 
         public <I extends Inquiry> void update(GameCache<T, I> cache, I inquiry) {
-            List<T> fresh = cache.getResults(inquiry).get().asList();
+            List<T> fresh = cache.getRunemateResults(inquiry).get().asList();
             Parallel.operateLock(this.lock.writeLock(), () -> {
                 this.list.clear();
                 this.list.addAll(fresh);

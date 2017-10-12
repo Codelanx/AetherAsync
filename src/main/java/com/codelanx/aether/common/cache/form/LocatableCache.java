@@ -23,7 +23,7 @@ public abstract class LocatableCache<E extends LocatableEntity, I extends Locata
     }
 
     @Override
-    public Supplier<? extends LocatableEntityQueryResults<E>> getResults(I inquiry) {
+    public Supplier<? extends LocatableEntityQueryResults<E>> getRunemateResults(I inquiry) {
         return this.getBiasedQuery(inquiry).get()::results;
     }
 

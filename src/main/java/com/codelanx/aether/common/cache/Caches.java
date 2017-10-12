@@ -6,6 +6,9 @@ import com.codelanx.aether.common.cache.form.GroundItemCache;
 import com.codelanx.aether.common.cache.form.InterfaceCache;
 import com.codelanx.aether.common.cache.form.NpcCache;
 import com.codelanx.aether.common.cache.form.PlayerCache;
+import com.codelanx.aether.common.cache.form.container.BankCache;
+import com.codelanx.aether.common.cache.form.container.EquipmentCache;
+import com.codelanx.aether.common.cache.form.container.InventoryCache;
 
 import java.util.Arrays;
 
@@ -34,12 +37,12 @@ public final class Caches {
         return (PlayerCache) QueryType.GAME_OBJECT.getCache();
     }
 
-    public static ContainerCache forBank() {
-        return (ContainerCache) QueryType.BANK.getCache();
+    public static BankCache forBank() {
+        return (BankCache) QueryType.BANK.getCache();
     }
 
-    public static ContainerCache forInventory() {
-        return (ContainerCache) QueryType.INVENTORY.getCache();
+    public static InventoryCache forInventory() {
+        return (InventoryCache) QueryType.INVENTORY.getCache();
     }
 
     public static InterfaceCache forInterfaces() {
@@ -50,8 +53,8 @@ public final class Caches {
         return (GroundItemCache) QueryType.GROUND_ITEMS.getCache();
     }
 
-    public static ContainerCache forEquipment() {
-        return (ContainerCache) QueryType.EQUIPMENT.getCache();
+    public static EquipmentCache forEquipment() {
+        return (EquipmentCache) QueryType.EQUIPMENT.getCache();
     }
 
 }

@@ -12,6 +12,7 @@ import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Parallel;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.player_sense.PlayerSense;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
@@ -58,67 +59,7 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     public void loadAll() {
         //load full container
         if (this.type == QueryType.INVENTORY) {
-
         }
-    }
-
-    @Override
-    public QueryType getType() {
-        return this.type;
-    }
-
-    @Override
-    public long getLifetimeMS() {
-        //return this.type == QueryType.INVENTORY ? Integer.MAX_VALUE : TimeUnit.SECONDS.toMillis(2);
-        return TimeUnit.SECONDS.toMillis(1);
-    }
-
-    @Override
-    public Supplier<SpriteItemQueryResults> getResults(MaterialInquiry inquiry) {
-        return () -> {
-            SpriteItemQueryBuilder query = this.getRawQuery().get();
-            query.ids(inquiry.getMaterial().getId());
-            query.names(inquiry.getMaterial().getName());
-            if (!Environment.isOSRS()) {
-                query.equipable(inquiry.getMaterial().isEquippable());
-            }
-            query.stacks(inquiry.getMaterial().isStackable());
-            return query.results();
-        };
-    }
-
-    public Stream<SpriteItem> getAll() {
-        return Arrays.stream(this.backing).filter(Objects::nonNull);
-    }
-
-    public int count(MaterialInquiry inq) {
-        return ContainerCache.count(this.get(inq));
-    }
-
-    public int count(Queryable<SpriteItem, MaterialInquiry> inq) {
-        return this.count(inq.toInquiry());
-    }
-
-    public static int count(Stream<SpriteItem> stream) {
-        return stream.map(SpriteItem::getQuantity).reduce(0, Integer::sum);
-    }
-
-    public static Collector<SpriteItem, ?, Integer> counting() {
-        return Collectors.reducing(0, SpriteItem::getQuantity, Integer::sum);
-    }
-
-    @Override
-    public int size(MaterialInquiry inq) {
-        //Logging.info("ContainerCache#size");
-        int back = this.getCurrent(inq).peek(i -> Logging.info("\t" + i))
-                .map(SpriteItem::getQuantity).reduce(0, Integer::sum);
-        int offset = Parallel.operateLock(this.lock.readLock(), () -> this.offset.getOrDefault(inq, 0));
-        Logging.info("[ContainerCache] offset: " + offset + ", back: " + back + ", actual back: " + (back + offset));
-        back += offset;
-        //Logging.info("\tsize (" + inq + "): " + back);
-        //Logging.info("seasoned: " + this.getResults(inq).get().asList().size());
-        //Logging.info("raw: " + Inventory.newQuery().ids(inq.getMaterial().getId()).names(inq.getMaterial().getName()).equipable(inq.getMaterial().isEquippable()).stacks(inq.getMaterial().isStackable()).results().asList());
-        return back;
     }
 
     public int update(MaterialInquiry inq, int amount) {
@@ -141,41 +82,6 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
         return back;
     }
 
-    @Override
-    protected void onInvalidate(MaterialInquiry inq, SpriteItem item) {
-        if (item != null) {
-            Parallel.operateLock(this.backingLock.writeLock(), () -> {
-                for (int i = 0; i < this.backing.length; i++) {
-                    if (this.backing[i] == null) {
-                        continue;
-                    }
-                    if (this.backing[i].getIndex() == item.getIndex()) {
-                        if (this.backing[i].getDefinition().equals(item.getDefinition())) {
-                            this.backing[i] = null;
-                        }
-                    }
-                }
-            });
-            return;
-        }
-        Runnable inv;
-        if (inq == null) {
-            Parallel.operateLock(this.backingLock.writeLock(), () -> Arrays.fill(this.backing, null));
-            inv = this.offset::clear;
-        } else {
-            Material raw = inq.getMaterial();
-            Parallel.operateLock(this.backingLock.writeLock(), () -> {
-                for (int i = 0; i < this.backing.length; i++) {
-                    if (raw.equals(Materials.getMaterial(this.backing[i]))) {
-                        this.backing[i] = null;
-                    }
-                }
-            });
-            inv = () -> this.offset.remove(inq);
-        }
-        Parallel.operateLock(this.lock.writeLock(), inv);
-    }
-
     //returns whole container, reduced to 1 ItemStack with a quantity of the amount in the container
     public Map<Material, Integer> getReducedItems() {
         if (this.type != QueryType.INVENTORY) {
@@ -186,10 +92,20 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
                 .collect(Collectors.toMap(loader::fromSpriteItem, SpriteItem::getQuantity, Integer::sum, LinkedHashMap::new));
     }
 
-    @Override
-    public Supplier<SpriteItemQueryBuilder> getRawQuery() {
-        return this.target;
+    private void change(SpriteItem item, int amount) {
+        //this.get(new SerializableMaterial(item.getDefinition()).toInquiry()).
     }
+
+    public Stream<SpriteItem> getAll() {
+        return Arrays.stream(this.backing).filter(Objects::nonNull);
+    }
+
+
+
+
+    //inventory
+
+
 
     @Override
     public void onItemAdded(ItemEvent event) {
@@ -204,7 +120,53 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
         Logging.info(String.format("[Cache | %s] Item remove event called: {index: %d, change: %d, name: %s}", this.type.name(), i.getIndex(), event.getQuantityChange(), i.getDefinition().getName()));
     }
 
-    private void change(SpriteItem item, int amount) {
-        //this.get(new SerializableMaterial(item.getDefinition()).toInquiry()).
+
+    //item
+
+    public int count(MaterialInquiry inq) {
+        return ContainerCache.count(this.get(inq));
+    }
+
+    public int count(Queryable<SpriteItem, MaterialInquiry> inq) {
+        return this.count(inq.toInquiry());
+    }
+
+    public static int count(Stream<SpriteItem> stream) {
+        return stream.map(SpriteItem::getQuantity).reduce(0, Integer::sum);
+    }
+
+    public static Collector<SpriteItem, ?, Integer> counting() {
+        return Collectors.reducing(0, SpriteItem::getQuantity, Integer::sum);
+    }
+
+
+    @Override
+    public QueryType getType() {
+        return this.type;
+    }
+
+    @Override
+    public long getLifetimeMS() {
+        //return this.type == QueryType.INVENTORY ? Integer.MAX_VALUE : TimeUnit.SECONDS.toMillis(2);
+        return TimeUnit.SECONDS.toMillis(1);
+    }
+
+    @Override
+    public Supplier<SpriteItemQueryBuilder> getRawQuery() {
+        return this.target;
+    }
+
+    @Override
+    public Supplier<SpriteItemQueryResults> getRunemateResults(MaterialInquiry inquiry) {
+        return () -> {
+            SpriteItemQueryBuilder query = this.getRawQuery().get();
+            query.ids(inquiry.getMaterial().getId());
+            query.names(inquiry.getMaterial().getName());
+            if (!Environment.isOSRS()) {
+                query.equipable(inquiry.getMaterial().isEquippable());
+            }
+            query.stacks(inquiry.getMaterial().isStackable());
+            return query.results();
+        };
     }
 }

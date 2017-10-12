@@ -7,6 +7,7 @@ import com.codelanx.commons.data.FileSerializable;
 import com.codelanx.commons.data.types.Json;
 import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
 import java.io.File;
 import java.util.HashMap;
@@ -45,6 +46,15 @@ public class ItemLoader implements Loader {
 
     public Material getItem(String name) {
         return this.byName.computeIfAbsent(name, k -> this.materials.values().stream().filter(m -> k.equals(m.getName())).findFirst().orElse(null));
+    }
+
+    public Material from(SpriteItem item) {
+        Material mat = this.getItem(item.getId());
+        if (mat == null) {
+            mat = new SerializableMaterial(item);
+            this.materials.put(mat.getId(), mat);
+        }
+        return mat;
     }
 
     @Override

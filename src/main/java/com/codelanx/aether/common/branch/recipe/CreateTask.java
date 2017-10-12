@@ -7,6 +7,8 @@ import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.aether.common.bot.task.ExecutableAetherTask;
+import com.codelanx.aether.common.cache.Caches;
+import com.codelanx.aether.common.cache.form.container.EquipmentCache.EquipSlot;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.json.recipe.Recipe;
 import com.codelanx.commons.logging.Logging;
@@ -15,6 +17,7 @@ import com.runemate.game.api.hybrid.input.Keyboard;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceContainers;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.data.Category;
 import com.runemate.game.api.script.framework.listeners.SkillListener;
@@ -105,16 +108,17 @@ public class CreateTask extends AetherTask<Void> implements SkillListener {
                     this.expectedGains.clear(); //deferr to lastUpdate
                     return component.interact(MAKE_10_PATTERN);
                 });
-
         }
         this.expectedGains.compute(type, (k, old) -> new AtomicInteger(rem + (old == null ? 0 : old.get())));
-        AsyncExec.delayUntil(() -> {
-            boolean timeout = this.lastUpdate.get() + TimeUnit.SECONDS.toMillis(3) < System.currentTimeMillis();
-            boolean fullGains = this.expectedGains.values().stream().map(AtomicInteger::get).anyMatch(i -> i <= 0);
-            Logging.info("CreateTask timeout: (" + timeout + " || " + fullGains + ")");
-            return timeout || fullGains;
-        });
+        AsyncExec.delayUntil(this::needsUpdating);
         return Invalidators.ALL;
+    }
+
+    private boolean needsUpdating() {
+        boolean timeout = this.lastUpdate.get() + TimeUnit.SECONDS.toMillis(3) < System.currentTimeMillis();
+        boolean fullGains = this.expectedGains.values().stream().map(AtomicInteger::get).anyMatch(i -> i <= 0);
+        Logging.info("CreateTask timeout: (" + timeout + " || " + fullGains + ")");
+        return timeout || fullGains;
     }
 
     @Override
