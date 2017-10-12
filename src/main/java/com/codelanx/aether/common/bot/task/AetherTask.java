@@ -9,6 +9,8 @@ import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.script.framework.tree.BranchTask;
+import com.runemate.game.api.script.framework.tree.TreeTask;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -169,6 +171,43 @@ public abstract class AetherTask<T> {
                 return Invalidators.ALL;
             }
         };
+    }
+
+    public static AetherTask<Boolean> of(TreeTask task) {
+        AetherTask<Boolean> raw;
+        if (task instanceof BranchTask) {
+            raw = new AetherTask<Boolean>() {
+                {
+                    this.register(true, AetherTask.of(task.successTask()));
+                    this.register(false, AetherTask.of(task.failureTask()));
+                }
+
+                @Override
+                public Supplier<Boolean> getStateNow() {
+                    return task::validate;
+                }
+            };
+        } else {
+            raw = new AetherTask<Boolean>() {
+
+                @Override
+                public boolean isExecutable() {
+                    return true;
+                }
+
+                @Override
+                public Supplier<Boolean> getStateNow() {
+                    return () -> null;
+                }
+
+                @Override
+                public Invalidator execute() {
+                    task.execute();
+                    return Invalidators.ALL;
+                }
+            };
+        }
+        return raw;
     }
 
     public static <E> AetherTask<E> of(Invalidator invalidator) {

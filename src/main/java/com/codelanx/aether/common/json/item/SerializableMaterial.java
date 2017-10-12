@@ -3,9 +3,12 @@ package com.codelanx.aether.common.json.item;
 import com.codelanx.aether.common.cache.query.LocatableInquiry;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
 import com.codelanx.commons.data.FileSerializable;
+import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,10 +51,11 @@ public class SerializableMaterial implements FileSerializable, Material {
     }
 
     public SerializableMaterial(SpriteItem other) {
-        this.name = other.getName();
+        this(other.getDefinition()); //TODO: handle null definitions
+        /*this.name = other.getName();
         this.id = other.getId();
         this.stackable = other.stacks();
-        this.equippable = other.isEquipable();
+        this.equippable = other.isEquipable();*/
     }
 
     @Override

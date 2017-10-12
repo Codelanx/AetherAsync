@@ -2,6 +2,8 @@ package com.codelanx.aether.common.bot;
 
 import com.codelanx.aether.common.RunemateLoggerProxy;
 import com.codelanx.aether.common.action.HMagic;
+import com.codelanx.aether.common.bot.mission.Mission;
+import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.rest.RestLoader;
@@ -9,9 +11,13 @@ import com.codelanx.commons.logging.Debugger;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.script.framework.AbstractBot;
+import com.runemate.game.api.script.framework.tree.TreeBot;
+import com.runemate.game.api.script.framework.tree.TreeTask;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,9 +28,18 @@ public abstract class AsyncBot extends AbstractBot {
     private Brain brain;
     private final AtomicBoolean stopping = new AtomicBoolean();
     private RestLoader data;
+    private final List<Runnable> preExistingTasks = new LinkedList<>();
 
     public AsyncBot() {
         Aether.setBot(this);
+    }
+
+    public AsyncBot(TreeBot old) {
+        //let's import the old treebot
+        TreeTask task = old.createRootTask();
+        this.preExistingTasks.add(() -> {
+            this.getBrain().getLogicTree().register(Mission.of(AetherTask.of(task)));
+        });
     }
 
     @Override
@@ -82,6 +97,7 @@ public abstract class AsyncBot extends AbstractBot {
             });
         }
         Logging.info("#onStart(" + Arrays.toString(strings) + ")");
+        this.preExistingTasks.forEach(Runnable::run);
         this.onBotStart(strings);
         this.scheduler.register(this);
     }

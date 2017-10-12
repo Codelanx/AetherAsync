@@ -58,7 +58,7 @@ public class BankItemsTask extends AetherTask<ItemStack> {
         return () -> {
             //check inventory contents first
             Caches.forInventory().loadAll();
-            Map<Material, List<SpriteItem>> current = Caches.forInventory().getAll().collect(Collectors.groupingBy(Materials::getMaterial));
+            Map<Material, List<SpriteItem>> current = Caches.forInventory().getAllLoaded().collect(Collectors.groupingBy(Materials::getMaterial));
             int beforeSize = current.size();
             Logging.info("BankItemsTask current map: " + current);
             current.entrySet().removeIf(ent -> {

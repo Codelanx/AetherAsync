@@ -2,6 +2,8 @@ package com.codelanx.aether.common.json.recipe;
 
 import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.cache.form.ContainerCache;
+import com.codelanx.aether.common.cache.form.container.FixedSizeItemCache;
+import com.codelanx.aether.common.cache.form.container.ItemCache;
 import com.codelanx.aether.common.json.Withdrawable;
 import com.codelanx.aether.common.json.item.ItemStack;
 import com.codelanx.commons.logging.Logging;
@@ -71,7 +73,7 @@ public interface Recipe extends Withdrawable {
         return itemStackToTarget(this.getTools(), Caches.forInventory());
     }
 
-    public static Stream<SpriteItem> itemStackToTarget(Stream<ItemStack> items, ContainerCache cache) {
+    public static Stream<SpriteItem> itemStackToTarget(Stream<ItemStack> items, ItemCache cache) {
         return items.map(i -> cache.getCurrent(i.getMaterial().toInquiry())).flatMap(Function.identity());
     }
 
