@@ -1,15 +1,12 @@
 package com.codelanx.aether.common.json.gather.meta;
 
-import com.codelanx.commons.util.Reflections;
-
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.codelanx.commons.util.OptimisticLock;
 
 public class AetherGatherMeta implements GatherMeta {
 
     private final String key;
     private final String label;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final OptimisticLock lock = new OptimisticLock();
     private Object value;
 
     public AetherGatherMeta(String key, Object value, String label) {
@@ -25,12 +22,12 @@ public class AetherGatherMeta implements GatherMeta {
 
     @Override
     public Object getValue() {
-        return Reflections.operateLock(this.lock.readLock(), () -> this.value);
+        return this.lock.read(() -> this.value);
     }
 
     @Override
     public void setValue(Object value) {
-        Reflections.operateLock(this.lock.writeLock(), () -> this.value = value);
+        this.lock.write(() -> this.value = value);
     }
 
     @Override

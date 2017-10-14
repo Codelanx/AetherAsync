@@ -5,29 +5,28 @@ import com.codelanx.aether.common.bot.AetherCompletableFuture;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
-import com.runemate.game.api.hybrid.Environment;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-/**
- * Created by rogue on 8/13/2017.
- */
-public abstract class InputTarget {
+public abstract class NewInputTarget {
 
     private static final int MAX_ATTEMPTS = 5;
     private volatile CompletableFuture<Boolean> attempt;
     private CompletableFuture<Boolean> postAttempt = new AetherCompletableFuture<>();
     private final AtomicInteger attempts = new AtomicInteger();
 
-    protected void doAttempt(Supplier<Boolean> task) {
+    protected CompletableFuture<Boolean> doAttempt(Supplier<Boolean> task) {
         Logging.info("Starting user input (task-" + Scheduler.getTaskCount() + ": " + this.toString() + ")");
         if (this.attempts.incrementAndGet() >= MAX_ATTEMPTS) {
             UserInputException t = new UserInputException("Failed to run input task");
             this.postAttempt.completeExceptionally(t); //contract chaining
             throw t;
+        }
+        if (this.attempt != null) {
+            this.attempt.cancel(true);
         }
         this.attempt = Scheduler.complete(task);
         this.attempt.whenComplete((value, ex) -> {
@@ -35,22 +34,27 @@ public abstract class InputTarget {
                 this.postAttempt.complete(value); //true only, we only complete (in total) when successful
             }
         });
+        return this.attempt;
+    }
+
+    public int getAttempts() {
+        return this.attempts.get();
     }
 
     boolean doneMaxAttempts() {
         return this.attempts.get() + 1 >= MAX_ATTEMPTS;
     }
-    
+
     public CompletableFuture<Boolean> postAttempt() {
         return this.postAttempt;
     }
-    
-    public abstract void attempt();
+
+    public abstract CompletableFuture<Boolean> attempt();
 
     public boolean isAttempting() {
         return this.attempt != null;
     }
-    
+
     public boolean isAttempted() {
         return this.attempt != null && (this.attempt.isDone() || this.attempt.isCompletedExceptionally());
     }

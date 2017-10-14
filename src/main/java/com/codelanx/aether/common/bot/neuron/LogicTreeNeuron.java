@@ -5,6 +5,7 @@ import com.codelanx.aether.common.bot.Invalidator;
 import com.codelanx.aether.common.bot.mission.Mission;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.commons.logging.Logging;
+import com.codelanx.commons.util.OptimisticLock;
 import com.codelanx.commons.util.Reflections;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.script.Execution;
@@ -20,8 +21,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 //TODO: Import brain logic
 public class LogicTreeNeuron extends Neuron {
@@ -32,7 +31,7 @@ public class LogicTreeNeuron extends Neuron {
     private final List<Mission<?>> nextMission = new ArrayList<>();
     private final LinkedList<AetherTask<?>> invalidationQueue = new LinkedList<>();
     private final Map<Class<?>, AetherTask<?>> taskMap = new HashMap<>();
-    private final ReadWriteLock taskMapLock = new ReentrantReadWriteLock();
+    private final OptimisticLock taskLock = new OptimisticLock();
     private final List<CompletableFuture<Invalidator>> runningExecs = new ArrayList<>();
     private String lastThought;
 
@@ -168,11 +167,11 @@ public class LogicTreeNeuron extends Neuron {
                 next = root.getChild();
                 state = root.getState().get();
             } catch (ExecutionException e) {
-                Logging.info("Error retrieving child task:");
-                Logging.info(Reflections.stackTraceToString(e));
+                Logging.severe("Error retrieving child task:");
+                Logging.severe(Reflections.stackTraceToString(e));
             } catch (InterruptedException e) {
                 Logging.severe("[Brain] Child task interrupted (shutting down?):");
-                Logging.info(Reflections.stackTraceToString(e));
+                Logging.severe(Reflections.stackTraceToString(e));
                 this.invalidationQueue.clear();
                 brain.getBot().stop();
                 return;
@@ -190,9 +189,8 @@ public class LogicTreeNeuron extends Neuron {
             prefix.append('\t');
             this.invalidationQueue.push(root);
             AetherTask<?> froot = root;
-            Reflections.operateLock(this.taskMapLock.writeLock(), () -> {
-                this.taskMap.putIfAbsent(froot.getToken(), froot);
-            });
+            this.taskLock.writeIf(() -> this.taskMap.containsKey(froot.getToken()),
+                    () -> this.taskMap.put(froot.getToken(), froot));
             root = next;
         }
         this.setLastThought("Executing task: " + root.getTaskName());
@@ -292,7 +290,7 @@ public class LogicTreeNeuron extends Neuron {
     }
 
     public AetherTask<?> getRememberedTask(Class<?> token) {
-        return Reflections.operateLock(this.taskMapLock.readLock(), () -> this.taskMap.get(token));
+        return this.taskLock.read(() -> this.taskMap.get(token));
     }
 
     //hints the brain to select the next direct target
@@ -301,7 +299,7 @@ public class LogicTreeNeuron extends Neuron {
     }
 
     public void hint(Class<?> nextTarget, Object nextState) {
-        AetherTask<?> task = Reflections.operateLock(this.taskMapLock.readLock(), () -> this.taskMap.get(nextTarget));
+        AetherTask<?> task = this.taskLock.read(() -> this.taskMap.get(nextTarget));
         if (task == null) {
             return;
         }

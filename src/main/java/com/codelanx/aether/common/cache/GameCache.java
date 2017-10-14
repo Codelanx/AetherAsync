@@ -2,6 +2,7 @@ package com.codelanx.aether.common.cache;
 
 import com.codelanx.aether.common.cache.query.Inquiry;
 import com.codelanx.commons.logging.Logging;
+import com.codelanx.commons.util.OptimisticLock;
 import com.codelanx.commons.util.Parallel;
 import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Reflections;
@@ -15,8 +16,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
@@ -29,8 +28,8 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
 
     private final Map<I, CacheHolder<T>> results = new HashMap<>();
     private final Map<I, CompletableFuture<List<T>>> queries = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final ReadWriteLock queryLock = new ReentrantReadWriteLock();
+    private final OptimisticLock lock = new OptimisticLock();
+    private final OptimisticLock queryLock = new OptimisticLock();
     
     public abstract Supplier<? extends QueryResults<T, ?>> getRunemateResults(I inquiry);
     
@@ -49,23 +48,23 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     //blocking, returns when completed
     protected final CacheHolder<T> compute(I inq) {
         Logging.info(this.getType().name() + "(cache)#compute(" + inq + ")");
-        CacheHolder<T> back = Parallel.operateLock(this.lock.readLock(), () -> this.results.get(inq));
+        CacheHolder<T> back = this.lock.read(() -> this.results.get(inq));
         if (back == null) {
             CompletableFuture<List<T>> query = this.getQuery(inq); //TODO: Thread safety
             try {
                 CacheHolder<T> res = new CacheHolder<>(query.get());
                 Scheduler.runAsyncTask(() -> {
                     Logging.info("Inserting results: " + res);
-                    Parallel.operateLock(this.lock.writeLock(), () -> this.results.put(inq, res));
-                    Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
+                    this.lock.write(() -> this.results.put(inq, res));
+                    this.queryLock.write(() -> this.queries.remove(inq));
                 });
                 Logging.info("Returning new results: " + res);
                 return res;
             } catch (ExecutionException | InterruptedException e) {
-                Logging.info("Cache query interrupted / Error querying for information:");
-                Logging.info(Readable.stackTraceToString(e));
-                Parallel.operateLock(this.lock.writeLock(), () -> this.results.remove(inq));
-                Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.remove(inq));
+                Logging.severe("Cache query interrupted / Error querying for information:");
+                Logging.severe(Readable.stackTraceToString(e));
+                this.lock.write(() -> this.results.remove(inq));
+                this.queryLock.write(() -> this.queries.remove(inq));
                 throw new RuntimeException("Cache failed to load", e);
             }
         }
@@ -109,7 +108,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     
     public int size(I inq) {
         CacheHolder<T> hold = this.compute(inq);
-        return Parallel.operateLock(hold.lock.readLock(), hold.getList()::size);
+        return hold.lock.read(hold.getList()::size);
     }
 
     public final int size(Queryable<T, I> inq) {
@@ -118,7 +117,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
 
     public final void replaceFirst(I inq, UnaryOperator<T> replacement) {
         CacheHolder<T> hold = this.compute(inq);
-        Parallel.operateLock(hold.getLock().writeLock(), () -> {
+        hold.getLock().write(() -> {
             List<T> vals = hold.getList();
             if (!vals.isEmpty()) {
                 vals.set(0, replacement.apply(vals.get(0)));
@@ -131,9 +130,9 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     public final void invalidate(I inq, T item) {
-        Parallel.operateLock(this.lock.writeLock(), () -> {
+        this.lock.write(() -> {
             CacheHolder<?> hold = this.results.getOrDefault(inq, CacheHolder.EMPTY);
-            if (Parallel.operateLock(hold.lock.writeLock(), () -> hold.getList().remove(item))) {
+            if (hold.lock.write(() -> hold.getList().remove(item))) {
                 this.onInvalidate(inq, item);
             }
         });
@@ -144,9 +143,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     public final List<T> invalidateByType(I inq) {
-        CacheHolder<T> back = Parallel.operateLock(this.lock.writeLock(), () -> {
-            return this.results.remove(inq);
-        });
+        CacheHolder<T> back = this.lock.write(() -> this.results.remove(inq));
         if (back != null) {
             this.onInvalidate(inq, null);
             return back.getList();
@@ -163,17 +160,17 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
     }
     
     public final void invalidateAll() {
-        Parallel.operateLock(this.lock.writeLock(), this.results::clear);
+        this.lock.write(this.results::clear);
         this.onInvalidate(null, null);
     }
     
     //null if not present, otherwise current
     protected CacheHolder<T> getCurrentRaw(I inq) {
-        return Parallel.operateLock(this.lock.readLock(), () -> this.results.get(inq));
+        return this.lock.read(() -> this.results.get(inq));
     }
     
     protected final CompletableFuture<List<T>> getQuery(I inq) {
-        return Parallel.operateLock(this.queryLock.writeLock(), () -> this.queries.computeIfAbsent(inq, this::schedule));
+        return this.queryLock.write(() -> this.queries.computeIfAbsent(inq, this::schedule));
     }
     
     protected CompletableFuture<List<T>> schedule(I inq) {
@@ -186,7 +183,7 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         private static final CacheHolder EMPTY = new CacheHolder<>(Collections.emptyList());
         private final List<T> list = new ArrayList<>();
         private final AtomicLong lastUpdate = new AtomicLong(System.currentTimeMillis());
-        private final ReadWriteLock lock = new ReentrantReadWriteLock();
+        private final OptimisticLock lock = new OptimisticLock();
         
         public CacheHolder(List<T> list) {
             this.list.addAll(list);
@@ -197,16 +194,16 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
         }
         
         public List<T> getCopyList() {
-            return Parallel.operateLock(this.lock.readLock(), () -> new ArrayList<>(this.list));
+            return this.lock.read(() -> new ArrayList<>(this.list));
         }
-        
-        ReadWriteLock getLock() {
+
+        OptimisticLock getLock() {
             return this.lock;
         }
 
         public <I extends Inquiry> void update(GameCache<T, I> cache, I inquiry) {
             List<T> fresh = cache.getRunemateResults(inquiry).get().asList();
-            Parallel.operateLock(this.lock.writeLock(), () -> {
+            this.lock.write(() -> {
                 this.list.clear();
                 this.list.addAll(fresh);
             });
@@ -219,11 +216,10 @@ public abstract class GameCache<T extends Interactable, I extends Inquiry> {
 
         @Override
         public String toString() {
-            return Reflections.operateLock(this.lock.readLock(), () -> {
-                return "CacheHolder{" +
-                        "list=" + list +
-                        '}';
-            });
+            return this.lock.read(() ->
+                    "CacheHolder{" +
+                    "list=" + list +
+                    '}');
         }
     }
 }

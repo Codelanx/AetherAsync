@@ -7,18 +7,12 @@ import com.codelanx.commons.util.Scheduler;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -31,8 +25,6 @@ public class AetherScheduler {
     private final ThreadGroup ourGroup;
     private final AsyncBot bot;
     private ScheduledFuture<?> runningBotThread;
-    private final List<Future<?>> tasks = new ArrayList<>();
-    private final ReadWriteLock tasksLock = new ReentrantReadWriteLock();
 
     AetherScheduler(AsyncBot bot) {
         this.bot = bot;
@@ -159,18 +151,6 @@ public class AetherScheduler {
 
     public ScheduledThreadPoolExecutor getThreadPool() {
         return (ScheduledThreadPoolExecutor) Scheduler.getService();
-    }
-
-    public <R> CompletableFuture<R> complete(Supplier<R> supplier) {
-        CompletableFuture<R> back = CompletableFuture.supplyAsync(supplier, this.getThreadPool());
-        this.addTask(back);
-        return back;
-    }
-
-    private void addTask(Future<?> future) {
-        Reflections.operateLock(this.tasksLock.writeLock(), () -> {
-            this.tasks.add(future);
-        });
     }
 
     ScheduledThreadPoolExecutor getBotThread() {

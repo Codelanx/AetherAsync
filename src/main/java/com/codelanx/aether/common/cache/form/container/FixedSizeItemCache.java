@@ -4,6 +4,7 @@ import com.codelanx.aether.common.cache.QueryType;
 import com.codelanx.aether.common.cache.query.MaterialInquiry;
 import com.codelanx.aether.common.json.item.Material;
 import com.codelanx.aether.common.json.item.Materials;
+import com.codelanx.commons.util.OptimisticLock;
 import com.codelanx.commons.util.Parallel;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
@@ -11,8 +12,6 @@ import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,7 +25,7 @@ public class FixedSizeItemCache extends ItemCache {
     private final int size;
     private final SpriteItem[] backing;
     private final StampedLock[] locks;
-    private final StampedLock totalLock = new StampedLock();
+    private final OptimisticLock totalLock = new OptimisticLock();
 
     public FixedSizeItemCache(int size) {
         this.size = size;
@@ -136,13 +135,13 @@ public class FixedSizeItemCache extends ItemCache {
 
     @Override
     public Stream<SpriteItem> getAllLoaded() {
-        return Arrays.stream(this.getLoadedArray());
+        return Arrays.stream(this.getLoadedArray()).filter(Objects::nonNull);
     }
 
     //makes a copy
     public SpriteItem[] getLoadedArray() {
         SpriteItem[] back = new SpriteItem[this.getCapacity()];
-        Parallel.StampLocks.optimisticRead(this.totalLock, () -> System.arraycopy(this.backing, 0, back, 0, back.length));
+        this.totalLock.read(() -> System.arraycopy(this.backing, 0, back, 0, back.length));
         return back;
     }
 

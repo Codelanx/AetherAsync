@@ -8,10 +8,11 @@ import com.codelanx.aether.common.cache.Queryable;
 import com.codelanx.aether.common.cache.query.Inquiry;
 import com.codelanx.aether.common.input.UserInput;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.OptimisticLock;
 import com.codelanx.commons.util.ref.Box;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GameObject;
+import com.runemate.game.api.hybrid.entities.GameObject.Direction;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
@@ -24,10 +25,11 @@ import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.hybrid.util.calculations.Distance.Algorithm;
 import static com.runemate.game.api.hybrid.entities.GameObject.Direction.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -100,7 +102,7 @@ public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends Aeth
         private Coordinate cachedCoordinate;
         private AtomicLong lastClickMs = new AtomicLong();
         private final Box<Locatable> lastTarget = new Box<>();
-        private final ReadWriteLock targetLock = new ReentrantReadWriteLock();
+        private final OptimisticLock targetLock = new OptimisticLock();
 
         public MoveToTargetTask(Supplier<? extends Locatable> target) {
             this.target = target;
@@ -124,7 +126,7 @@ public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends Aeth
                 Locatable locatable = this.cached;
                 if (locatable != null) {
                     Coordinate origin = this.cachedCoordinate == null ? this.cached.getPosition() : this.cachedCoordinate;
-                    Locatable last = Reflections.operateLock(this.targetLock.readLock(), () -> this.lastTarget.value);
+                    Locatable last = this.targetLock.read(() -> this.lastTarget.value);
                     if (last != null && Distance.between(origin, last, Algorithm.EUCLIDEAN_SQUARED) <= INTERACTION_DISTANCE_SQ) {
                         return new PathWrapper(Invalidators.SELF);
                     }
@@ -169,7 +171,7 @@ public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends Aeth
             }
             this.lastClickMs.set(System.currentTimeMillis());
             Locatable loc = path.getPath().getNext();
-            Reflections.operateLock(this.targetLock.writeLock(), () -> this.lastTarget.value = loc);
+            this.targetLock.write(() -> this.lastTarget.value = loc);
             UserInput.runemateInput(path.getPath()::step);
             return Invalidators.SELF;
             /*return path.getVertices().size() - path.getVertices().indexOf(loc) < INTERACTION_DISTANCE
@@ -195,7 +197,7 @@ public class GoToTargetTask<T extends Locatable, I extends Inquiry> extends Aeth
                 dir = GameObject.Direction.SOUTH;
             }
             Environment.getLogger().info("Getting adjacency path (preferred: " + dir.name() + ")");
-            List<GameObject.Direction> list = new LinkedList<>(Arrays.asList(SOUTH, WEST, EAST, NORTH));
+            List<Direction> list = new LinkedList<>(Arrays.asList(SOUTH, WEST, EAST, NORTH));
             list.remove(dir);
             list.add(0, dir);
             //hmm, parallel stream?

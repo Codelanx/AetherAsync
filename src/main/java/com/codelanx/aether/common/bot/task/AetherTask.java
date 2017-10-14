@@ -121,8 +121,8 @@ public abstract class AetherTask<T> {
             AetherTask<?> back = this.getChild(state);
             return back;
         } catch (Throwable t) {
-            Logging.info("Sneaky ass exception");
-            Logging.info(Readable.stackTraceToString(t));
+            Logging.severe("Sneaky ass exception");
+            Logging.severe(Readable.stackTraceToString(t));
             throw t;
         }
     }

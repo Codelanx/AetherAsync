@@ -1,5 +1,6 @@
 package com.codelanx.aether.common.branch.bank.withdraw;
 
+import com.codelanx.aether.common.Common;
 import com.codelanx.aether.common.Common.Banks;
 import com.codelanx.aether.common.bot.Invalidators;
 import com.codelanx.aether.common.bot.task.AetherTask;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class BankItemsTask extends AetherTask<ItemStack> {
 
-    private static final ItemStack DEPOSIT_ALL = new ItemStack(null, Integer.MIN_VALUE);
+    private static final ItemStack DEPOSIT_ALL = new ItemStack(Material.EMPTY, Integer.MIN_VALUE);
     private final Map<Material, Integer> itemCache = new HashMap<>(); //quick item lookups
     protected final List<ItemStack> items = new ArrayList<>();
 
@@ -40,6 +41,10 @@ public class BankItemsTask extends AetherTask<ItemStack> {
         this.register(Objects::isNull, () -> {
             UserInput.runemateInput("close bank", Bank::close);
             return Invalidators.ALL;
+        });
+        this.register(DEPOSIT_ALL::equals, () -> {
+            Common.Banks.depositInventory();
+            return Invalidators.SELF;
         });
         this.register(item -> item.getQuantity() < 0, item -> {
             UserInput.runemateInput("deposit item (neg==deposit): " + item,
@@ -62,7 +67,8 @@ public class BankItemsTask extends AetherTask<ItemStack> {
             int beforeSize = current.size();
             Logging.info("BankItemsTask current map: " + current);
             current.entrySet().removeIf(ent -> {
-                return ContainerCache.count(ent.getValue().stream()) < this.itemCache.getOrDefault(ent.getKey(), 0);
+                int amt = this.itemCache.getOrDefault(ent.getKey(), 0);
+                return amt > 0 && ContainerCache.count(ent.getValue().stream()) <= amt;
             });
             if (!current.isEmpty()) {
                 if (beforeSize >> 1 < current.size()) {
@@ -70,7 +76,8 @@ public class BankItemsTask extends AetherTask<ItemStack> {
                 }
                 Material m = current.keySet().iterator().next();
                 //return a deposited item
-                return new ItemStack(m, -ContainerCache.count(current.get(m).stream()));
+                int needed = this.itemCache.getOrDefault(m, 0);
+                return new ItemStack(m, -ContainerCache.count(current.get(m).stream()) + needed);
             }
             //check what needs withdrawing
             Iterator<ItemStack> stacks = this.items.iterator();

@@ -9,10 +9,10 @@ import com.codelanx.aether.common.json.item.Material;
 import com.codelanx.aether.common.json.item.Materials;
 import com.codelanx.aether.common.rest.RestLoader;
 import com.codelanx.commons.logging.Logging;
+import com.codelanx.commons.util.OptimisticLock;
 import com.codelanx.commons.util.Parallel;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
-import com.runemate.game.api.hybrid.player_sense.PlayerSense;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
@@ -25,8 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -41,8 +39,8 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
     private final SpriteItem[] backing;
     private final Supplier<SpriteItemQueryBuilder> target;
     private final Map<MaterialInquiry, Integer> offset = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final ReadWriteLock backingLock = new ReentrantReadWriteLock();
+    private final OptimisticLock lock = new OptimisticLock();
+    private final OptimisticLock backingLock = new OptimisticLock();
     private final QueryType type;
     
     public ContainerCache(Supplier<SpriteItemQueryBuilder> target, QueryType type) {
@@ -67,9 +65,9 @@ public class ContainerCache extends GameCache<SpriteItem, MaterialInquiry> imple
             return 0;
         }
         if (amount == 0) {
-            return Parallel.operateLock(this.lock.readLock(), () -> this.offset.get(inq));
+            return this.lock.read(() -> this.offset.get(inq));
         }
-        int back = Parallel.operateLock(this.lock.writeLock(), () -> {
+        int back = this.lock.write(() -> {
             return this.offset.compute(inq, (key, old) -> {
                 if (old == null) {
                     old = 0;

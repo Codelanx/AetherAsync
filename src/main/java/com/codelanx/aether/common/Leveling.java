@@ -42,6 +42,7 @@ public class Leveling {
     public static void main(String... args) throws IOException {
         //exportMaterials(CraftingMaterial.values(), new File("resources/crafting/items.json"));
         //exportRecipes(CraftingRecipe.values(), new File("resources/crafting/recipes.json"));
+        System.out.println(-3 / 2);
     }
 
     private static void exportMaterials(Material[] values, File target) throws IOException {

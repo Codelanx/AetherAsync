@@ -1,25 +1,82 @@
 {
     "items": [
         {
-            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Gold bar",
             "id": 2357
         },
         {
-            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Bracelet mould",
             "id": 11065
         },
         {
-            "==": "com.codelanx.aether.common.json.item.SerializableMaterial",
             "stackable": false,
             "equippable": false,
             "name": "Gold bracelet",
             "id": 11069
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Glassblowing pipe",
+            "id": 1785
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Unpowered orb",
+            "id": 567
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Molten glass",
+            "id": 1775
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Battlestaff",
+            "id": 1391
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Green dragon leather",
+            "id": 1745
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Thread",
+            "id": 1734
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Needle",
+            "id": 1733
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Water orb",
+            "id": 571
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Green d'hide body",
+            "id": 1135
+        },
+        {
+            "stackable": false,
+            "equippable": false,
+            "name": "Water battlestaff",
+            "id": 1395
         }
     ]
 }

@@ -3,6 +3,7 @@ package com.codelanx.aether.common.json.item;
 import com.codelanx.commons.logging.Logging;
 import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
+import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class ItemStack implements Item, Cloneable {
     }
 
     public ItemStack(Material material, int amount) {
+        Validate.notNull(material);
         this.material = material;
         this.amount = amount;
     }

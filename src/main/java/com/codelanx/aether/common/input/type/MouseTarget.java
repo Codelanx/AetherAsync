@@ -4,6 +4,7 @@ import com.codelanx.aether.common.input.ClickType;
 import com.codelanx.aether.common.input.InputTarget;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
+import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
 
 public class MouseTarget extends InputTarget {
     
@@ -31,7 +32,27 @@ public class MouseTarget extends InputTarget {
     }*/
 
     public void hover() {
-        Mouse.move(this.target);
+        if (this.target.isVisible()) {
+            //precise hover
+            Mouse.move(this.target);
+        } else {
+            //let's kick the radius up via a rough npc oval
+            //get our raw interaction point
+            InteractablePoint point = this.target.getInteractionPoint();
+            //TODO:
+            //InteractablePoint center;
+            //if we were able to get the center point here, it'd be GREAT.
+            //but alas we can't, so we resort to dirty dirty hacks
+            //
+            //get a hint as to a movement from our correct point to another correct point
+            InteractablePoint hint = this.target.getInteractionPoint(point);
+            //now we reflect it:
+            hint.setLocation(
+                    point.getX() + (point.getX() - hint.getX()),
+                    point.getY() + (point.getY() - hint.getY()));
+            //and now move to our incorrect location
+            Mouse.move(hint);
+        }
     }
     
     public Interactable getEntity() {

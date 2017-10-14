@@ -55,6 +55,7 @@ public interface Recipe extends Withdrawable {
             return null;
         }
         InterfaceComponent next = cont.getComponent(itr.next());
+        next.getLayer();
         while (itr.hasNext()) {
             InterfaceComponent n = next.getComponent(itr.next());
             if (n == null) {

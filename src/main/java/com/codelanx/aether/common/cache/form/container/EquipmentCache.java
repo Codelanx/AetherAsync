@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public class EquipmentCache extends FixedNamedItemCache<EquipSlot> {
 
     public EquipmentCache() {
-        super(calculateSize());
+        super(calculateSize(), EquipSlot.class);
     }
 
     private static int calculateSize() {

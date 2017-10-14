@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 public interface Material extends Queryable<SpriteItem, MaterialInquiry> {
 
+    public static Material EMPTY = new SerializableMaterial("", -1, false, false);
+
     public int getId();
 
     public String getName();

@@ -9,6 +9,7 @@ import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
+import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
-public enum UserInput {
+//holds the old UserInput code
+public enum UserInput2 {
 
     INSTANCE,
     ;
@@ -26,45 +28,12 @@ public enum UserInput {
     private static final long TASK_SWITCH_DELAY = 300;
     private final List<InputTarget> queue = new LinkedList<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final AtomicLong lastInputMs = new AtomicLong(); //last successfully entered input
-    private final AtomicLong lastInputTargetMs = new AtomicLong(); //last ms mark for input (can be in future)
+    private final AtomicLong lastInputMs = new AtomicLong();
     private Class<? extends InputTarget> lastInputType = null;
 
     public void registerClick(Interactable obj) {
         obj.click();
     }
-
-    private void actOnTarget(InputTarget target, boolean hover) {
-        long delay = System.currentTimeMillis() - this.lastInputMs.get();
-        if (!hover && this.lastInputType != target.getClass()) {
-            //we've got an input type switch
-            Randomization r = Randomization.TASK_SWITCHING_DELAY;
-            if (delay <= (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue())) {
-                return;
-            }
-        }
-        if (target instanceof MouseTarget) {
-            MouseTarget mouse = (MouseTarget) target;
-            //TODO: Move off bot thread
-            if (hover) {
-                mouse.hover();
-            } else if (delay > UserInput.getMinimumClick()) {
-                mouse.attempt();
-            }
-        } else if (!hover && !target.isAttempting()) {
-            target.attempt();
-        }
-    }
-
-    public InputTarget getNextTarget() {
-        return this.getNextTarget(0);
-    }
-
-    public InputTarget getNextTarget(int offset) {
-        return null;// INSTANCE.lock.read(() -> this.queue.size() <= offset ? null : this.queue.get(offset));
-    }
-
-    // -=- bot methods
 
     public static boolean attempt() {
         //Logging.info("Running user input...");
@@ -100,22 +69,6 @@ public enum UserInput {
         return (long) ((MIN_CLICK_MS + Randomization.MIN_CLICK.getValue().longValue()) * mult);
     }
 
-    public static long getInputIntervalDelay(Class<? extends InputTarget> targetType) {
-        return 0L;//INSTANCE.getInterval(targetType);
-    }
-
-    public static boolean hasTasks() {
-        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
-            return !INSTANCE.queue.isEmpty();
-        });
-    }
-
-    public static void wipe() {
-        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
-    }
-
-    // -=- input methods
-
     //hmmmmm
     public static RunemateTarget runemateInput(Supplier<Boolean> inputter) {
         return UserInput.runemateInput(null, inputter);
@@ -127,6 +80,71 @@ public enum UserInput {
             INSTANCE.queue.add(tar);
         });
         return tar;
+    }
+
+    //time between two different inputs
+    private long getInterval(Class<? extends InputTarget> targetType) {
+        long delay = System.currentTimeMillis() - this.lastInputMs.get();
+        /*if (this.lastInputType != targetType) {
+            //we've got an input type switch
+            Randomization r = Randomization.TASK_SWITCHING_DELAY;
+            return (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue());
+        }*/
+        return 0;
+    }
+
+    public static long getInputIntervalDelay(Class<? extends InputTarget> targetType) {
+        return INSTANCE.getInterval(targetType);
+    }
+
+    private void actOnTarget(InputTarget target, boolean hover) {
+        long delay = System.currentTimeMillis() - this.lastInputMs.get();
+        if (!hover && this.lastInputType != target.getClass()) {
+            //we've got an input type switch
+            Randomization r = Randomization.TASK_SWITCHING_DELAY;
+            if (delay <= (TASK_SWITCH_DELAY + r.getRandom(t -> t.nextInt(r.getValue().intValue())).intValue())) {
+                return;
+            }
+        }
+        if (target instanceof MouseTarget) {
+            MouseTarget mouse = (MouseTarget) target;
+            //TODO: Move off bot thread
+            if (hover) {
+                if (mouse.getEntity().isVisible()) {
+                    //precise hover
+                    Mouse.move(mouse.getEntity());
+                } else {
+                    //let's kick the radius up via a rough npc oval
+                    //get our raw interaction point
+                    InteractablePoint point = mouse.getEntity().getInteractionPoint();
+                    //TODO:
+                    //InteractablePoint center;
+                    //if we were able to get the center point here, it'd be GREAT.
+                    //but alas we can't, so we resort to dirty dirty hacks
+                    //
+                    //get a hint as to a movement from our correct point to another correct point
+                    InteractablePoint hint = mouse.getEntity().getInteractionPoint(point);
+                    //now we reflect it:
+                    hint.setLocation(
+                            point.getX() + (point.getX() - hint.getX()),
+                            point.getY() + (point.getY() - hint.getY()));
+                    //and now move to our incorrect location
+                    Mouse.move(hint);
+                }
+            } else {
+                if (delay > UserInput.getMinimumClick()) {
+                    mouse.attempt();
+                }
+                /*
+                if (input.getType() == ClickType.SIMPLE) {
+                    //schedule short
+                } else {
+                    //slightly longer scheduling
+                }*/
+            }
+        } else if (!hover && !target.isAttempting()) {
+            target.attempt();
+        }
     }
 
     public static MouseTarget interact(Interactable obj, String value) {
@@ -161,4 +179,23 @@ public enum UserInput {
         return back;
     }
 
+    public static boolean hasTasks() {
+        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
+            return !INSTANCE.queue.isEmpty();
+        });
+    }
+
+    public static void wipe() {
+        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
+    }
+
+    private InputTarget getNextTarget() {
+        return this.getNextTarget(0);
+    }
+
+    private InputTarget getNextTarget(int offset) {
+        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
+            return this.queue.size() <= offset ? null : this.queue.get(offset);
+        });
+    }
 }

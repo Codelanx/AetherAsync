@@ -1,17 +1,76 @@
 {
     "recipes": [
         {
-            "==": "com.codelanx.aether.common.json.recipe.SerializableRecipe",
-            "name": "Gold Bracelet",
-            "type": "COMBINE",
-            "automatic": true,
+            "name": "Gold bracelet",
+            "type": "SMELT",
+            "automatic": false,
             "container": -1,
             "ingredients": {
-                "2357": 1,
-                "11065": 1
+                "2357": 1
             },
             "tools": {
-                
+                "11065": 1
+            }
+        },
+        {
+            "name": "Unpowered orb",
+            "type": "COMBINE",
+            "automatic": false,
+            "component": [542, 96],
+            "ingredients": {
+                "1775": 1
+            },
+            "tools": {
+                "1785": 1
+            }
+        },
+        {
+            "name": "Green d'hide body",
+            "type": "COMBINE",
+            "automatic": false,
+            "component": [304, 2],
+            "ingredients": {
+                "1745": 3,
+                "1734": 1
+            },
+            "tools": {
+                "1733": 1
+            }
+        },
+        {
+            "name": "Green d'hide vambraces",
+            "type": "COMBINE",
+            "automatic": false,
+            "component": [304, 3],
+            "ingredients": {
+                "1745": 1,
+                "1734": 1
+            },
+            "tools": {
+                "1733": 1
+            }
+        },
+        {
+            "name": "Green d'hide chaps",
+            "type": "COMBINE",
+            "automatic": false,
+            "component": [304, 4],
+            "ingredients": {
+                "1745": 2,
+                "1734": 1
+            },
+            "tools": {
+                "1733": 1
+            }
+        },
+        {
+            "name": "Water battlestaff",
+            "type": "COMBINE",
+            "automatic": false,
+            "component": [304, 2],
+            "ingredients": {
+                "571": 1,
+                "1391": 1
             }
         }
     ]

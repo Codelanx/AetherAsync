@@ -1,6 +1,7 @@
 package com.codelanx.aether.common;
 
 import com.codelanx.commons.config.MemoryConfig;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.player_sense.PlayerSense;
 
@@ -45,7 +46,7 @@ public enum Randomization implements MemoryConfig<Number> {
     }
 
     public Number getRandom(Function<ThreadLocalRandom, Number> num) {
-        return this.getValue().doubleValue() * Reflections.convertNumber(num.apply(ThreadLocalRandom.current()), double.class);
+        return this.getValue().doubleValue() * Readable.convertNumber(num.apply(ThreadLocalRandom.current()), double.class);
     }
     
     @Override
