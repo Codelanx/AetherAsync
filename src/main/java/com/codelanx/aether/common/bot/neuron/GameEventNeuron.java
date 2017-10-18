@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameEventNeuron extends Neuron {
 
-    private static final boolean ENABLED = false; //false atm because there's a looping event bug
+    private static final boolean ENABLED = true; //false atm because there's a looping event bug
     private final AtomicBoolean handlingGameEvent = new AtomicBoolean();
 
     @Override

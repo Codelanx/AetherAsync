@@ -1,18 +1,13 @@
 package com.codelanx.aether.common.input;
 
-import com.codelanx.aether.common.Randomization;
 import com.codelanx.aether.common.input.type.CombatTarget;
 import com.codelanx.aether.common.input.type.KeyboardTarget;
 import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.input.type.RunemateTarget;
-import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.OptimisticLock;
-import com.codelanx.commons.util.Reflections;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
-import com.runemate.game.api.hybrid.input.Mouse;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -23,7 +18,7 @@ public enum UserInput3 {
 
     private static final long MIN_CLICK_MS = 100;
     private static final long TASK_SWITCH_DELAY = 300;
-    private final LinkedList<InputTarget> queue = new LinkedList<>();
+    private final LinkedList<NewInputTarget> queue = new LinkedList<>();
     private final OptimisticLock lock = new OptimisticLock();
     private final AtomicLong lastInputMs = new AtomicLong(); //last successfully entered input
     private final AtomicLong lastInputTargetMs = new AtomicLong(); //last ms mark for input (can be in future)
@@ -61,12 +56,18 @@ public enum UserInput3 {
     }
 
     public NewInputTarget getNextTarget(int offset) {
-        //TODO: remove type mask
-        return (NewInputTarget) (Object) INSTANCE.lock.read(() -> this.queue.size() <= offset ? null : this.queue.get(offset));
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset must be zero or positive");
+        }
+        return this.lock.read(() -> this.queue.size() <= offset ? null : this.queue.get(offset));
     }
 
     public NewInputTarget popTarget() {
-        return (NewInputTarget) (Object) INSTANCE.lock.read(this.queue::pop);
+        return this.lock.read(this.queue::pop);
+    }
+
+    public boolean hasTasks() {
+        return !this.lock.read(this.queue::isEmpty);
     }
 
     //-=- input methods
@@ -97,7 +98,7 @@ public enum UserInput3 {
     }
 
     private static <T extends InputTarget> T addTask(T target) {
-        INSTANCE.lock.write(() -> INSTANCE.queue.add(target));
+        INSTANCE.lock.write(() -> INSTANCE.queue.add((NewInputTarget) (Object) target)); //TODO: remove type mask (when finished rewrite)
         //TODO: Schedule task
         return target;
     }

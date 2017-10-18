@@ -6,15 +6,13 @@ import com.codelanx.aether.common.input.type.KeyboardTarget;
 import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.input.type.RunemateTarget;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.OptimisticLock;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 public enum UserInput {
@@ -25,7 +23,7 @@ public enum UserInput {
     private static final long MIN_CLICK_MS = 100;
     private static final long TASK_SWITCH_DELAY = 300;
     private final List<InputTarget> queue = new LinkedList<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final OptimisticLock lock = new OptimisticLock();
     private final AtomicLong lastInputMs = new AtomicLong(); //last successfully entered input
     private final AtomicLong lastInputTargetMs = new AtomicLong(); //last ms mark for input (can be in future)
     private Class<? extends InputTarget> lastInputType = null;
@@ -61,7 +59,7 @@ public enum UserInput {
     }
 
     public InputTarget getNextTarget(int offset) {
-        return null;// INSTANCE.lock.read(() -> this.queue.size() <= offset ? null : this.queue.get(offset));
+        return INSTANCE.lock.read(() -> this.queue.size() <= offset ? null : this.queue.get(offset));
     }
 
     // -=- bot methods
@@ -105,13 +103,11 @@ public enum UserInput {
     }
 
     public static boolean hasTasks() {
-        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
-            return !INSTANCE.queue.isEmpty();
-        });
+        return !INSTANCE.lock.read(INSTANCE.queue::isEmpty);
     }
 
     public static void wipe() {
-        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
+        INSTANCE.lock.write(INSTANCE.queue::clear);
     }
 
     // -=- input methods
@@ -122,43 +118,28 @@ public enum UserInput {
     }
 
     public static RunemateTarget runemateInput(String debugDescription, Supplier<Boolean> inputter) {
-        RunemateTarget tar = new RunemateTarget(debugDescription, inputter);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(tar);
-        });
-        return tar;
+        return UserInput.addTask(new RunemateTarget(debugDescription, inputter));
     }
 
     public static MouseTarget interact(Interactable obj, String value) {
-        MouseTarget back = new MouseTarget(obj, value);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(back);
-        });
-        return back;
+        return UserInput.addTask(new MouseTarget(obj, value));
     }
 
     public static CombatTarget combat(Interactable obj) {
-        CombatTarget back = new CombatTarget(obj);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(back);
-        });
-        return back;
+        return UserInput.addTask(new CombatTarget(obj));
     }
 
     public static MouseTarget click(Interactable obj) {
-        MouseTarget back = new MouseTarget(obj);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(back);
-        });
-        return back;
+        return UserInput.addTask(new MouseTarget(obj));
     }
 
     public static KeyboardTarget type(String input, boolean enter) {
-        KeyboardTarget back = new KeyboardTarget(input, enter);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
-            INSTANCE.queue.add(back);
-        });
-        return back;
+        return UserInput.addTask(new KeyboardTarget(input, enter));
+    }
+
+    private static <T extends InputTarget> T addTask(T target) {
+        INSTANCE.lock.write(() -> INSTANCE.queue.add(target));
+        return target;
     }
 
 }

@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 public abstract class AetherTask<T> {
 
-    public static AetherTask<?> NOTHING = AetherTask.of(() -> {});
+    public static final AetherTask<?> NOTHING = AetherTask.of(() -> {}); //todo: discourage / remove (use invalidator return)
     private static final Map<Invalidator, AetherTask<?>> invalidators = new HashMap<>();
     private final Map<HashedTaskState<T>, AetherTask<?>> children = new HashMap<>();
     private final Map<Predicate<T>, AetherTask<?>> pickyKids = new LinkedHashMap<>();
