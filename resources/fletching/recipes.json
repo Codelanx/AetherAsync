@@ -21,6 +21,22 @@
             "automatic": false,
             "container": 582,
             "child": 5,
+            "input": {
+                "type": "MAKEALL",
+                "target": "Steel arrows"
+            },
+            "input": {
+                "type": "OLD",
+                "container": 582,
+                "child": 5
+            },
+            "input": {
+                "type": "NONE"
+            },
+            "input": {
+                "type": "COMPONENT",
+                "component": [582, 5]
+            },
             "ingredients": {
                 "41": 15,
                 "53": 15

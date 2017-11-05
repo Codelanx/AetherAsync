@@ -18,6 +18,16 @@ public abstract class NewInputTarget {
     private volatile CompletableFuture<Boolean> attempt;
     private final AtomicInteger attempts = new AtomicInteger();
     private final AtomicBoolean started = new AtomicBoolean();
+    private final long delay;
+
+    public NewInputTarget(long delay) {
+        this.delay = delay;
+    }
+
+    //this is the -planned- delay from the previous input, which the scheduler will check against to determine when to run it
+    public long getDelay() {
+        return this.delay;
+    }
 
     public abstract Supplier<Boolean> getAction();
 
