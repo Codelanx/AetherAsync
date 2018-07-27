@@ -9,18 +9,17 @@ import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
 import java.util.function.Supplier;
 
 public class NewMouseTarget extends NewInputTarget {
-
-
     private final Interactable target;
     private final String action;
     //private final boolean menu;
 
-    public NewMouseTarget(Interactable target) {
-        this(target, null);
+    public NewMouseTarget(Interactable target, long delay) {
+        this(target, null, delay);
     }
 
-    public NewMouseTarget(Interactable target, String action) {
+    public NewMouseTarget(Interactable target, String action, long delay) {
         //this(target, action, false);
+        super(delay);
         if (target == null) {
             throw new IllegalArgumentException("Cannot click a null object");
         }

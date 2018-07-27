@@ -1,7 +1,7 @@
 <manifest>
-    <main-class>com.codelanx.aether.bots.crafting.CraftingBot</main-class>
-    <name>Aether Bot</name>
-    <tag-line>Maybe a construction bot. Maybe not.</tag-line><!--Max of 50 chars-->
+    <main-class>com.codelanx.aether.bots.generic.GenericBot</main-class>
+    <name>Aether Development Kit</name>
+    <tag-line>PLANNED: faster/sleeker dev kit</tag-line><!--Max of 50 chars-->
     <description>hoists my shitcode while I navigate the sea of runemate docs</description><!--Max of 110 chars-->
     <version>0.0.1</version>
     <compatibility>
@@ -11,7 +11,7 @@
         <!--<disable-game>DARK</disable-game>-->
     </compatibility>
     <categories>
-        <category>CONSTRUCTION</category>
+        <category>DEVELOPER_TOOLS</category>
     </categories>
     <!--Required to publish on the bot store-->
     <internal-id>INVALID</internal-id>

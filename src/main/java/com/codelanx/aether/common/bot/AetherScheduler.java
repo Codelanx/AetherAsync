@@ -1,7 +1,7 @@
 package com.codelanx.aether.common.bot;
 
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Scheduler;
 
 import java.lang.reflect.Field;
@@ -35,7 +35,7 @@ public class AetherScheduler {
                 reject.run();
             } catch (Throwable t) {
                 Logging.severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                Logging.severe(Reflections.stackTraceToString(t));
+                Logging.severe(Readable.stackTraceToString(t));
                 AetherScheduler.this.bot.stop();
                 return;
             }
@@ -59,7 +59,7 @@ public class AetherScheduler {
                     reject.run();
                 } catch (Throwable t) {
                     Logging.severe("Unhandled exception in " + this.getClass().getSimpleName() + ": " );
-                    Logging.severe(Reflections.stackTraceToString(t));
+                    Logging.severe(Readable.stackTraceToString(t));
                     this.bot.stop();
                     return;
                 }

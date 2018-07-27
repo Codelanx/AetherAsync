@@ -6,7 +6,7 @@ import com.codelanx.aether.common.input.type.KeyboardTarget;
 import com.codelanx.aether.common.input.type.MouseTarget;
 import com.codelanx.aether.common.input.type.RunemateTarget;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Parallel;
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.input.Mouse;
 import com.runemate.game.api.hybrid.local.hud.InteractablePoint;
@@ -76,7 +76,7 @@ public enum UserInput2 {
 
     public static RunemateTarget runemateInput(String debugDescription, Supplier<Boolean> inputter) {
         RunemateTarget tar = new RunemateTarget(debugDescription, inputter);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+        Parallel.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(tar);
         });
         return tar;
@@ -149,7 +149,7 @@ public enum UserInput2 {
 
     public static MouseTarget interact(Interactable obj, String value) {
         MouseTarget back = new MouseTarget(obj, value);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+        Parallel.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);
         });
         return back;
@@ -157,7 +157,7 @@ public enum UserInput2 {
 
     public static CombatTarget combat(Interactable obj) {
         CombatTarget back = new CombatTarget(obj);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+        Parallel.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);
         });
         return back;
@@ -165,7 +165,7 @@ public enum UserInput2 {
 
     public static MouseTarget click(Interactable obj) {
         MouseTarget back = new MouseTarget(obj);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+        Parallel.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);
         });
         return back;
@@ -173,20 +173,20 @@ public enum UserInput2 {
 
     public static KeyboardTarget type(String input, boolean enter) {
         KeyboardTarget back = new KeyboardTarget(input, enter);
-        Reflections.operateLock(INSTANCE.lock.writeLock(), () -> {
+        Parallel.operateLock(INSTANCE.lock.writeLock(), () -> {
             INSTANCE.queue.add(back);
         });
         return back;
     }
 
     public static boolean hasTasks() {
-        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
+        return Parallel.operateLock(INSTANCE.lock.readLock(), () -> {
             return !INSTANCE.queue.isEmpty();
         });
     }
 
     public static void wipe() {
-        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
+        Parallel.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
     }
 
     private InputTarget getNextTarget() {
@@ -194,7 +194,7 @@ public enum UserInput2 {
     }
 
     private InputTarget getNextTarget(int offset) {
-        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
+        return Parallel.operateLock(INSTANCE.lock.readLock(), () -> {
             return this.queue.size() <= offset ? null : this.queue.get(offset);
         });
     }

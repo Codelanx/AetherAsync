@@ -144,12 +144,12 @@ public enum UserInput3 {
     }
 
     public static boolean hasTasks() {
-        return Reflections.operateLock(INSTANCE.lock.readLock(), () -> {
+        return Parallel.operateLock(INSTANCE.lock.readLock(), () -> {
             return !INSTANCE.queue.isEmpty();
         });
     }
 
     public static void wipe() {
-        Reflections.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
+        Parallel.operateLock(INSTANCE.lock.writeLock(), INSTANCE.queue::clear);
     }*/
 }

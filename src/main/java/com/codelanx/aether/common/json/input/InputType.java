@@ -26,6 +26,7 @@ public enum InputType {
         } else {
             return matchType((String) type);
         }
+        return NONE;
     }
 
     public static InputType inferrType(Map<String, Object> mapping) {
@@ -49,6 +50,7 @@ public enum InputType {
                 return matchType((String) type);
             }
         }
+        return NONE;
     }
 
     public static InputType matchType(String type) {

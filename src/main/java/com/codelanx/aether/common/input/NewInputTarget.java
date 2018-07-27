@@ -1,9 +1,8 @@
 package com.codelanx.aether.common.input;
 
 import com.codelanx.aether.common.bot.Aether;
-import com.codelanx.aether.common.bot.AetherCompletableFuture;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Scheduler;
 
 import java.util.concurrent.CompletableFuture;
@@ -137,14 +136,12 @@ public abstract class NewInputTarget {
         }
         try {
             return this.attempt.get();
-        } catch (ExecutionException e) {
+        } catch (ExecutionException | InterruptedException e) {
             Logging.severe("Error while attempting user input");
-            Logging.severe(Reflections.stackTraceToString(e));
-            return false;
-        } catch (InterruptedException e) {
-            Logging.severe("Error while attempting user input");
-            Logging.severe(Reflections.stackTraceToString(e));
-            Aether.getBot().stop();
+            Logging.severe(Readable.stackTraceToString(e));
+            if (e instanceof InterruptedException) {
+                Aether.getBot().stop();
+            }
             return false;
         }
     }

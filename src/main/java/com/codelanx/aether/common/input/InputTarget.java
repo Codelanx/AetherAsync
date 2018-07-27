@@ -3,9 +3,8 @@ package com.codelanx.aether.common.input;
 import com.codelanx.aether.common.bot.Aether;
 import com.codelanx.aether.common.bot.AetherCompletableFuture;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Scheduler;
-import com.runemate.game.api.hybrid.Environment;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -65,11 +64,11 @@ public abstract class InputTarget {
             return this.attempt.get();
         } catch (ExecutionException e) {
             Logging.severe("Error while attempting user input");
-            Logging.severe(Reflections.stackTraceToString(e));
+            Logging.severe(Readable.stackTraceToString(e));
             return false;
         } catch (InterruptedException e) {
             Logging.severe("Error while attempting user input");
-            Logging.severe(Reflections.stackTraceToString(e));
+            Logging.severe(Readable.stackTraceToString(e));
             Aether.getBot().stop();
             return false;
         }

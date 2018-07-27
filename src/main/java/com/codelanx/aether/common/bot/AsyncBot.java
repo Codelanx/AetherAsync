@@ -9,7 +9,7 @@ import com.codelanx.aether.common.cache.Caches;
 import com.codelanx.aether.common.rest.RestLoader;
 import com.codelanx.commons.logging.Debugger;
 import com.codelanx.commons.logging.Logging;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Readable;
 import com.runemate.game.api.script.framework.AbstractBot;
 import com.runemate.game.api.script.framework.tree.TreeBot;
 import com.runemate.game.api.script.framework.tree.TreeTask;
@@ -35,6 +35,7 @@ public abstract class AsyncBot extends AbstractBot {
     }
 
     public AsyncBot(TreeBot old) {
+        this();
         //let's import the old treebot
         TreeTask task = old.createRootTask();
         this.preExistingTasks.add(() -> {
@@ -56,7 +57,7 @@ public abstract class AsyncBot extends AbstractBot {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 Logging.info("Exception while sleeping provided bot thread:");
-                Logging.info(Reflections.stackTraceToString(e));
+                Logging.info(Readable.stackTraceToString(e));
             }
         }
     }
@@ -135,7 +136,7 @@ public abstract class AsyncBot extends AbstractBot {
     }
 
     @Override
-    public void onResume() {
+    public final void onResume() {
         super.onResume();
         this.onBotResume();
         this.scheduler.resume(this);

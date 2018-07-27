@@ -1,0 +1,28 @@
+<manifest>
+    <main-class>com.codelanx.aether.bots.generic.GenericBot</main-class>
+    <name>Aether Generic Testing</name>
+    <tag-line>for when it's too shitty for its own bot</tag-line><!--Max of 50 chars-->
+    <description>more or less a testing bot for quick simple tests not worthy of a standalone</description><!--Max of 110 chars-->
+    <version>0.0.1</version>
+    <compatibility>
+        <game>OSRS</game>
+        <!--game>RS3</game-->
+        <!--Can be used if you absolutely need to disable DarkScape (highly discouraged)-->
+        <!--<disable-game>DARK</disable-game>-->
+    </compatibility>
+    <categories>
+        <category>OTHER</category>
+    </categories>
+    <!--Required to publish on the bot store-->
+    <internal-id>INVALID</internal-id>
+    <!--The rest are optional-->
+    <open-source>false</open-source>
+    <hidden>true</hidden> <!--If you need to hide it from the bot store for maintenance-->
+    <access>private</access>
+    <tags>
+        <tag>Spaghetti</tag>
+    </tags>
+    <resources>
+        <resource>src/main/resources</resource>
+    </resources>
+</manifest>

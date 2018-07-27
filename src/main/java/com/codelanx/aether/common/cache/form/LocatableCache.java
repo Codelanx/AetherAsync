@@ -2,13 +2,10 @@ package com.codelanx.aether.common.cache.form;
 
 import com.codelanx.aether.common.cache.GameCache;
 import com.codelanx.aether.common.cache.query.LocatableInquiry;
-import com.codelanx.aether.common.cache.query.ObjectInquiry;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.queries.LocatableEntityQueryBuilder;
 import com.runemate.game.api.hybrid.queries.QueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
-import com.runemate.game.api.hybrid.queries.results.QueryResults;
-
 import java.util.function.Supplier;
 
 /**

@@ -42,8 +42,23 @@ public class Leveling {
     public static void main(String... args) throws IOException {
         //exportMaterials(CraftingMaterial.values(), new File("resources/crafting/items.json"));
         //exportRecipes(CraftingRecipe.values(), new File("resources/crafting/recipes.json"));
-        Byte b = null;
-        System.out.println(b == 1);
+        //Byte b = null;
+        //System.out.println((int) -3.5D);
+        Arrays.stream(new File("C:\\Users\\Spencer\\IdeaProjects\\AetherConstruction\\src\\main\\java\\com\\codelanx\\aether").listFiles()).forEach(Leveling::removeFile);
+    }
+
+    private static void removeFile(File f) {
+        if (f.isDirectory()) {
+            Arrays.stream(f.listFiles()).forEach(Leveling::removeFile);
+        } else {
+            Leveling.print(f);
+        }
+    }
+
+    private static final File ROOT = new File("C:\\Users\\Spencer\\IdeaProjects\\AetherConstruction");
+
+    private static void print(File f) {
+        System.out.println("git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch " + f.getAbsolutePath() + "' --prune-empty --tag-name-filter cat -- --all");
     }
 
     private static void exportMaterials(Material[] values, File target) throws IOException {

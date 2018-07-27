@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.codelanx.aether</groupId>
-    <artifactId>construction</artifactId>
+    <artifactId>bots</artifactId>
     <version>0.0.1</version>
     <name>AetherBot</name>
     <properties>

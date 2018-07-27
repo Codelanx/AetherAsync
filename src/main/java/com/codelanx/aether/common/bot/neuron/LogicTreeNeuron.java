@@ -6,7 +6,7 @@ import com.codelanx.aether.common.bot.mission.Mission;
 import com.codelanx.aether.common.bot.task.AetherTask;
 import com.codelanx.commons.logging.Logging;
 import com.codelanx.commons.util.OptimisticLock;
-import com.codelanx.commons.util.Reflections;
+import com.codelanx.commons.util.Readable;
 import com.codelanx.commons.util.Scheduler;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.AbstractBot.State;
@@ -116,16 +116,16 @@ public class LogicTreeNeuron extends Neuron {
                     }
                 } catch (ExecutionException e) {
                     this.setLastThought("Error executing task for bot '" + brain.getBot().getClass().getSimpleName() + "':");
-                    Logging.info(Reflections.stackTraceToString(e));
+                    Logging.info(Readable.stackTraceToString(e));
                 } catch (InterruptedException e) {
                     Logging.severe("[Brain] Last task interrupted (shutting down?):");
-                    Logging.info(Reflections.stackTraceToString(e));
+                    Logging.info(Readable.stackTraceToString(e));
                     this.invalidationQueue.clear();
                     brain.getBot().stop();
                     return;
                 } catch (Throwable t) {
                     Logging.info("#BrainDebug totally uncaught exception wtf, how rude");
-                    Logging.info("#BrainDebug ex: " + Reflections.stackTraceToString(t));
+                    Logging.info("#BrainDebug ex: " + Readable.stackTraceToString(t));
                 }
                 this.invalidationQueue.clear();
                 Logging.info("#BrainDebug currentTask check done");
@@ -168,10 +168,10 @@ public class LogicTreeNeuron extends Neuron {
                 state = root.getState().get();
             } catch (ExecutionException e) {
                 Logging.severe("Error retrieving child task:");
-                Logging.severe(Reflections.stackTraceToString(e));
+                Logging.severe(Readable.stackTraceToString(e));
             } catch (InterruptedException e) {
                 Logging.severe("[Brain] Child task interrupted (shutting down?):");
-                Logging.severe(Reflections.stackTraceToString(e));
+                Logging.severe(Readable.stackTraceToString(e));
                 this.invalidationQueue.clear();
                 brain.getBot().stop();
                 return;

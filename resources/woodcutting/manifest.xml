@@ -1,9 +1,8 @@
-<!-- here and below is just for the example -->
 <manifest>
-    <main-class>com.example.mahbots.prayer.BoneBot</main-class>
-    <name>Bone Bot</name>
-    <tag-line>Thought it was BoneBot, keeps picking up bananas</tag-line><!--Max of 50 chars-->
-    <description>An example bot manifest for running with maven</description><!--Max of 110 chars-->
+    <main-class>com.codelanx.aether.bots.generic.GenericBot</main-class>
+    <name>Aether American Psycho</name>
+    <tag-line>Maybe a (de)construction bot.</tag-line><!--Max of 50 chars-->
+    <description>hoists my shitcode while I navigate the sea of runemate docs</description><!--Max of 110 chars-->
     <version>0.0.1</version>
     <compatibility>
         <game>OSRS</game>
@@ -12,7 +11,7 @@
         <!--<disable-game>DARK</disable-game>-->
     </compatibility>
     <categories>
-        <category>PRAYER</category>
+        <category>WOODCUTTING</category>
     </categories>
     <!--Required to publish on the bot store-->
     <internal-id>INVALID</internal-id>
@@ -24,6 +23,6 @@
         <tag>Spaghetti</tag>
     </tags>
     <resources>
-        <resource>/resources</resource>
+        <resource>src/main/resources</resource>
     </resources>
 </manifest>
